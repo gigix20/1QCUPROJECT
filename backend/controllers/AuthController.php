@@ -1,20 +1,18 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/database.php'; // $pdo from database.php
+require_once __DIR__ . '/../config/database.php'; 
 require_once __DIR__ . '/../services/MailService.php';
 
 $pdo = $conn;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /IMPROJ/views/signup.php");
+    header("Location: /1QCUPROJECT/views/signup.php");
     exit;
 }
 
 $action = $_POST['action'] ?? '';
 
-// ==============================
 // REGISTER
-// ==============================
 if ($action === 'register') {
 
     $full_name   = trim($_POST['full_name']);
@@ -25,12 +23,12 @@ if ($action === 'register') {
     $password_confirmation = $_POST['password_confirmation'] ?? '';
 
     if (empty($full_name) || empty($email) || empty($department) || empty($employee_id) || empty($password) || empty($password_confirmation)) {
-        header("Location: /IMPROJ/views/signup.php?error=empty");
+        header("Location: /1QCUPROJECT/views/signup.php?error=empty");
         exit;
     }
 
     if ($password !== $password_confirmation) {
-        header("Location: /IMPROJ/views/signup.php?error=password_mismatch");
+        header("Location: /1QCUPROJECT/views/signup.php?error=password_mismatch");
         exit;
     }
 
@@ -58,10 +56,10 @@ if ($action === 'register') {
 
             $_SESSION['verify_email'] = $email;
             sendOtpEmail($email, $otp);
-            header("Location: /IMPROJ/views/verify_email.php");
+            header("Location: /1QCUPROJECT/views/verify_email.php");
             exit;
         } else {
-            header("Location: /IMPROJ/views/signup.php?error=exists");
+            header("Location: /1QCUPROJECT/views/signup.php?error=exists");
             exit;
         }
     }
@@ -77,17 +75,15 @@ if ($action === 'register') {
     $_SESSION['verify_email'] = $email;
     sendOtpEmail($email, $otp);
 
-    header("Location: /IMPROJ/views/verify_email.php");
+    header("Location: /1QCUPROJECT/views/verify_email.php");
     exit;
 }
 
-// ==============================
 // VERIFY OTP
-// ==============================
 if ($action === 'verify_otp') {
 
     if (!isset($_SESSION['verify_email'])) {
-        header("Location: /IMPROJ/views/login.php");
+        header("Location: /1QCUPROJECT/views/login.php");
         exit;
     }
 
@@ -110,21 +106,19 @@ if ($action === 'verify_otp') {
         $update->execute([$email]);
 
         unset($_SESSION['verify_email']);
-        header("Location: /IMPROJ/views/login.php?verified=1");
+        header("Location: /1QCUPROJECT/views/login.php?verified=1");
         exit;
     }
 
-    header("Location: /IMPROJ/views/verify_email.php?error=invalid");
+    header("Location: /1QCUPROJECT/views/verify_email.php?error=invalid");
     exit;
 }
 
-// ==============================
 // RESEND OTP
-// ==============================
 if ($action === 'resend_otp') {
 
     if (!isset($_SESSION['verify_email'])) {
-        header("Location: /IMPROJ/views/login.php");
+        header("Location: /1QCUPROJECT/views/login.php");
         exit;
     }
 
@@ -143,6 +137,6 @@ if ($action === 'resend_otp') {
 
     sendOtpEmail($email, $otp);
 
-    header("Location: /IMPROJ/views/verify_email.php?resent=1");
+    header("Location: /1QCUPROJECT/views/verify_email.php?resent=1");
     exit;
 }

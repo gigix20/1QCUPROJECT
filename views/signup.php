@@ -40,7 +40,7 @@
         </div>
     <?php endif; ?>
 
-  <form action="/IMPROJ/backend/controllers/AuthController.php" method="POST" id="signup-form" class="signup-form" autocomplete="off">
+  <form action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST" id="signup-form" class="signup-form" autocomplete="off">
 
       <input type="hidden" name="action" value="register">
 

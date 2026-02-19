@@ -8,7 +8,6 @@
 </head>
 
 <style>
-
     h1 {
         display: flex;
         justify-content: center;
@@ -17,7 +16,7 @@
 <!-- DELETE THIS STYLE PART AND MOVE IT TO styles/ folder  -->
 <body>
     
-    <h1>THIS THE LANDING PAGE :)</h1>
+    <h1>THIS THE LANDING PAGE O_O</h1>
 
 </body>
 </html>

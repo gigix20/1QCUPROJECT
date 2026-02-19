@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // if OTP is correct → mark user as verified
+    // if OTP is correct → mark user as verified (is_verified: 0 = 1)
     $stmt = $pdo->prepare("UPDATE users SET is_verified = 1, otp_code = NULL, otp_expires_at = NULL WHERE email = ?");
     $stmt->execute([$email]);
 

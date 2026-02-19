@@ -14,7 +14,7 @@ try {
 
     echo "Connection successful!<br>";
 
-    // Test query
+    // Test query (should show users data if there are any on the DB)
     $stmt = $conn->query("SELECT * FROM USERS WHERE ROWNUM <= 1");
 
     if ($stmt) {

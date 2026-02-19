@@ -47,7 +47,7 @@
 
       <form
         id="login-form"
-        action="/IMPROJ/backend/controllers/LoginController.php"
+        action="/1QCUPROJECT/backend/controllers/LoginController.php"
         method="POST"
       >
         <div class="form-group">

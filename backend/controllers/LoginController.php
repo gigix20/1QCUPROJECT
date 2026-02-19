@@ -1,11 +1,11 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/database.php'; // defines $pdo
+require_once __DIR__ . '/../config/database.php'; 
 
 $pdo = $conn;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /IMPROJ/views/login.php");
+    header("Location: /1QCUPROJECT/views/login.php");
     exit;
 }
 
@@ -14,7 +14,7 @@ $password = $_POST['password'] ?? '';
 
 // Check for empty fields
 if (empty($email) || empty($password)) {
-    header("Location: /IMPROJ/views/login.php?error=empty");
+    header("Location: /1QCUPROJECT/views/login.php?error=empty");
     exit;
 }
 
@@ -25,14 +25,14 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // User not found or password incorrect
 if (!$user || !password_verify($password, $user['PASSWORD'])) {
-    header("Location: /IMPROJ/views/login.php?error=invalid");
+    header("Location: /1QCUPROJECT/views/login.php?error=invalid");
     exit;
 }
 
 // User exists but not verified
 if ($user['IS_VERIFIED'] == 0) {
     $_SESSION['verify_email'] = $email;
-    header("Location: /IMPROJ/views/verify_email.php?error=unverified");
+    header("Location: /1QCUPROJECT/views/verify_email.php?error=unverified");
     exit;
 }
 
@@ -40,5 +40,5 @@ if ($user['IS_VERIFIED'] == 0) {
 $_SESSION['user_id']   = $user['USER_ID'];
 $_SESSION['full_name'] = $user['FULL_NAME'];
 
-header("Location: /IMPROJ/views/landing_page.php?login=success");
+header("Location: /1QCUPROJECT/views/landing_page.php?login=success");
 exit;

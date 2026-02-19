@@ -1,6 +1,6 @@
 console.log("login.js Loaded"); // Debug
 
-// Pasword visi toggle
+// Pasword visibility toggle
 
 function togglePassword(fieldId, icon) {
     const input = document.getElementById(fieldId);

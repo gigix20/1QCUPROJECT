@@ -1,0 +1,41 @@
+-- Create sequence for auto-increment user_id
+CREATE SEQUENCE users_seq
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE;
+
+-- Create users table
+CREATE TABLE users (
+  user_id NUMBER(11) PRIMARY KEY,
+  full_name VARCHAR2(255) NOT NULL,
+  email VARCHAR2(255) NOT NULL UNIQUE,
+  department VARCHAR2(255) NOT NULL,
+  employee_id VARCHAR2(100) NOT NULL UNIQUE,
+  password VARCHAR2(255) NOT NULL,
+  is_verified NUMBER(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  otp_code VARCHAR2(255),
+  otp_expires_at TIMESTAMP
+);
+
+-- Trigger to automatically populate user_id and update `updated_at`
+CREATE OR REPLACE TRIGGER users_before_insert
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+  IF :NEW.user_id IS NULL THEN
+    SELECT users_seq.NEXTVAL INTO :NEW.user_id FROM dual;
+  END IF;
+  :NEW.created_at := CURRENT_TIMESTAMP;
+  :NEW.updated_at := CURRENT_TIMESTAMP;
+END;
+/
+
+CREATE OR REPLACE TRIGGER users_before_update
+BEFORE UPDATE ON users
+FOR EACH ROW
+BEGIN
+  :NEW.updated_at := CURRENT_TIMESTAMP;
+END;
+/

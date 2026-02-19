@@ -1,2 +1,0 @@
-ALTER TABLE users
-MODIFY otp_code VARCHAR(255) NULL;

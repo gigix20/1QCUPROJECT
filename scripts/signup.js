@@ -16,10 +16,9 @@ function togglePassword(fieldId, icon) {
 document.addEventListener("DOMContentLoaded", function() {
     const alertBox = document.getElementById('signup-alert');
     if (alertBox) {
-        // Show alert
+
         alertBox.classList.add('show');
 
-        // Hide after 3 seconds
         setTimeout(() => {
             alertBox.classList.remove('show');
         }, 3000);
