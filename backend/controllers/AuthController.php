@@ -171,7 +171,7 @@ if ($action === 'verify_otp') {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Account verified successfully',
+            'message' => 'Your account has been verified! Redirecting you to login...',
             'redirect' => '/1QCUPROJECT/views/login.php?verified=1'
         ]);
         exit;

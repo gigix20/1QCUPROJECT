@@ -27,7 +27,6 @@
     <div class="right-panel">
       <h2>1QCU Inventory</h2>
 
-    <!-- ALERT DIV ALWAYS PRESENT FOR JS -->
     <div id="login-alert" class="alert" style="display:none;">
       <?php if (isset($_GET['error'])): ?>
         <?php
