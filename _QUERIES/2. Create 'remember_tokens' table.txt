@@ -1,0 +1,25 @@
+CREATE TABLE remember_tokens (
+    id NUMBER NOT NULL,
+    user_id NUMBER NOT NULL,
+    token_hash VARCHAR2(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    CONSTRAINT remember_tokens_pk PRIMARY KEY (id)
+);
+
+CREATE SEQUENCE remember_tokens_seq
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+
+CREATE OR REPLACE TRIGGER remember_tokens_bi
+BEFORE INSERT ON remember_tokens
+FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        SELECT remember_tokens_seq.NEXTVAL
+        INTO :NEW.id
+        FROM dual;
+    END IF;
+END;
+/

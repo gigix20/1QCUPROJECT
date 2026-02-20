@@ -1,0 +1,5 @@
+ALTER TABLE remember_tokens
+ADD CONSTRAINT remember_token_user_fk
+FOREIGN KEY (user_id)
+REFERENCES USERS(USER_ID)
+ON DELETE CASCADE;

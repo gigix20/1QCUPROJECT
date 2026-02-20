@@ -15,18 +15,51 @@ function togglePassword(fieldId, icon) {
     }
 }
 
-// Message Pop Up
+// Form submission and alert handling
 
 document.addEventListener("DOMContentLoaded", function() {
-    const alertBox = document.getElementById('login-alert');
-    if (alertBox) {
-        // Show alert
-        alertBox.classList.add('show');
+    const form = document.getElementById('login-form');
+    const alertDiv = document.getElementById('login-alert');
 
-        // Hide after 3 seconds
-        setTimeout(() => {
-            alertBox.classList.remove('show');
-        }, 3000);
-    }
+    if (!form || !alertDiv) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const res = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            const messages = {
+                empty: "Please enter both email and password.",
+                invalid: "Incorrect email or passwords.",
+                unverified: "Your account is not verified. Check your email for the OTP.",
+                invalid_request: "Invalid request."
+            };
+
+            alertDiv.textContent = messages[data.error] || "Unknown error occurred.";
+            alertDiv.style.display = 'block';
+            alertDiv.classList.remove('show');
+            void alertDiv.offsetWidth;         
+            alertDiv.classList.add('show');   
+
+            // hide after 3 seconds
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+
+                // Redirect to verify_email page if account is unverified
+                if (data.error === 'unverified') {
+                    window.location.href = '/1QCUPROJECT/views/verify_email.php';
+                }
+            }, 3000);
+        }
+    });
 });
-

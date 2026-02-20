@@ -27,8 +27,9 @@
     <div class="right-panel">
       <h2>1QCU Inventory</h2>
 
-    <?php if (isset($_GET['error'])): ?>
-      <div id="login-alert" class="alert">
+    <!-- ALERT DIV ALWAYS PRESENT FOR JS -->
+    <div id="login-alert" class="alert" style="display:none;">
+      <?php if (isset($_GET['error'])): ?>
         <?php
           switch($_GET['error']) {
             case 'empty':
@@ -42,8 +43,8 @@
               break;
           }
         ?>
-      </div>
-    <?php endif; ?>
+      <?php endif; ?>
+    </div>
 
       <form
         id="login-form"
@@ -81,7 +82,7 @@
         </div>
 
         <div class="options">
-          <label><input type="checkbox" /> Keep me logged in</label>
+          <label><input type="checkbox" name="remember_me" /> Keep me logged in</label>
           <a href="#">Forgot password?</a>
         </div>
 

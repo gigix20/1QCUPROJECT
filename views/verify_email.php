@@ -40,9 +40,9 @@ $email = $_SESSION['verify_email'];
       <strong><?php echo htmlspecialchars($email); ?></strong>
     </p>
 
-    <form action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST" class="signup-form" autocomplete="off">
+    <form name="verify_otp" action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST" class="signup-form" autocomplete="off">
       
-      <input type="hidden" name="action" value="verify_otp">
+      <input type="hidden" name="form_action" value="verify_otp">
 
       <div style="margin-bottom:20px;">
         <label for="otp">Enter OTP Code</label>
@@ -53,8 +53,8 @@ $email = $_SESSION['verify_email'];
     </form>
 
     <div style="margin-top:15px;">
-      <form action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST">
-        <input type="hidden" name="action" value="resend_otp">
+      <form name="resend_otp" action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST">
+        <input type="hidden" name="form_action" value="resend_otp">
         <button type="submit" class="btn-secondary">Resend OTP</button>
       </form>
     </div>
@@ -64,6 +64,8 @@ $email = $_SESSION['verify_email'];
     </div>
 
   </div>
+
+  <script src="../scripts/verify_email.js"></script>
 
 </body>
 </html>

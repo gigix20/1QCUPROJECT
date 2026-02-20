@@ -22,27 +22,11 @@
     <div class="right-panel">
       <h2>Create Your Account</h2>
 
-    <?php if (isset($_GET['error'])): ?>
-        <div id="signup-alert" class="alert">
-            <?php
-            switch($_GET['error']) {
-                case 'empty':
-                echo "Please fill in all required fields.";
-                break;
-                case 'password_mismatch':
-                echo "Passwords do not match.";
-                break;
-                case 'exists':
-                echo "Email or Employee ID already exists.";
-                break;
-            }
-            ?>
-        </div>
-    <?php endif; ?>
+      <div id="signup-alert" class="alert" style="display:none;"></div>
 
   <form action="/1QCUPROJECT/backend/controllers/AuthController.php" method="POST" id="signup-form" class="signup-form" autocomplete="off">
 
-      <input type="hidden" name="action" value="register">
+      <input type="hidden" name="form_action" value="register">
 
       <div class="grid-2x2">
           <div style="grid-column: 1 / -1">

@@ -1,20 +1,25 @@
-
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $dsn = 'odbc:OracleXE';      
-$username = 'rico';        // Replace with your created user in sql developer
-$password = '1234';        // Password for that new user you created
+$username = 'rico';        
+$password = '1234';        
 
 try {
+    // Create PDO connection
     $conn = new PDO($dsn, $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    echo "Connection successful!<br>";
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
 
-    // Test query (should show users data if there are any on the DB)
+// Test function
+function testConnection(PDO $conn) {
+    echo "Database Connection Successful!<br>";
+
     $stmt = $conn->query("SELECT * FROM USERS WHERE ROWNUM <= 1");
 
     if ($stmt) {
@@ -28,7 +33,4 @@ try {
     } else {
         echo "Query returned false.";
     }
-
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
 }
