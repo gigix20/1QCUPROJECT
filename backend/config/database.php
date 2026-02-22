@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $dsn = 'odbc:OracleXE';      
-$username = 'rico';        
+$username = 'rico';       // Replace these with you current user/schema on ORACLE db 
 $password = '1234';        
 
 try {

@@ -40,9 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       const messages = {
         empty: "Please enter both email and password.",
-        invalid: "Incorrect email or passwords.",
+        invalid: "Incorrect email or password.",
         unverified:
-          "Your account is not verified. Check your email for the OTP.",
+          "Please verify your email to continue.",
         invalid_request: "Invalid request.",
       };
 
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alertDiv.classList.remove("show");
 
         if (data.error === "unverified") {
-          window.location.href = "/1QCUPROJECT/views/verify_email.php";
+          window.location.href = "/1QCUPROJECT/views/auth/verify_email.php";
         }
       }, 3000);
     }
