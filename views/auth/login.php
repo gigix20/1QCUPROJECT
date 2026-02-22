@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Comprehensive Asset Management - QCU</title>
-    <link rel="stylesheet" href="../styles/login.css" />
-    <link rel="stylesheet" href="../styles/global.css" />
+    <link rel="stylesheet" href="../../styles/auth/login.css" />
+    <link rel="stylesheet" href="../../styles/global.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -16,7 +16,7 @@
     <!-- Left side -->
     <div class="left-panel">
       <div class="logo">
-        <img src="../assets/img/mainlogo.png" alt="QCU Logo" />
+        <img src="../../assets/img/mainlogo.png" alt="QCU Logo" />
       </div>
       <h1>
         Unified Asset Management and Inventory System For Quezon City University
@@ -91,7 +91,7 @@
         </p>
       </form>
 
-      <script src="../scripts/login.js"></script>
+      <script src="../../scripts/auth/login.js"></script>
     </div>
   </body>
 </html>

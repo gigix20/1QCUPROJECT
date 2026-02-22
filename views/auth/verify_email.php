@@ -15,8 +15,8 @@ $email = $_SESSION['verify_email'];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verify Email - QCU Asset Management</title>
-  <link rel="stylesheet" href="../styles/global.css">
-  <link rel="stylesheet" href="../styles/verify_email.css">
+  <link rel="stylesheet" href="../../styles/global.css">
+  <link rel="stylesheet" href="../../styles/auth/verify_email.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -24,7 +24,7 @@ $email = $_SESSION['verify_email'];
   <!-- Left side -->
   <div class="left-panel">
     <div class="logo">
-      <img src="../assets/img/mainlogo.png" alt="QCU Logo">
+      <img src="../../assets/img/mainlogo.png" alt="QCU Logo">
     </div>
     <h1>Email Verification</h1>
     <p>Please enter the verification code sent to your email address to activate your account.</p>
@@ -68,7 +68,7 @@ $email = $_SESSION['verify_email'];
 
   </div>
 
-  <script src="../scripts/verify_email.js"></script>
+  <script src="../../scripts/auth/verify_email.js"></script>
 
 </body>
 </html>

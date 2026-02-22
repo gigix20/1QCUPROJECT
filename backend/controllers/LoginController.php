@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         echo json_encode(['success' => false, 'error' => 'invalid_request']);
         exit;
     }
-    header("Location: /1QCUPROJECT/views/login.php");
+    header("Location: /1QCUPROJECT/views/auth/login.php");
     exit;
 }
 
@@ -27,7 +27,7 @@ if (empty($email) || empty($password)) {
         echo json_encode(['success' => false, 'error' => 'empty']);
         exit;
     }
-    header("Location: /1QCUPROJECT/views/login.php?error=empty");
+    header("Location: /1QCUPROJECT/views/auth/login.php?error=empty");
     exit;
 }
 
@@ -42,7 +42,7 @@ if (!$user || !password_verify($password, $user['PASSWORD'])) {
         echo json_encode(['success' => false, 'error' => 'invalid']);
         exit;
     }
-    header("Location: /1QCUPROJECT/views/login.php?error=invalid");
+    header("Location: /1QCUPROJECT/views/auth/login.php?error=invalid");
     exit;
 }
 
@@ -53,7 +53,7 @@ if ($user['IS_VERIFIED'] == 0) {
         echo json_encode(['success' => false, 'error' => 'unverified']);
         exit;
     }
-    header("Location: /1QCUPROJECT/views/verify_email.php?error=unverified");
+    header("Location: /1QCUPROJECT/views/auth/verify_email.php?error=unverified");
     exit;
 }
 
@@ -89,9 +89,9 @@ if ($remember) {
 
 // Respond
 if ($isAjax) {
-    echo json_encode(['success' => true, 'redirect' => '/1QCUPROJECT/views/landing_page.php']);
+    echo json_encode(['success' => true, 'redirect' => '/1QCUPROJECT/views/staff/landing_page.php']);
     exit;
 }
 
-header("Location: /1QCUPROJECT/views/landing_page.php?login=success");
+header("Location: /1QCUPROJECT/views/staff/landing_page.php?login=success");
 exit;

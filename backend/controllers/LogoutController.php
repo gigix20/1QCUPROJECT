@@ -21,5 +21,5 @@ session_unset();
 session_destroy();
 
 // Redirect to login page
-header("Location: /1QCUPROJECT/views/login.php");
+header("Location: /1QCUPROJECT/views/auth/login.php");
 exit;

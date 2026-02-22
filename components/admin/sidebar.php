@@ -11,7 +11,7 @@
     <ul class="menu">
         <li class="<?= ($currentPage === 'dashboard') ? 'active' : '' ?>">
             <span class="menu-icon">▣</span>
-            <a href="landing_page.php">Dashboard</a>
+            <a href="dashboard.php">Dashboard</a>
         </li>
 
         <li class="<?= ($currentPage === 'assets') ? 'active' : '' ?>">

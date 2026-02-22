@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up - QCU Asset Management</title>
-  <link rel="stylesheet" href="../styles/global.css">
-  <link rel="stylesheet" href="../styles/signup.css">
+  <link rel="stylesheet" href="../../styles/global.css">
+  <link rel="stylesheet" href="../../styles/auth/signup.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
@@ -13,7 +13,7 @@
     <!-- Left side -->
     <div class="left-panel">
       <div class="logo">
-        <img src="../assets/img/mainlogo.png" alt="QCU Logo">
+        <img src="../../assets/img/mainlogo.png" alt="QCU Logo">
       </div>
       <h1>Join Comprehensive Asset Management<br>For Quezon City University</h1>
     </div>
@@ -79,6 +79,6 @@
       </div>
   </form>
 
-<script src="../scripts/signup.js"></script>
+<script src="../../scripts/auth/signup.js"></script>
 </body>
 </html>

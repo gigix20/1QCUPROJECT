@@ -11,7 +11,7 @@ $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /1QCUPROJECT/views/signup.php");
+    header("Location: /1QCUPROJECT/views/auth/signup.php");
     exit;
 }
 
@@ -35,7 +35,7 @@ if ($action === 'register') {
             exit;
         }
 
-        header("Location: /1QCUPROJECT/views/signup.php?error=empty");
+        header("Location: /1QCUPROJECT/views/auth/signup.php?error=empty");
         exit;
     }
 
@@ -47,7 +47,7 @@ if ($action === 'register') {
             exit;
         }
 
-        header("Location: /1QCUPROJECT/views/signup.php?error=password_mismatch");
+        header("Location: /1QCUPROJECT/views/auth/signup.php?error=password_mismatch");
         exit;
     }
 
@@ -97,12 +97,12 @@ if ($action === 'register') {
             if ($isAjax) {
                 echo json_encode([
                     'success' => true,
-                    'redirect' => '/1QCUPROJECT/views/verify_email.php'
+                    'redirect' => '/1QCUPROJECT/views/auth/verify_email.php'
                 ]);
                 exit;
             }
     
-            header("Location: /1QCUPROJECT/views/verify_email.php");
+            header("Location: /1QCUPROJECT/views/auth/verify_email.php");
             exit;
         }
     
@@ -112,7 +112,7 @@ if ($action === 'register') {
             exit;
         }
     
-        header("Location: /1QCUPROJECT/views/signup.php?error=exists");
+        header("Location: /1QCUPROJECT/views/auth/signup.php?error=exists");
         exit;
     }
 
@@ -130,12 +130,12 @@ if ($action === 'register') {
     if ($isAjax) {
         echo json_encode([
             'success' => true,
-            'redirect' => '/1QCUPROJECT/views/verify_email.php'
+            'redirect' => '/1QCUPROJECT/views/auth/verify_email.php'
         ]);
         exit;
     }
 
-    header("Location: /1QCUPROJECT/views/verify_email.php");
+    header("Location: /1QCUPROJECT/views/auth/verify_email.php");
     exit;
 }
 
@@ -172,7 +172,7 @@ if ($action === 'verify_otp') {
         echo json_encode([
             'success' => true,
             'message' => 'Your account has been verified! Redirecting you to login...',
-            'redirect' => '/1QCUPROJECT/views/login.php?verified=1'
+            'redirect' => '/1QCUPROJECT/views/auth/login.php?verified=1'
         ]);
         exit;
 

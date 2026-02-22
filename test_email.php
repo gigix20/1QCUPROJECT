@@ -28,5 +28,5 @@ try {
     echo "Mail error: " . $e->getMessage();
 }
 
-// This is to test if email sending works
-// To run type in the browser: localhost/IMPROJ/test_email.php
+// This file is to test if email sending works
+// To run, type in the browser: localhost/1QCUPROJECT/test_email.php

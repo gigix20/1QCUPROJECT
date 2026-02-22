@@ -1,25 +1,16 @@
-<?php
-require_once __DIR__ . '/../backend/auth.php';
-
-// If user is not logged in, redirect user to login.php
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /1QCUPROJECT/views/login.php");
-    exit;
-}
-?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU - Dashboard</title>
-  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../../styles/admin/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <?php $currentPage = 'dashboard'; ?>
-<?php require __DIR__ . '/../components/sidebar.php'; ?>
+<?php require __DIR__ . '/../../components/admin/sidebar.php'; ?>
 
   <div class="main">
     <div class="topbar">
@@ -78,6 +69,6 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <script src="../scripts/pages_script.js"></script>
+  <script src="../../scripts/admin/pages_script.js"></script>
 </body>
 </html>

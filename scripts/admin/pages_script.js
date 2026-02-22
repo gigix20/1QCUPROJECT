@@ -1,6 +1,4 @@
-// ===========================
 // FILTER TABS
-// ===========================
 document.querySelectorAll('.filter-tabs').forEach(function(group) {
   group.querySelectorAll('.filter-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
@@ -12,10 +10,7 @@ document.querySelectorAll('.filter-tabs').forEach(function(group) {
   });
 });
 
-
-// ===========================
-// SETTINGS NAV (settings.html only)
-// ===========================
+// SETTINGS SETTINGS
 var settingsNavItems = document.querySelectorAll('.settings-nav-item');
 var settingsPanels   = document.querySelectorAll('.settings-panel-content');
 
@@ -30,7 +25,7 @@ settingsNavItems.forEach(function(item) {
   });
 });
 
-// Save Changes button (settings.html only)
+// SETTINGS SAVE
 var saveBtn = document.getElementById('saveSettingsBtn');
 if (saveBtn) {
   saveBtn.addEventListener('click', function() {
@@ -39,9 +34,7 @@ if (saveBtn) {
 }
 
 
-// ===========================
 // MODAL FUNCTIONS
-// ===========================
 function openModal(id) {
   var modal = document.getElementById(id);
   if (modal) modal.classList.add('active');
