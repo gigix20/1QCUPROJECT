@@ -82,7 +82,7 @@
 
         <div class="options">
           <label><input type="checkbox" name="remember_me" /> Keep me logged in</label>
-          <a href="#">Forgot password?</a>
+          <a href="forgot_password.php">Forgot password?</a>
         </div>
 
         <button type="submit">Log In</button>
