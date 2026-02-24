@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ONEQCU - Dashboard</title>
+  <title>ONEQCU | Homepage</title>
   <link rel="stylesheet" href="#">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>

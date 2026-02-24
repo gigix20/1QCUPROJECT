@@ -29,20 +29,19 @@ body {
   gap: 24px;
 }
 
-.logo {
-  position: relative;
-  display: inline-flex;
+.icon-shield {
+  width: 90px;
+  height: 90px;
+  display: flex;
   align-items: center;
   justify-content: center;
+  animation: logoFloat 5s ease-in-out infinite;
 }
 
-.left-panel img {
-  width: 200px;
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 0 18px rgba(0, 255, 255, 0.7))
-    drop-shadow(0 0 40px rgba(0, 255, 255, 0.3));
-  animation: logoFloat 5s ease-in-out infinite;
+.icon-shield svg {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 0 18px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 40px rgba(0, 255, 255, 0.3));
 }
 
 @keyframes logoFloat {
@@ -74,6 +73,7 @@ body {
   max-width: 460px;
   letter-spacing: 0.02em;
   line-height: 1.65;
+  opacity: 0.75;
 }
 
 /* Divider panel */

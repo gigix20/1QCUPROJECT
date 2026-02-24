@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Comprehensive Asset Management - QCU</title>
+    <title>ONEQCU</title>
     <link rel="stylesheet" href="../../styles/auth/login.css" />
     <link rel="stylesheet" href="../../styles/global.css" />
     <link
