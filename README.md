@@ -6,3 +6,9 @@ Email Verification and OTP Sending ✔️
 Keep Me Logged In / Remember Me ✔️  
 Forgot Password ✔️
 
+Front End Checklist:
+Staff side ✔️
+
+Note:
+Staff side = operational use
+Admin side = structural control
