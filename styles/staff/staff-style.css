@@ -397,6 +397,22 @@ body {
 
 .edit-btn:hover { border-color: #16a34a; color: #16a34a; }
 
+.return-btn {
+  padding: 5px 14px;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 11px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  transition: border-color 0.2s, color 0.2s;
+  margin-right: 4px;
+}
+
+.return-btn:hover { border-color: #0369a1; color: #0369a1; }
+
 /* QR Tag in table */
 .qr-tag {
   font-family: monospace;
@@ -555,20 +571,41 @@ body {
 .form-group label { font-size: 11px; font-weight: 600; color: #888; letter-spacing: 0.8px; text-transform: uppercase; }
 
 .form-group input,
-.form-group select {
-  padding: 10px 13px;
+.form-group select,
+.form-full select {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   font-size: 13px;
   font-family: 'Outfit', sans-serif;
   color: #333;
   outline: none;
-  transition: border-color 0.2s;
-  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+/* Inputs — no custom arrow */
+.form-group input { padding: 10px 13px; background: #fff; }
+
+/* Selects — custom purple arrow, no native arrow */
+.form-group select,
+.form-full select {
+  padding: 10px 36px 10px 13px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237c3aed' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 13px center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
 }
 
 .form-group input:focus,
-.form-group select:focus { border-color: #7c3aed; }
+.form-group select:focus,
+.form-full select:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+
+.form-group select:hover,
+.form-full select:hover { border-color: #a78bfa; }
 
 .form-group input[readonly] { background: #f7f5ff; color: #6d28d9; font-family: monospace; font-size: 12px; }
 
@@ -698,3 +735,63 @@ body {
 }
 
 .toast.show { transform: translateY(0); opacity: 1; }
+
+/* ===========================
+   DEPARTMENTS MODULE
+=========================== */
+.req {
+  color: #dc2626;
+  margin-left: 1px;
+}
+
+.dept-modal {
+  width: 580px;
+  max-width: 96vw;
+  padding: 28px 30px 26px;
+}
+
+.dept-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dept-modal-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: #a78bfa;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+
+.dept-modal-x {
+  background: none;
+  border: none;
+  font-size: 17px;
+  color: #999;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 5px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.dept-modal-x:hover { color: #dc2626; background: #fee2e2; }
+
+.dept-form-error {
+  font-size: 12px;
+  color: #dc2626;
+  min-height: 16px;
+  margin-top: 2px;
+}
+
+.action-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
+}

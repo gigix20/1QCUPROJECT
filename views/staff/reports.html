@@ -8,6 +8,7 @@
 </head>
 <body>
 
+  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="logo">
       <div class="logo-icon">
@@ -19,12 +20,11 @@
       </div>
     </div>
     <ul class="menu">
-      <li><span class="menu-icon">▣</span><a href="dashboard.html">Dashboard</a></li>
-      <li><span class="menu-icon">◈</span><a href="assets.html">Assets</a></li>
-      <li><span class="menu-icon">⇄</span><a href="borrow.html">Borrow/Return</a></li>
-      <li><span class="menu-icon">⚙</span><a href="maintenance.html">Maintenance</a></li>
-      <li class="active"><span class="menu-icon">📊</span><a href="reports.html">Reports</a></li>
-      <li><span class="menu-icon">🏢</span><a href="departments.html">Departments</a></li>
+      <li><span class="menu-icon">&#9635;</span><a href="dashboard.html">Dashboard</a></li>
+      <li><span class="menu-icon">&#10792;</span><a href="assets.html">Assets</a></li>
+      <li><span class="menu-icon">&#8644;</span><a href="borrow.html">Borrow/Return</a></li>
+      <li><span class="menu-icon">&#9881;</span><a href="maintenance.html">Maintenance</a></li>
+      <li class="active"><span class="menu-icon">&#128202;</span><a href="reports.html">Reports</a></li>
     </ul>
     <div class="admin-user">
       <div class="avatar">SU</div>
@@ -35,54 +35,77 @@
     </div>
   </div>
 
+  <!-- MAIN -->
   <div class="main">
+
     <div class="topbar">
       <div>
-        <h1 class="page-title">REPORTS AND ANALYTICS</h1>
+        <h1 class="page-title">REPORTS &amp; ANALYTICS</h1>
         <p class="page-sub">Generate comprehensive asset reports</p>
       </div>
       <div class="topbar-actions">
-        <button class="outline-btn">SCHEDULE REPORT</button>
-        <button class="add-btn">+ CUSTOM REPORT</button>
+        <button class="outline-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
+        <button class="add-btn" id="customReportBtn">+ CUSTOM REPORT</button>
       </div>
     </div>
 
+    <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-label">Reports Generated</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value" id="statReportsGenerated">0</div>
         <div class="stat-sub">This month</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Scheduled Reports</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value" id="statScheduled">0</div>
         <div class="stat-sub">Automated reports</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Report Templates</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value" id="statTemplates">6</div>
         <div class="stat-sub green">Available templates</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Total Downloads</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value" id="statDownloads">0</div>
         <div class="stat-sub">All time</div>
       </div>
     </div>
 
+    <!-- Report Templates -->
     <div class="table-section">
       <h2 class="section-title">REPORT TEMPLATES</h2>
       <div class="report-grid">
-        <div class="report-card">COMPLETE ASSET INVENTORY</div>
-        <div class="report-card">ASSET BY DEPARTMENT</div>
-        <div class="report-card">MAINTENANCE COST ANALYSIS</div>
-        <div class="report-card">OVERDUE ITEMS REPORT</div>
-        <div class="report-card">BORROWING ACTIVITY REPORT</div>
-        <div class="report-card">ASSET UTILIZATION REPORT</div>
+        <div class="report-card" onclick="generateReport('Complete Asset Inventory')">
+          <div style="font-size:22px; margin-bottom:8px;">&#128230;</div>
+          COMPLETE ASSET INVENTORY
+        </div>
+        <div class="report-card" onclick="generateReport('Asset by Department')">
+          <div style="font-size:22px; margin-bottom:8px;">&#127970;</div>
+          ASSET BY DEPARTMENT
+        </div>
+        <div class="report-card" onclick="generateReport('Maintenance Cost Analysis')">
+          <div style="font-size:22px; margin-bottom:8px;">&#128295;</div>
+          MAINTENANCE COST ANALYSIS
+        </div>
+        <div class="report-card" onclick="generateReport('Overdue Items Report')">
+          <div style="font-size:22px; margin-bottom:8px;">&#9888;</div>
+          OVERDUE ITEMS REPORT
+        </div>
+        <div class="report-card" onclick="generateReport('Borrowing Activity Report')">
+          <div style="font-size:22px; margin-bottom:8px;">&#8644;</div>
+          BORROWING ACTIVITY REPORT
+        </div>
+        <div class="report-card" onclick="generateReport('Asset Utilization Report')">
+          <div style="font-size:22px; margin-bottom:8px;">&#128202;</div>
+          ASSET UTILIZATION REPORT
+        </div>
       </div>
     </div>
 
-    <div class="table-section" style="margin-top: 20px;">
+    <!-- Recent Reports Table -->
+    <div class="table-section" style="margin-top:20px;">
       <h2 style="font-size:15px; font-weight:600; margin-bottom:16px;">Recent Reports</h2>
       <table class="asset-table">
         <thead>
@@ -95,14 +118,173 @@
             <th>ACTIONS</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="reportsTableBody">
           <tr class="empty-row">
             <td colspan="6">No reports to display.</td>
           </tr>
         </tbody>
       </table>
     </div>
+
   </div>
+
+  <!-- ========================
+       CUSTOM REPORT MODAL
+  ========================= -->
+  <div class="modal-overlay" id="customReportModal">
+    <div class="modal">
+      <div class="modal-title">Custom Report</div>
+      <div class="modal-divider"></div>
+
+      <div class="modal-section-label">REPORT DETAILS</div>
+
+      <div class="form-full">
+        <label>Report Name <span style="color:#dc2626;font-weight:700;">*</span></label>
+        <input type="text" id="reportName" placeholder="e.g. Q1 Asset Summary">
+      </div>
+
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Report Type <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <select id="reportType">
+            <option value="">-- Select Type --</option>
+            <option>Asset Inventory</option>
+            <option>Maintenance</option>
+            <option>Borrow/Return</option>
+            <option>Department Summary</option>
+            <option>Utilization</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Format</label>
+          <select id="reportFormat">
+            <option value="PDF">PDF</option>
+            <option value="Excel">Excel</option>
+            <option value="CSV">CSV</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Date From</label>
+          <input type="date" id="reportDateFrom">
+        </div>
+        <div class="form-group">
+          <label>Date To</label>
+          <input type="date" id="reportDateTo">
+        </div>
+      </div>
+
+      <div class="form-full">
+        <label>Department Filter</label>
+        <select id="reportDepartment">
+          <option value="All">All Departments</option>
+          <option>CICS</option>
+          <option>COENG</option>
+          <option>COED</option>
+          <option>CBA</option>
+          <option>CAS</option>
+          <option>CAUP</option>
+          <option>OSAS</option>
+          <option>Admin Office</option>
+          <option>Library</option>
+          <option>IT Department</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn" id="cancelCustomReportBtn">CANCEL</button>
+        <button class="modal-close-btn" id="saveCustomReportBtn">GENERATE REPORT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================
+       SCHEDULE REPORT MODAL
+  ========================= -->
+  <div class="modal-overlay" id="scheduleReportModal">
+    <div class="modal">
+      <div class="modal-title">Schedule Report</div>
+      <div class="modal-divider"></div>
+
+      <div class="modal-section-label">SCHEDULE DETAILS</div>
+
+      <div class="form-full">
+        <label>Report Name <span style="color:#dc2626;font-weight:700;">*</span></label>
+        <input type="text" id="schedReportName" placeholder="e.g. Monthly Asset Summary">
+      </div>
+
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Report Type <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <select id="schedReportType">
+            <option value="">-- Select Type --</option>
+            <option>Asset Inventory</option>
+            <option>Maintenance</option>
+            <option>Borrow/Return</option>
+            <option>Department Summary</option>
+            <option>Utilization</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Frequency <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <select id="schedFrequency">
+            <option value="">-- Select Frequency --</option>
+            <option>Daily</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Quarterly</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Start Date <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <input type="date" id="schedStartDate">
+        </div>
+        <div class="form-group">
+          <label>Format</label>
+          <select id="schedFormat">
+            <option value="PDF">PDF</option>
+            <option value="Excel">Excel</option>
+            <option value="CSV">CSV</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn" id="cancelScheduleBtn">CANCEL</button>
+        <button class="modal-close-btn" id="saveScheduleBtn">SAVE SCHEDULE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================
+       REPORT PREVIEW MODAL
+  ========================= -->
+  <div class="modal-overlay" id="reportPreviewModal">
+    <div class="modal">
+      <div class="modal-title" id="previewReportTitle">Report Preview</div>
+      <div class="modal-divider"></div>
+
+      <div class="modal-info-box" style="text-align:center; padding:32px 20px;">
+        <div style="font-size:40px; margin-bottom:12px;">&#128202;</div>
+        <p style="font-size:14px; font-weight:600; color:#333;" id="previewReportName"></p>
+        <p style="font-size:12px; color:#888; margin-top:6px;" id="previewReportMeta"></p>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
+        <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
   <script src="../../scripts/staff/staff-script.js"></script>
 </body>
