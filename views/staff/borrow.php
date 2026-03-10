@@ -1,5 +1,4 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 <?php
 require_once __DIR__ . '/../../backend/auth.php';
 
@@ -9,14 +8,13 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
-=======
 <?php $activePage = 'borrow'; ?>
 <?php include '../../components/staff/sidebar.php'; ?>
->>>>>>> Stashed changes
-=======
+
+
 <?php $activePage = 'borrow'; ?>
 <?php include '../../components/staff/sidebar.php'; ?>
->>>>>>> Stashed changes
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,16 +26,8 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 
 <body>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-
   <?php $currentPage = 'borrow'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   <!-- MAIN -->
   <div class="main">
 

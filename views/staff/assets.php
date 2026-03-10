@@ -303,7 +303,7 @@ if (!isset($_SESSION['user_id'])) {
   <div class="toast" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="../../scripts/staff/staff_script.js"></script>
+  <script src="../../scripts/staff/staff-assets.js"></script>
 </body>
 
 </html>
