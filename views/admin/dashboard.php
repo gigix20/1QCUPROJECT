@@ -1,16 +1,18 @@
-
+<!-- ADMIN -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU - Dashboard</title>
-  <link rel="stylesheet" href="../../styles/admin/style.css">
+  <link rel="stylesheet" href="../../styles/admin/admin_style.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<?php $currentPage = 'dashboard'; ?>
-<?php require __DIR__ . '/../../components/admin/sidebar.php'; ?>
+  <?php $currentPage = 'dashboard'; ?>
+  <?php require __DIR__ . '/../../components/admin/admin_sidebar.php'; ?>
 
   <div class="main">
     <div class="topbar">
@@ -69,6 +71,7 @@
     </div>
   </div>
 
-  <script src="../../scripts/admin/pages_script.js"></script>
+  <script src="../../scripts/admin/admin_script.js"></script>
 </body>
+
 </html>

@@ -34,6 +34,6 @@ class LoginService {
             $tokenService->createRememberToken($user['USER_ID']);
         }
 
-        return ['success' => true, 'redirect' => '/1QCUPROJECT/views/staff/landing_page.php'];
+        return ['success' => true, 'redirect' => '/1QCUPROJECT/views/staff/dashboard.php'];
     }
 }

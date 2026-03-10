@@ -72,7 +72,7 @@
           <i class="fa-solid fa-eye toggle-icon" onclick="togglePassword('password-confirmation', this)"></i>
       </div>
 
-      <button type="submit" class="btn" style="margin-top:15px;">Send OTP</button>
+      <button type="submit" class="btn" style="margin-top:15px;">Verify Account</button>
 
       <div class="login-link" style="margin-top:10px;">
           Already have an account? <a href="login.php">Login here</a>
