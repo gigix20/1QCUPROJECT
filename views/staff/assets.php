@@ -1,5 +1,6 @@
 <?php
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 require_once __DIR__ . '/../../backend/auth.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -8,6 +9,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
+=======
+$activePage = 'assets';
+include '../../components/staff/sidebar.php';
+?>
+>>>>>>> Stashed changes
 =======
 $activePage = 'assets';
 include '../../components/staff/sidebar.php';
@@ -26,12 +32,16 @@ include '../../components/staff/sidebar.php';
 <body>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <?php $currentPage = 'assets'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
   <!-- ========================
        MAIN CONTENT
   ========================= -->
+=======
+  <!---MAIN CONTENT-->
+>>>>>>> Stashed changes
 =======
   <!---MAIN CONTENT-->
 >>>>>>> Stashed changes
@@ -293,7 +303,11 @@ include '../../components/staff/sidebar.php';
   <div class="toast" id="toast"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <script src="../../scripts/staff/staff_script.js"></script>
+=======
+  <script src="../../scripts/staff/staff-assets.js"></script>
+>>>>>>> Stashed changes
 =======
   <script src="../../scripts/staff/staff-assets.js"></script>
 >>>>>>> Stashed changes

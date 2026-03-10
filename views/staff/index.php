@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <<<<<<<< Updated upstream:views/staff/dashboard.php
 <!-- STAFF -->
 <?php
@@ -14,6 +15,10 @@ if (!isset($_SESSION['user_id'])) {
 <?php $activePage = 'assets'; ?>
 <?php include '../../components/staff/sidebar.php'; ?>
 >>>>>>>> Stashed changes:views/staff/index.php
+=======
+<?php $activePage = 'assets'; ?>
+<?php include '../../components/staff/sidebar.php'; ?>
+>>>>>>> Stashed changes
 <!DOCTYPE html>
 <html lang="en">
 <head>
