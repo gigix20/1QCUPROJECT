@@ -1,4 +1,5 @@
 <?php
+<<<<<<< Updated upstream
 require_once __DIR__ . '/../../backend/auth.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -7,6 +8,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
+=======
+$activePage = 'assets';
+include '../../components/staff/sidebar.php';
+?>
+>>>>>>> Stashed changes
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,12 +25,16 @@ if (!isset($_SESSION['user_id'])) {
 
 <body>
 
+<<<<<<< Updated upstream
   <?php $currentPage = 'assets'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
   <!-- ========================
        MAIN CONTENT
   ========================= -->
+=======
+  <!---MAIN CONTENT-->
+>>>>>>> Stashed changes
   <div class="main">
 
     <!-- Topbar -->
@@ -41,16 +51,17 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- Search -->
     <div class="search-bar-full">
-      <input type="text" id="assetsSearchInput" placeholder="Search by asset ID, description, serial number or department...">
+      <input type="text" id="assetsSearchInput"
+             placeholder="Search by asset ID, description, serial number or department...">
     </div>
 
     <!-- Filter Tabs -->
     <div class="filter-tabs">
-      <button class="filter-tab active">ALL ASSETS</button>
-      <button class="filter-tab">AVAILABLE</button>
-      <button class="filter-tab">IN USE</button>
-      <button class="filter-tab">MAINTENANCE</button>
-      <button class="filter-tab">CERTIFIED</button>
+      <button class="filter-tab active" data-status="ALL">ALL ASSETS</button>
+      <button class="filter-tab" data-status="Available">AVAILABLE</button>
+      <button class="filter-tab" data-status="In Use">IN USE</button>
+      <button class="filter-tab" data-status="Maintenance">MAINTENANCE</button>
+      <button class="filter-tab" data-status="Certified">CERTIFIED</button>
     </div>
 
     <!-- Table -->
@@ -80,9 +91,8 @@ if (!isset($_SESSION['user_id'])) {
 
   </div>
 
-  <!-- ========================
-       ADD ASSET MODAL
-  ========================= -->
+
+  <!------ADD ASSET MODAL------>
   <div class="modal-overlay" id="assetsModalOverlay">
     <div class="modal">
       <div class="modal-title">Add New Asset</div>
@@ -96,7 +106,11 @@ if (!isset($_SESSION['user_id'])) {
           <input type="text" id="assetsAssetId" placeholder="e.g. AST-0001">
         </div>
         <div class="form-group">
-          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(auto-generated)</span></label>
+          <label>QR Code
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (auto-generated)
+            </span>
+          </label>
           <input type="text" id="assetsQrCode" readonly>
         </div>
       </div>
@@ -115,14 +129,6 @@ if (!isset($_SESSION['user_id'])) {
           <label>Category</label>
           <select id="assetsCategory">
             <option value="">-- Select Category --</option>
-            <option>Computer Equipment</option>
-            <option>Office Furniture</option>
-            <option>Audio/Visual</option>
-            <option>Laboratory Equipment</option>
-            <option>Network Equipment</option>
-            <option>Peripherals</option>
-            <option>Vehicles</option>
-            <option>Others</option>
           </select>
         </div>
       </div>
@@ -132,16 +138,6 @@ if (!isset($_SESSION['user_id'])) {
           <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="assetsDepartment">
             <option value="">-- Select Department --</option>
-            <option>CICS</option>
-            <option>COENG</option>
-            <option>COED</option>
-            <option>CBA</option>
-            <option>CAS</option>
-            <option>CAUP</option>
-            <option>OSAS</option>
-            <option>Admin Office</option>
-            <option>Library</option>
-            <option>IT Department</option>
           </select>
         </div>
         <div class="form-group">
@@ -159,10 +155,13 @@ if (!isset($_SESSION['user_id'])) {
             <option value="Maintenance">Maintenance</option>
           </select>
         </div>
-        <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
+        <div class="form-group" style="justify-content:flex-end; padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
-            <input type="checkbox" id="assetsCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+                        font-weight:400;color:#333;cursor:pointer;
+                        text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="assetsCertified"
+                   style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
@@ -175,9 +174,8 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <!-- ========================
-       EDIT ASSET MODAL
-  ========================= -->
+
+  <!-----EDIT ASSET MODAL----->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
       <div class="modal-title">Edit Asset</div>
@@ -188,10 +186,14 @@ if (!isset($_SESSION['user_id'])) {
       <div class="modal-two-col">
         <div class="form-group">
           <label>Asset ID</label>
-          <input type="text" id="editAssetId" placeholder="e.g. AST-0001">
+          <input type="text" id="editAssetId" readonly>
         </div>
         <div class="form-group">
-          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(read-only)</span></label>
+          <label>QR Code
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (read-only)
+            </span>
+          </label>
           <input type="text" id="editQrCode" readonly>
         </div>
       </div>
@@ -210,14 +212,6 @@ if (!isset($_SESSION['user_id'])) {
           <label>Category</label>
           <select id="editCategory">
             <option value="">-- Select Category --</option>
-            <option>Computer Equipment</option>
-            <option>Office Furniture</option>
-            <option>Audio/Visual</option>
-            <option>Laboratory Equipment</option>
-            <option>Network Equipment</option>
-            <option>Peripherals</option>
-            <option>Vehicles</option>
-            <option>Others</option>
           </select>
         </div>
       </div>
@@ -227,16 +221,6 @@ if (!isset($_SESSION['user_id'])) {
           <label>Department</label>
           <select id="editDepartment">
             <option value="">-- Select Department --</option>
-            <option>CICS</option>
-            <option>COENG</option>
-            <option>COED</option>
-            <option>CBA</option>
-            <option>CAS</option>
-            <option>CAUP</option>
-            <option>OSAS</option>
-            <option>Admin Office</option>
-            <option>Library</option>
-            <option>IT Department</option>
           </select>
         </div>
         <div class="form-group">
@@ -254,10 +238,13 @@ if (!isset($_SESSION['user_id'])) {
             <option value="Maintenance">Maintenance</option>
           </select>
         </div>
-        <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
+        <div class="form-group" style="justify-content:flex-end; padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
-            <input type="checkbox" id="editCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+                        font-weight:400;color:#333;cursor:pointer;
+                        text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="editCertified"
+                   style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
@@ -270,18 +257,21 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <!-- ========================
-       QR CODE VIEW MODAL
-  ========================= -->
+
+  <!-----QR CODE VIEW MODAL------>
   <div class="modal-overlay" id="qrViewModal">
     <div class="modal qr-view-modal">
       <div class="modal-title">QR Code</div>
       <div class="modal-divider"></div>
 
       <div class="qr-asset-info">
-        <p class="qr-asset-id" id="qrModalAssetId"></p>
+        <p class="qr-asset-id"   id="qrModalAssetId"></p>
         <p class="qr-asset-desc" id="qrModalDesc"></p>
-        <span id="qrModalDept" style="display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid;margin-bottom:12px;letter-spacing:0.5px;"></span>
+        <span id="qrModalDept"
+              style="display:inline-block;font-size:11px;font-weight:600;
+                     padding:3px 10px;border-radius:20px;border:1px solid;
+                     margin-bottom:12px;letter-spacing:0.5px;">
+        </span>
       </div>
 
       <div class="qr-display-box">
@@ -293,7 +283,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn" id="closeQrViewBtn">CLOSE</button>
+        <button class="modal-edit-btn"  id="closeQrViewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadQrBtn">&#11015; DOWNLOAD</button>
       </div>
     </div>
@@ -301,9 +291,12 @@ if (!isset($_SESSION['user_id'])) {
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<<<<<<< Updated upstream
   <script src="../../scripts/staff/staff_script.js"></script>
+=======
+  <script src="../../scripts/staff/staff-assets.js"></script>
+>>>>>>> Stashed changes
 </body>
 
 </html>

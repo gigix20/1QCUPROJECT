@@ -1,0 +1,17 @@
+CREATE TABLE tbl_departments (
+  department_id   NUMBER,
+  department_name VARCHAR2(100) NOT NULL,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT pk_departments PRIMARY KEY (department_id)
+);
+
+CREATE SEQUENCE dept_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER tbl_dept_bir
+BEFORE INSERT ON tbl_departments
+FOR EACH ROW
+BEGIN
+  SELECT dept_seq.NEXTVAL INTO :NEW.department_id FROM dual;
+END;
+/
