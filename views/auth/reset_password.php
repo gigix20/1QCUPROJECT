@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['forgot_email'])) {
-    header("Location: login.php");
+if (!isset($_SESSION['reset_email'])) {
+    header("Location: /1QCUPROJECT/views/auth/login.php");
     exit();
 }
 

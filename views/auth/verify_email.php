@@ -66,7 +66,7 @@ $maskedEmail = maskEmail($email);
       </div>
 
       <button type="submit" class="btn-primary">
-        Verify Account
+        Verify
       </button>
 
       <div class="btn-divider">or</div>

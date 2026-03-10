@@ -1,39 +1,26 @@
+<?php
+require_once __DIR__ . '/../../backend/auth.php';
+
+if (!isset($_SESSION['user_id'])) {
+  header("Location: /1QCUPROJECT/views/auth/login.php");
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>ONEQCU - Borrow/Return</title>
-  <link rel="stylesheet" href="../../styles/staff/staff-style.css">
+  <title>ONEQCU | Borrow/Return</title>
+  <link rel="stylesheet" href="../../styles/staff/staff_style.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">
-        <img src="logo.png" alt="ONEQCU Logo" style="width:42px; height:42px; object-fit:contain;">
-      </div>
-      <div class="logo-text">
-        <span class="logo-title">ONEQCU</span>
-        <span class="logo-sub">QCU ASSET MANAGER</span>
-      </div>
-    </div>
-    <ul class="menu">
-      <li><span class="menu-icon">&#9635;</span><a href="dashboard.html">Dashboard</a></li>
-      <li><span class="menu-icon">&#10792;</span><a href="assets.html">Assets</a></li>
-      <li class="active"><span class="menu-icon">&#8644;</span><a href="borrow.html">Borrow/Return</a></li>
-      <li><span class="menu-icon">&#9881;</span><a href="maintenance.html">Maintenance</a></li>
-      <li><span class="menu-icon">&#128202;</span><a href="reports.html">Reports</a></li>
-    </ul>
-    <div class="admin-user">
-      <div class="avatar">SU</div>
-      <div>
-        <p class="name">Staff User</p>
-        <p class="role">Staff Member</p>
-      </div>
-    </div>
-  </div>
+  <?php $currentPage = 'borrow'; ?>
+  <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
   <!-- MAIN -->
   <div class="main">
@@ -213,6 +200,7 @@
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <script src="../../scripts/staff/staff-script.js"></script>
+  <script src="../../scripts/staff/staff_script.js"></script>
 </body>
+
 </html>

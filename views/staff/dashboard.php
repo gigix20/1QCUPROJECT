@@ -1,55 +1,33 @@
+<!-- STAFF -->
+<?php
+require_once __DIR__ . '/../../backend/auth.php';
+
+// If user is not logged in, redirect user to login.php
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /1QCUPROJECT/views/auth/login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ONEQCU - Dashboard</title>
-  <link rel="stylesheet" href="../../styles/staff/staff-style.css">
+  <title>ONEQCU | Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../styles/staff/staff_style.css">
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-
-    <!-- Logo -->
-    <div class="logo">
-      <div class="logo-icon">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="14" stroke="#a78bfa" stroke-width="2"/>
-          <path d="M10 16 L16 10 L22 16 L16 22 Z" fill="#7c3aed"/>
-          <circle cx="16" cy="16" r="4" fill="#a78bfa"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="logo-title">ONEQCU</span>
-        <span class="logo-sub">QCU ASSET MANAGER</span>
-      </div>
-    </div>
-
-    <!-- Menu -->
-    <ul class="menu">
-     <li><span class="menu-icon">▣</span><a href="dashboard.html">Dashboard</a></li>
-      <li class="active"><span class="menu-icon">◈</span><a href="assets.html">Assets</a></li>
-      <li><span class="menu-icon">⇄</span><a href="borrow.html">Borrow/Return</a></li>
-      <li><span class="menu-icon">⚙</span><a href="maintenance.html">Maintenance</a></li>
-      <li><span class="menu-icon">📊</span><a href="reports.html">Reports</a></li>
-    </ul>
-
-    <!-- Admin User -->
-    <div class="admin-user">
-      <div class="avatar">SU</div>
-      <div>
-        <p class="name">Staff User</p>
-        <p class="role">Staff Member</p>
-      </div>
-    </div>
-
-  </div>
+  <?php $currentPage = 'dashboard'; ?>
+  <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
   <!-- Main Content -->
   <div class="main">
 
     <!-- Top Bar -->
+    <!-- TODO: Make this a component -->
     <div class="topbar">
       <h1 class="page-title">DASHBOARD</h1>
       <div class="topbar-actions">
@@ -154,6 +132,7 @@
     </div>
   </div>
 
-  <script src="../../scripts/staff/staff-script.js"></script>
+  <script src="../../scripts/staff/staff_script.js"></script>
 </body>
 </html>
+

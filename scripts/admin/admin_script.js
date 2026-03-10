@@ -1,3 +1,6 @@
+
+console.log("admin_script.js loaded");
+
 // FILTER TABS
 document.querySelectorAll('.filter-tabs').forEach(function(group) {
   group.querySelectorAll('.filter-tab').forEach(function(tab) {

@@ -1,5 +1,5 @@
 <?php
-header("Location: views/staff/landing_page.php");
+header("Location: views/staff/dashboard.php");
 exit;
 
 // Redirect to landing page

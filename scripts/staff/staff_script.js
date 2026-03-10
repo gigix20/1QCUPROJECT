@@ -3,6 +3,7 @@
 //  Single file — uses PAGE detection to run only relevant code
 // ============================================================
 
+console.log("staff_script.js loaded");
 // ------ Detect current page ------
 var PAGE = (function() {
   var path = window.location.pathname.toLowerCase();

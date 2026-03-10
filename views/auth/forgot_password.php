@@ -1,6 +1,5 @@
 <?php 
 session_start(); 
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +40,7 @@ session_start();
                 <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="off" required>
             </div>
 
-            <button type="submit" class="btn-primary">Send OTP</button>
+            <button type="submit" class="btn-primary">Verify</button>
 
             <?php
             if (isset($_SESSION['forgot_msg'])) {
