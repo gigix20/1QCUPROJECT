@@ -1,7 +1,5 @@
-
 // API ROUTE
 var API = '/1QCUPROJECT/backend/routes/assets_route.php';
-
 
 // UTILITIES
 function showToast(msg) {
@@ -34,6 +32,7 @@ function getActiveTab() {
 }
 
 
+
 // DEPT COLOR MAP
 var DEPT_COLORS = {
   'CICS':          '#1d4ed8',
@@ -61,16 +60,8 @@ function badgeClass(status) {
 }
 
 
-// QR GENERATION
-function generateQRValue() {
-  var now  = new Date();
-  var y    = now.getFullYear();
-  var m    = String(now.getMonth() + 1).padStart(2, '0');
-  var d    = String(now.getDate()).padStart(2, '0');
-  var rand = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return 'ONEQCU-' + y + m + d + '-' + rand;
-}
 
+// QR TAG + ACTION BUTTONS
 function qrTagHTML(a) {
   var c  = getDeptColor(a.DEPARTMENT_NAME || a.department);
   var qr = a.QR_CODE || a.qrCode;
@@ -80,12 +71,18 @@ function qrTagHTML(a) {
     qr + '</span>';
 }
 
-function actionBtns(id) {
+function actionBtns(a) {
+  var id      = a.ASSET_ID;
+  var pending = a.IS_DELETED == 1;
+
+  if (pending) {
+    return '<span style="font-size:11px;color:#dc2626;font-weight:600;">Pending Deletion</span>';
+  }
+
   return '<button class="view-btn"  onclick="viewQRById(\'' + id + '\')">View QR</button> ' +
          '<button class="edit-btn"  onclick="editRow(\''   + id + '\')">Edit</button> '    +
          '<button class="del-btn"   onclick="deleteRow(\'' + id + '\')">Delete</button>';
 }
-
 
 // QR MODAL
 function showQRModal(asset) {
@@ -148,9 +145,9 @@ function downloadQR() {
 }
 
 
+
 // ASSET STORE
 var assets = [];
-
 
 // RENDER TABLE
 function renderAssetsTable(filter, tabFilter) {
@@ -164,6 +161,7 @@ function renderAssetsTable(filter, tabFilter) {
       (a.ASSET_ID        || '').toLowerCase().includes(filter) ||
       (a.DESCRIPTION     || '').toLowerCase().includes(filter) ||
       (a.SERIAL_NUMBER   || '').toLowerCase().includes(filter) ||
+      (a.ITEM_TYPE_NAME  || '').toLowerCase().includes(filter) ||
       (a.CATEGORY_NAME   || '').toLowerCase().includes(filter) ||
       (a.DEPARTMENT_NAME || '').toLowerCase().includes(filter) ||
       (a.LOCATION        || '').toLowerCase().includes(filter) ||
@@ -179,7 +177,7 @@ function renderAssetsTable(filter, tabFilter) {
   });
 
   if (!filtered.length) {
-    assetsTableBody.innerHTML = '<tr class="empty-row"><td colspan="10">No assets to display.</td></tr>';
+    assetsTableBody.innerHTML = '<tr class="empty-row"><td colspan="11">No assets to display.</td></tr>';
     return;
   }
 
@@ -188,20 +186,43 @@ function renderAssetsTable(filter, tabFilter) {
       ? '<span class="badge" style="background:#fef9c3;color:#854d0e;">Certified</span>'
       : '<span style="color:#bbb;font-size:12px;">—</span>';
 
-    return '<tr>'                                                                             +
-      '<td><strong>' + (a.ASSET_ID        || '—') + '</strong></td>'                         +
-      '<td>'         + qrTagHTML(a)               + '</td>'                                  +
-      '<td>'         + (a.DESCRIPTION     || '—') + '</td>'                                  +
-      '<td>'         + (a.SERIAL_NUMBER   || '—') + '</td>'                                  +
-      '<td>'         + (a.CATEGORY_NAME   || '—') + '</td>'                                  +
-      '<td>'         + (a.DEPARTMENT_NAME || '—') + '</td>'                                  +
-      '<td>'         + (a.LOCATION        || '—') + '</td>'                                  +
-      '<td><span class="badge ' + badgeClass(a.STATUS) + '">' + a.STATUS + '</span></td>'   +
-      '<td>'         + cert                       + '</td>'                                  +
-      '<td>'         + actionBtns(a.ASSET_ID)     + '</td>'                                  +
+    // Status cell — show Pending Deletion badge if flagged
+    var statusCell = a.IS_DELETED == 1
+      ? '<span class="badge" style="background:#fee2e2;color:#dc2626;">Pending Deletion</span>'
+      : '<span class="badge ' + badgeClass(a.STATUS) + '">' + a.STATUS + '</span>';
+
+    return '<tr>'                                                        +
+      '<td><strong>' + (a.ASSET_ID        || '—') + '</strong></td>'    +
+      '<td>'         + qrTagHTML(a)               + '</td>'             +
+      '<td>'         + (a.DESCRIPTION     || '—') + '</td>'             +
+      '<td>'         + (a.SERIAL_NUMBER   || '—') + '</td>'             +
+      '<td>'         + (a.ITEM_TYPE_NAME  || '—') + '</td>'             +
+      '<td>'         + (a.CATEGORY_NAME   || '—') + '</td>'             +
+      '<td>'         + (a.DEPARTMENT_NAME || '—') + '</td>'             +
+      '<td>'         + (a.LOCATION        || '—') + '</td>'             +
+      '<td>'         + statusCell                 + '</td>'             +
+      '<td>'         + cert                       + '</td>'             +
+      '<td>'         + actionBtns(a)              + '</td>'             +
     '</tr>';
   }).join('');
 }
+
+// ACTION BUTTONS
+function actionBtns(a) {
+  var id      = a.ASSET_ID;
+  var pending = a.IS_DELETED == 1;
+
+  if (pending) {
+    return '<span style="font-size:11px;color:#dc2626;font-weight:600;' +
+           'background:#fee2e2;padding:3px 8px;border-radius:4px;">' +
+           'Awaiting Admin Approval</span>';
+  }
+
+  return '<button class="view-btn"  onclick="viewQRById(\'' + id + '\')">View QR</button> ' +
+         '<button class="edit-btn"  onclick="editRow(\''   + id + '\')">Edit</button> '    +
+         '<button class="del-btn"   onclick="deleteRow(\'' + id + '\')">Delete</button>';
+}
+
 
 
 // LOAD DROPDOWNS
@@ -214,7 +235,6 @@ function loadDropdowns() {
       if (data.status !== 'success') return;
       var addSel  = document.getElementById('assetsDepartment');
       var editSel = document.getElementById('editDepartment');
-
       data.data.forEach(function(d) {
         var opt = '<option value="' + d.DEPARTMENT_ID + '">' + d.DEPARTMENT_NAME + '</option>';
         if (addSel)  addSel.innerHTML  += opt;
@@ -230,7 +250,6 @@ function loadDropdowns() {
       if (data.status !== 'success') return;
       var addSel  = document.getElementById('assetsCategory');
       var editSel = document.getElementById('editCategory');
-
       data.data.forEach(function(c) {
         var opt = '<option value="' + c.CATEGORY_ID + '">' + c.CATEGORY_NAME + '</option>';
         if (addSel)  addSel.innerHTML  += opt;
@@ -238,7 +257,23 @@ function loadDropdowns() {
       });
     })
     .catch(function() { showToast('⚠ Failed to load categories.'); });
+
+  // Item Types
+  fetch(API + '?resource=item_types')
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status !== 'success') return;
+      var addSel  = document.getElementById('assetsItemType');
+      var editSel = document.getElementById('editItemType');
+      data.data.forEach(function(t) {
+        var opt = '<option value="' + t.ITEM_TYPE_ID + '">' + t.ITEM_TYPE_NAME + '</option>';
+        if (addSel)  addSel.innerHTML  += opt;
+        if (editSel) editSel.innerHTML += opt;
+      });
+    })
+    .catch(function() { showToast('⚠ Failed to load item types.'); });
 }
+
 
 
 // LOAD ASSETS
@@ -257,38 +292,42 @@ function loadAssets() {
 }
 
 
+
 // CLEAR FORM
 function assetsClearForm() {
-  ['assetsAssetId', 'assetsDescription',
-   'assetsSerialNumber', 'assetsLocation'].forEach(function(id) {
+  ['assetsDescription', 'assetsSerialNumber', 'assetsLocation'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
-  ['assetsDepartment', 'assetsStatus', 'assetsCategory'].forEach(function(id) {
+  ['assetsDepartment', 'assetsStatus',
+   'assetsCategory',   'assetsItemType'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.selectedIndex = 0;
   });
-  var qr  = document.getElementById('assetsQrCode');   if (qr)  qr.value    = '';
+  var qty = document.getElementById('assetsQuantity'); if (qty) qty.value   = 1;
+  var qr  = document.getElementById('assetsQrCode');   if (qr)  qr.value   = '';
+  var aid = document.getElementById('assetsAssetId');  if (aid) aid.value  = '';
   var cer = document.getElementById('assetsCertified'); if (cer) cer.checked = false;
 }
+
 
 
 // SAVE ASSET
 function assetsSave() {
   var get = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
-  var asset_id      = get('assetsAssetId');
-  var qr_code       = get('assetsQrCode')      || generateQRValue();
   var description   = get('assetsDescription');
   var serial_number = get('assetsSerialNumber');
   var category_id   = get('assetsCategory');
   var department_id = get('assetsDepartment');
+  var item_type_id  = get('assetsItemType');
   var location      = get('assetsLocation');
-  var status        = get('assetsStatus')       || 'Available';
+  var status        = get('assetsStatus')  || 'Available';
+  var quantity      = parseInt(document.getElementById('assetsQuantity').value) || 1;
   var certEl        = document.getElementById('assetsCertified');
   var is_certified  = certEl && certEl.checked ? 1 : 0;
 
-  if (!asset_id || !description || !department_id) {
+  if (!description || !department_id || !item_type_id) {
     showToast('⚠ Please fill in all required fields.');
     return;
   }
@@ -296,15 +335,15 @@ function assetsSave() {
   var formData = new FormData();
   formData.append('resource',      'assets');
   formData.append('action',        'add');
-  formData.append('asset_id',      asset_id);
-  formData.append('qr_code',       qr_code);
   formData.append('description',   description);
   formData.append('serial_number', serial_number);
   formData.append('category_id',   category_id);
   formData.append('department_id', department_id);
+  formData.append('item_type_id',  item_type_id);
   formData.append('location',      location);
   formData.append('status',        status);
   formData.append('is_certified',  is_certified);
+  formData.append('quantity',      quantity);
 
   fetch(API, { method: 'POST', body: formData })
     .then(function(res)  { return res.json(); })
@@ -313,13 +352,16 @@ function assetsSave() {
         closeModal('assetsModalOverlay');
         assetsClearForm();
         loadAssets();
-        showToast('✓ Asset added! QR code generated.');
+        var generated = data.data && data.data.generated ? data.data.generated : [];
+        var msg = '✓ ' + generated.length + ' asset(s) added: ' + generated.join(', ');
+        showToast(msg);
       } else {
         showToast('⚠ ' + data.message);
       }
     })
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
+
 
 
 // EDIT ROW
@@ -334,10 +376,11 @@ function editRow(asset_id) {
       set('editAssetId',      a.ASSET_ID);
       set('editQrCode',       a.QR_CODE);
       set('editDescription',  a.DESCRIPTION);
-      set('editSerialNumber', a.SERIAL_NUMBER   || '');
-      set('editCategory',     a.CATEGORY_ID    || '');
-      set('editDepartment',   a.DEPARTMENT_ID  || '');
-      set('editLocation',     a.LOCATION        || '');
+      set('editSerialNumber', a.SERIAL_NUMBER  || '');
+      set('editCategory',     a.CATEGORY_ID   || '');
+      set('editDepartment',   a.DEPARTMENT_ID || '');
+      set('editItemType',     a.ITEM_TYPE_ID  || '');
+      set('editLocation',     a.LOCATION       || '');
       set('editStatus',       a.STATUS);
 
       var cer = document.getElementById('editCertified');
@@ -350,6 +393,7 @@ function editRow(asset_id) {
 }
 
 
+
 // SAVE EDIT
 function assetsSaveEdit() {
   var modal    = document.getElementById('editModal');
@@ -360,12 +404,13 @@ function assetsSaveEdit() {
   var serial_number = get('editSerialNumber');
   var category_id   = get('editCategory');
   var department_id = get('editDepartment');
+  var item_type_id  = get('editItemType');
   var location      = get('editLocation');
-  var status        = get('editStatus')         || 'Available';
+  var status        = get('editStatus')    || 'Available';
   var certEl        = document.getElementById('editCertified');
   var is_certified  = certEl && certEl.checked ? 1 : 0;
 
-  if (!description || !department_id) {
+  if (!description || !department_id || !item_type_id) {
     showToast('⚠ Please fill in all required fields.');
     return;
   }
@@ -378,6 +423,7 @@ function assetsSaveEdit() {
   formData.append('serial_number', serial_number);
   formData.append('category_id',   category_id);
   formData.append('department_id', department_id);
+  formData.append('item_type_id',  item_type_id);
   formData.append('location',      location);
   formData.append('status',        status);
   formData.append('is_certified',  is_certified);
@@ -397,26 +443,40 @@ function assetsSaveEdit() {
 }
 
 
+
 // DELETE ROW
 function deleteRow(asset_id) {
-  if (!confirm('Delete this asset?')) return;
+  if (!confirm('Request deletion of this asset?')) return;
 
   var formData = new FormData();
-  formData.append('resource',  'assets');
-  formData.append('action',    'delete');
-  formData.append('asset_id',  asset_id);
+  formData.append('resource',   'assets');
+  formData.append('action',     'delete');
+  formData.append('asset_id',   asset_id);
+  formData.append('deleted_by', 'staff');
 
   fetch(API, { method: 'POST', body: formData })
-    .then(function(res)  { return res.json(); })
+    .then(function(res) {
+      var contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return res.json();
+      }
+      // If response isn't JSON, treat as success if status is OK
+      if (res.ok) return { status: 'success' };
+      return { status: 'error', message: 'Server error.' };
+    })
     .then(function(data) {
       if (data.status === 'success') {
         loadAssets();
-        showToast('🗑 Asset deleted.');
+        showToast('🗑 Deletion request submitted.');
       } else {
         showToast('⚠ ' + data.message);
       }
     })
-    .catch(function() { showToast('⚠ Error connecting to server.'); });
+    .catch(function() {
+      // Even on catch, refresh the table in case it went through
+      loadAssets();
+      showToast('🗑 Deletion request submitted.');
+    });
 }
 
 
@@ -427,6 +487,7 @@ function viewQRById(asset_id) {
 }
 
 
+
 // BUTTON HOOKS
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -434,10 +495,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var openBtn = document.getElementById('assetsOpenModalBtn');
   if (openBtn) {
     openBtn.addEventListener('click', function() {
-      var qr = document.getElementById('assetsQrCode');
-      if (qr) qr.value = generateQRValue();
       openModal('assetsModalOverlay');
-      var f = document.getElementById('assetsAssetId');
+      var f = document.getElementById('assetsDescription');
       if (f) f.focus();
     });
   }

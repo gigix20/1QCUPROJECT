@@ -1,0 +1,11 @@
+INSERT INTO tbl_departments (department_name) VALUES ('CICS');
+INSERT INTO tbl_departments (department_name) VALUES ('COENG');
+INSERT INTO tbl_departments (department_name) VALUES ('COED');
+INSERT INTO tbl_departments (department_name) VALUES ('CBA');
+INSERT INTO tbl_departments (department_name) VALUES ('CAS');
+INSERT INTO tbl_departments (department_name) VALUES ('CAUP');
+INSERT INTO tbl_departments (department_name) VALUES ('OSAS');
+INSERT INTO tbl_departments (department_name) VALUES ('Admin Office');
+INSERT INTO tbl_departments (department_name) VALUES ('Library');
+INSERT INTO tbl_departments (department_name) VALUES ('IT Department');
+COMMIT;

@@ -22,9 +22,7 @@ if (!isset($_SESSION['user_id'])) {
   <?php $currentPage = 'assets'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
-  <!-- ========================
-       MAIN CONTENT
-  ========================= -->
+  <!--MAIN CONTENT -->
   <div class="main">
 
     <!-- Topbar -->
@@ -41,16 +39,17 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- Search -->
     <div class="search-bar-full">
-      <input type="text" id="assetsSearchInput" placeholder="Search by asset ID, description, serial number or department...">
+      <input type="text" id="assetsSearchInput"
+             placeholder="Search by asset ID, description, serial number or department...">
     </div>
 
     <!-- Filter Tabs -->
     <div class="filter-tabs">
-      <button class="filter-tab active">ALL ASSETS</button>
-      <button class="filter-tab">AVAILABLE</button>
-      <button class="filter-tab">IN USE</button>
-      <button class="filter-tab">MAINTENANCE</button>
-      <button class="filter-tab">CERTIFIED</button>
+      <button class="filter-tab active" data-status="ALL">ALL ASSETS</button>
+      <button class="filter-tab" data-status="Available">AVAILABLE</button>
+      <button class="filter-tab" data-status="In Use">IN USE</button>
+      <button class="filter-tab" data-status="Maintenance">MAINTENANCE</button>
+      <button class="filter-tab" data-status="Certified">CERTIFIED</button>
     </div>
 
     <!-- Table -->
@@ -62,6 +61,7 @@ if (!isset($_SESSION['user_id'])) {
             <th>QR CODE</th>
             <th>DESCRIPTION</th>
             <th>SERIAL NUMBER</th>
+            <th>ITEM TYPE</th>
             <th>CATEGORY</th>
             <th>DEPARTMENT</th>
             <th>LOCATION</th>
@@ -72,7 +72,7 @@ if (!isset($_SESSION['user_id'])) {
         </thead>
         <tbody id="assetsTableBody">
           <tr class="empty-row">
-            <td colspan="10">No assets to display.</td>
+            <td colspan="11">No assets to display.</td>
           </tr>
         </tbody>
       </table>
@@ -80,9 +80,7 @@ if (!isset($_SESSION['user_id'])) {
 
   </div>
 
-  <!-- ========================
-       ADD ASSET MODAL
-  ========================= -->
+  <!--ADD ASSET MODAL-->
   <div class="modal-overlay" id="assetsModalOverlay">
     <div class="modal">
       <div class="modal-title">Add New Asset</div>
@@ -92,37 +90,42 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Asset ID <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <input type="text" id="assetsAssetId" placeholder="e.g. AST-0001">
+          <label>Asset ID
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (auto-generated)
+            </span>
+          </label>
+          <input type="text" id="assetsAssetId" readonly
+                 placeholder="Will be generated on save">
         </div>
         <div class="form-group">
-          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(auto-generated)</span></label>
-          <input type="text" id="assetsQrCode" readonly>
+          <label>QR Code
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (auto-generated)
+            </span>
+          </label>
+          <input type="text" id="assetsQrCode" readonly
+                 placeholder="Will be generated on save">
         </div>
       </div>
 
       <div class="form-full">
         <label>Description <span style="color:#dc2626;font-weight:700;">*</span></label>
-        <input type="text" id="assetsDescription" placeholder="e.g. Dell Laptop Latitude 5540">
+        <input type="text" id="assetsDescription"
+               placeholder="e.g. Dell Laptop Latitude 5540">
       </div>
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Serial Number</label>
-          <input type="text" id="assetsSerialNumber" placeholder="e.g. SN-2024-00123">
+          <label>Item Type <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <select id="assetsItemType">
+            <option value="">-- Select Item Type --</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Category</label>
           <select id="assetsCategory">
             <option value="">-- Select Category --</option>
-            <option>Computer Equipment</option>
-            <option>Office Furniture</option>
-            <option>Audio/Visual</option>
-            <option>Laboratory Equipment</option>
-            <option>Network Equipment</option>
-            <option>Peripherals</option>
-            <option>Vehicles</option>
-            <option>Others</option>
           </select>
         </div>
       </div>
@@ -132,21 +135,26 @@ if (!isset($_SESSION['user_id'])) {
           <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="assetsDepartment">
             <option value="">-- Select Department --</option>
-            <option>CICS</option>
-            <option>COENG</option>
-            <option>COED</option>
-            <option>CBA</option>
-            <option>CAS</option>
-            <option>CAUP</option>
-            <option>OSAS</option>
-            <option>Admin Office</option>
-            <option>Library</option>
-            <option>IT Department</option>
           </select>
         </div>
         <div class="form-group">
           <label>Location</label>
-          <input type="text" id="assetsLocation" placeholder="e.g. Room 301, Building A">
+          <input type="text" id="assetsLocation"
+                 placeholder="e.g. Room 301, Building A">
+        </div>
+      </div>
+
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Serial Number</label>
+          <input type="text" id="assetsSerialNumber"
+                 placeholder="e.g. SN-2024-00123">
+        </div>
+        <div class="form-group">
+          <label>Quantity <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <input type="number" id="assetsQuantity"
+                 min="1" max="100" value="1"
+                 placeholder="e.g. 1">
         </div>
       </div>
 
@@ -161,8 +169,11 @@ if (!isset($_SESSION['user_id'])) {
         </div>
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
-            <input type="checkbox" id="assetsCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+                        font-weight:400;color:#333;cursor:pointer;
+                        text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="assetsCertified"
+                   style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
@@ -175,9 +186,7 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <!-- ========================
-       EDIT ASSET MODAL
-  ========================= -->
+  <!-- EDIT ASSET MODAL -->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
       <div class="modal-title">Edit Asset</div>
@@ -187,65 +196,64 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Asset ID</label>
-          <input type="text" id="editAssetId" placeholder="e.g. AST-0001">
+          <label>Asset ID
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (read-only)
+            </span>
+          </label>
+          <input type="text" id="editAssetId" readonly>
         </div>
         <div class="form-group">
-          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(read-only)</span></label>
+          <label>QR Code
+            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
+              (read-only)
+            </span>
+          </label>
           <input type="text" id="editQrCode" readonly>
         </div>
       </div>
 
       <div class="form-full">
-        <label>Description</label>
-        <input type="text" id="editDescription" placeholder="e.g. Dell Laptop Latitude 5540">
+        <label>Description <span style="color:#dc2626;font-weight:700;">*</span></label>
+        <input type="text" id="editDescription"
+               placeholder="e.g. Dell Laptop Latitude 5540">
       </div>
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Serial Number</label>
-          <input type="text" id="editSerialNumber" placeholder="e.g. SN-2024-00123">
+          <label>Item Type <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <select id="editItemType">
+            <option value="">-- Select Item Type --</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Category</label>
           <select id="editCategory">
             <option value="">-- Select Category --</option>
-            <option>Computer Equipment</option>
-            <option>Office Furniture</option>
-            <option>Audio/Visual</option>
-            <option>Laboratory Equipment</option>
-            <option>Network Equipment</option>
-            <option>Peripherals</option>
-            <option>Vehicles</option>
-            <option>Others</option>
           </select>
         </div>
       </div>
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Department</label>
+          <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="editDepartment">
             <option value="">-- Select Department --</option>
-            <option>CICS</option>
-            <option>COENG</option>
-            <option>COED</option>
-            <option>CBA</option>
-            <option>CAS</option>
-            <option>CAUP</option>
-            <option>OSAS</option>
-            <option>Admin Office</option>
-            <option>Library</option>
-            <option>IT Department</option>
           </select>
         </div>
         <div class="form-group">
           <label>Location</label>
-          <input type="text" id="editLocation" placeholder="e.g. Room 301, Building A">
+          <input type="text" id="editLocation"
+                 placeholder="e.g. Room 301, Building A">
         </div>
       </div>
 
       <div class="modal-two-col">
+        <div class="form-group">
+          <label>Serial Number</label>
+          <input type="text" id="editSerialNumber"
+                 placeholder="e.g. SN-2024-00123">
+        </div>
         <div class="form-group">
           <label>Status</label>
           <select id="editStatus">
@@ -254,10 +262,16 @@ if (!isset($_SESSION['user_id'])) {
             <option value="Maintenance">Maintenance</option>
           </select>
         </div>
+      </div>
+
+      <div class="modal-two-col">
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
-            <input type="checkbox" id="editCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+                        font-weight:400;color:#333;cursor:pointer;
+                        text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="editCertified"
+                   style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
@@ -270,18 +284,20 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <!-- ========================
-       QR CODE VIEW MODAL
-  ========================= -->
+  <!--QR CODE VIEW MODAL -->
   <div class="modal-overlay" id="qrViewModal">
     <div class="modal qr-view-modal">
       <div class="modal-title">QR Code</div>
       <div class="modal-divider"></div>
 
       <div class="qr-asset-info">
-        <p class="qr-asset-id" id="qrModalAssetId"></p>
+        <p class="qr-asset-id"   id="qrModalAssetId"></p>
         <p class="qr-asset-desc" id="qrModalDesc"></p>
-        <span id="qrModalDept" style="display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid;margin-bottom:12px;letter-spacing:0.5px;"></span>
+        <span id="qrModalDept"
+              style="display:inline-block;font-size:11px;font-weight:600;
+                     padding:3px 10px;border-radius:20px;border:1px solid;
+                     margin-bottom:12px;letter-spacing:0.5px;">
+        </span>
       </div>
 
       <div class="qr-display-box">
@@ -293,7 +309,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn" id="closeQrViewBtn">CLOSE</button>
+        <button class="modal-edit-btn"  id="closeQrViewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadQrBtn">&#11015; DOWNLOAD</button>
       </div>
     </div>

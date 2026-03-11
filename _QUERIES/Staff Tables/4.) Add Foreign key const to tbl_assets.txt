@@ -1,5 +1,0 @@
-  CONSTRAINT fk_asset_category
-    FOREIGN KEY (category_id) REFERENCES categories(category_id),
-
-  CONSTRAINT fk_asset_department
-    FOREIGN KEY (department_id) REFERENCES departments(department_id)
