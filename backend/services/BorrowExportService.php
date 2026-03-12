@@ -1,35 +1,36 @@
 <?php
-// backend/services/ExportService.php
-
+// backend/services/BorrowExportService.php
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class ExportService {
+class BorrowExportService {
+
   // EXPORT PDF
-  public static function exportPDF($assets) {
+  public static function exportPDF($borrows) {
     $options = new Options();
     $options->set('defaultFont', 'Arial');
     $options->set('isHtml5ParserEnabled', true);
 
     $dompdf = new Dompdf($options);
-    $dompdf->loadHtml(self::buildPDFHtml($assets));
+    $dompdf->loadHtml(self::buildPDFHtml($borrows));
     $dompdf->setPaper('A4', 'landscape');
     $dompdf->render();
 
-    $filename = 'ONEQCU_Assets_' . date('Ymd_His') . '.pdf';
+    $filename = 'ONEQCU_Borrows_' . date('Ymd_His') . '.pdf';
     $dompdf->stream($filename, ['Attachment' => true]);
     exit;
   }
 
   // BUILD PDF HTML
-  private static function buildPDFHtml($assets) {
-    $rows      = self::buildRows($assets);
-    $total     = count($assets);
+  private static function buildPDFHtml($borrows) {
+    $rows      = self::buildRows($borrows);
+    $total     = count($borrows);
     $generated = date('F d, Y h:i A');
 
-    $available   = count(array_filter($assets, fn($a) => $a['STATUS'] === 'Available'));
-    $in_use      = count(array_filter($assets, fn($a) => $a['STATUS'] === 'In Use'));
-    $maintenance = count(array_filter($assets, fn($a) => $a['STATUS'] === 'Maintenance'));
+    $pending  = count(array_filter($borrows, fn($b) => $b['STATUS'] === 'Pending'));
+    $active   = count(array_filter($borrows, fn($b) => $b['STATUS'] === 'Borrowed'));
+    $overdue  = count(array_filter($borrows, fn($b) => $b['STATUS'] === 'Overdue'));
+    $returned = count(array_filter($borrows, fn($b) => $b['STATUS'] === 'Returned'));
 
     return '<!DOCTYPE html>
     <html>
@@ -65,7 +66,7 @@ class ExportService {
         td                   { padding:6px 8px; border-bottom:1px solid #f3f0ff;
                                font-size:8.5px; color:#374151; vertical-align:middle; }
         tr:nth-child(even) td { background:#faf8ff; }
-        tr:last-child td     { border-bottom:none; }
+        tr:last-child td      { border-bottom:none; }
 
         .report-footer       { margin-top:16px; padding-top:8px;
                                border-top:1px solid #e5e7eb; font-size:7.5px;
@@ -77,42 +78,49 @@ class ExportService {
       <div class="report-header">
         <div class="report-header-left">
           <div class="report-title">ONEQCU</div>
-          <div class="report-subtitle">ASSET MANAGEMENT SYSTEM</div>
+          <div class="report-subtitle">BORROW &amp; RETURN REPORT</div>
         </div>
         <div class="report-header-right">
           <div class="report-meta">
             <span>Generated:</span> ' . $generated . '<br>
-            <span>Report:</span> Asset Inventory Report<br>
-            <span>Total Assets:</span> ' . $total . '
+            <span>Report:</span> Borrow Records Report<br>
+            <span>Total Records:</span> ' . $total . '
           </div>
         </div>
       </div>
 
       <div class="summary-row">
         <div class="summary-box">
-          <div class="summary-label">Total Assets</div>
-          <div class="summary-value" style="color:#2d1b47;">' . $total . '</div>
+          <div class="summary-label">Pending</div>
+          <div class="summary-value" style="color:#b45309;">' . $pending . '</div>
         </div>
         <div class="summary-box">
-          <div class="summary-label">Available</div>
-          <div class="summary-value" style="color:#15803d;">' . $available . '</div>
+          <div class="summary-label">Active</div>
+          <div class="summary-value" style="color:#1d4ed8;">' . $active . '</div>
         </div>
         <div class="summary-box">
-          <div class="summary-label">In Use</div>
-          <div class="summary-value" style="color:#1d4ed8;">' . $in_use . '</div>
+          <div class="summary-label">Overdue</div>
+          <div class="summary-value" style="color:#dc2626;">' . $overdue . '</div>
         </div>
         <div class="summary-box">
-          <div class="summary-label">Maintenance</div>
-          <div class="summary-value" style="color:#b45309;">' . $maintenance . '</div>
+          <div class="summary-label">Returned</div>
+          <div class="summary-value" style="color:#15803d;">' . $returned . '</div>
         </div>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th>Asset ID</th><th>Description</th><th>Serial No.</th>
-            <th>Item Type</th><th>Category</th><th>Department</th>
-            <th>Liable Person</th><th>Location</th><th>Status</th><th>Certified</th>
+            <th>Request ID</th>
+            <th>Borrower</th>
+            <th>Department</th>
+            <th>Asset ID</th>
+            <th>Description</th>
+            <th>Purpose</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Return Date</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>' . $rows . '</tbody>
@@ -129,48 +137,43 @@ class ExportService {
   }
 
   // BUILD TABLE ROWS
-  private static function buildRows($assets) {
+  private static function buildRows($borrows) {
     $rows = '';
 
-    foreach ($assets as $a) {
-      $liable = implode(' ', array_filter([
-        $a['FIRST_NAME']  ?? '',
-        $a['MIDDLE_NAME'] ?? '',
-        $a['LAST_NAME']   ?? '',
-        $a['SUFFIX']      ?? '',
+    foreach ($borrows as $b) {
+      $borrower = implode(' ', array_filter([
+        $b['FIRST_NAME']  ?? '',
+        $b['MIDDLE_NAME'] ?? '',
+        $b['LAST_NAME']   ?? '',
+        $b['SUFFIX']      ?? '',
       ])) ?: '—';
 
-      $status       = $a['STATUS'] ?? '—';
+      $status       = $b['STATUS'] ?? '—';
       $status_color = '#374151';
-      if ($status === 'Available')   $status_color = '#15803d';
-      if ($status === 'In Use')      $status_color = '#1d4ed8';
-      if ($status === 'Maintenance') $status_color = '#b45309';
-
-      $certified = $a['IS_CERTIFIED'] == 1
-        ? '<span style="color:#854d0e;font-weight:600;">Certified</span>'
-        : '—';
-
-      $deleted = $a['IS_DELETED'] == 1
-        ? ' <span style="color:#dc2626;font-weight:600;">(Pending)</span>'
-        : '';
+      if ($status === 'Pending')   $status_color = '#b45309';
+      if ($status === 'Borrowed')  $status_color = '#1d4ed8';
+      if ($status === 'Overdue')   $status_color = '#dc2626';
+      if ($status === 'Returned')  $status_color = '#15803d';
+      if ($status === 'Cancelled') $status_color = '#6b7280';
 
       $rows .= '
         <tr>
-          <td>' . htmlspecialchars($a['ASSET_ID']        ?? '—') . '</td>
-          <td>' . htmlspecialchars($a['DESCRIPTION']     ?? '—') . '</td>
-          <td>' . htmlspecialchars($a['SERIAL_NUMBER']   ?? '—') . '</td>
-          <td>' . htmlspecialchars($a['ITEM_TYPE_NAME']  ?? '—') . '</td>
-          <td>' . htmlspecialchars($a['CATEGORY_NAME']   ?? '—') . '</td>
-          <td>' . htmlspecialchars($a['DEPARTMENT_NAME'] ?? '—') . '</td>
-          <td>' . htmlspecialchars($liable)                       . '</td>
-          <td>' . htmlspecialchars($a['LOCATION']        ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['BORROW_ID']         ?? '—') . '</td>
+          <td>' . htmlspecialchars($borrower)                       . '</td>
+          <td>' . htmlspecialchars($b['DEPARTMENT_NAME']   ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['ASSET_ID']          ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['ASSET_DESCRIPTION'] ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['PURPOSE']           ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['BORROW_DATE']       ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['DUE_DATE']          ?? '—') . '</td>
+          <td>' . htmlspecialchars($b['RETURN_DATE']       ?? '—') . '</td>
           <td style="color:' . $status_color . ';font-weight:600;">'
-              . htmlspecialchars($status) . $deleted              . '</td>
-          <td style="text-align:center;">' . $certified           . '</td>
+              . htmlspecialchars($status)                           . '</td>
         </tr>';
     }
 
     return $rows;
-  } 
+  }
+
 }
 ?>
