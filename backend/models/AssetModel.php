@@ -67,7 +67,39 @@ public function getAllAssets() {
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
-  
+  // GET ASSETS BY IDS (for export)
+public function getAssetsByIds($ids) {
+  if (empty($ids)) return [];
+
+  // Build placeholders for Oracle: :id0, :id1, :id2 ...
+  $placeholders = implode(',', array_map(function($i) {
+    return ':id' . $i;
+  }, array_keys($ids)));
+
+  $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
+                 c.category_name, d.department_name, d.department_id,
+                 d.first_name, d.middle_name, d.last_name, d.suffix,
+                 t.item_type_name, t.item_type_code, t.item_type_id,
+                 a.location, a.status, a.is_certified,
+                 a.is_deleted, a.created_at, a.updated_at
+          FROM   tbl_assets a
+          LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
+          LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+          LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
+          WHERE  a.asset_id IN ($placeholders)
+          ORDER  BY a.created_at DESC";
+
+  $stmt = $this->conn->prepare($sql);
+
+  // Bind each ID individually — required for Oracle PDO
+  foreach ($ids as $i => $id) {
+    $stmt->bindValue(':id' . $i, trim($id));
+  }
+
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+ 
   // ADD ASSET (with quantity)
   public function addAsset($data) {
     $sql = "INSERT INTO tbl_assets (

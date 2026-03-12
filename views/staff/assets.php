@@ -328,12 +328,50 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
+  <!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">Export Assets</div>
+    <div class="modal-divider"></div>
+
+    <div class="modal-section-label">EXPORT OPTIONS</div>
+
+    <div class="modal-two-col">
+      <div class="form-group">
+        <label>Data Scope</label>
+        <select id="exportScope">
+          <option value="all">All Assets</option>
+          <option value="filtered">Current View Only</option>
+        </select>
+      </div>
+      <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
+        <label>Options</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+                      font-weight:400;color:#333;cursor:pointer;
+                      text-transform:none;letter-spacing:0;">
+          <input type="checkbox" id="exportIncludeDeleted"
+                 style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+          Include pending deletion assets
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="modal-edit-btn" id="exportCancelBtn">CANCEL</button>
+      <button class="modal-close-btn" id="exportConfirmBtn">⬇ EXPORT PDF</button>
+    </div>
+  </div>
+</div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="../../scripts/staff/staff-assets.js"></script>
-  <script src="../../scripts/staff/staff-assets-qr.js"></script>
+<script src="../../scripts/staff/assets/staff-assets.js"></script>
+<script src="../../scripts/staff/assets/staff-assets-modals.js"></script>
+<script src="../../scripts/staff/assets/staff-assets-qr.js"></script>
+<script src="../../scripts/staff/assets/staff-assets-export.js"></script>
+<script src="../../scripts/staff/assets/staff-assets-init.js"></script>
 </body>
 
 </html>

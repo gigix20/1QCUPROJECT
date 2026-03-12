@@ -9,6 +9,7 @@ require_once __DIR__ . '/../models/CategoryModel.php';
 require_once __DIR__ . '/../models/ItemTypeModel.php';
 require_once __DIR__ . '/../services/AssetIdService.php';
 require_once __DIR__ . '/../controllers/AssetController.php';
+require_once __DIR__ . '/../controllers/ExportController.php';
 
 $resource = $_GET['resource'] ?? $_POST['resource'] ?? 'assets';
 
@@ -33,6 +34,11 @@ switch ($resource) {
     $model = new ItemTypeModel($conn);
     ResponseHelper::sendSuccess($model->getAllItemTypes());
     break;
+
+  case 'export':
+  $controller = new ExportController($conn);
+  $controller->handleRequest();
+  break;
 
   default:
     ResponseHelper::sendError(404, 'Resource not found.');
