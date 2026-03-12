@@ -10,8 +10,12 @@ CREATE TABLE tbl_assets (
   location      VARCHAR2(150),
   status        VARCHAR2(20)   DEFAULT 'Available',
   is_certified  NUMBER(1)      DEFAULT 0,
+  is_deleted    NUMBER(1)      DEFAULT 0,
+  deleted_at    TIMESTAMP,
+  deleted_by    VARCHAR2(100),
   created_at    TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+
   -- Constraints
   CONSTRAINT pk_assets
     PRIMARY KEY (id),
@@ -19,6 +23,8 @@ CREATE TABLE tbl_assets (
     UNIQUE (asset_id),
   CONSTRAINT uq_assets_qrcode
     UNIQUE (qr_code)
+  CONSTRAINT chk_asset_certified CHECK (is_certified IN (0, 1)),
+  CONSTRAINT chk_asset_deleted   CHECK (is_deleted   IN (0, 1))
 );
 
 -- Sequence for DB primary key (id)

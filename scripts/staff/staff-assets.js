@@ -51,6 +51,33 @@ function getDeptColor(dept) {
   return DEPT_COLORS[dept] || '#2d1b47';
 }
 
+function getLiablePerson(selectId) {
+  var sel = document.getElementById(selectId);
+  if (!sel) return '—';
+  var opt = sel.options[sel.selectedIndex];
+  return opt ? (opt.getAttribute('data-liable') || '—') : '—';
+}
+
+function updateLiableDropdown(deptSelectId, liableSelectId) {
+  var deptSel   = document.getElementById(deptSelectId);
+  var liableSel = document.getElementById(liableSelectId);
+  if (!deptSel || !liableSel) return;
+
+  var opt    = deptSel.options[deptSel.selectedIndex];
+  var liable = opt ? opt.getAttribute('data-liable') : null;
+
+  liableSel.innerHTML = '';
+
+  if (!liable || liable === '—' || !deptSel.value) {
+    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
+    liableSel.disabled  = true;
+    return;
+  }
+
+  liableSel.innerHTML = '<option value="' + liable + '">' + liable + '</option>';
+  liableSel.disabled  = false;
+}
+
 function badgeClass(status) {
   return {
     'Available':   'available',
@@ -61,27 +88,14 @@ function badgeClass(status) {
 
 
 
-// QR TAG + ACTION BUTTONS
+// QR TAG
 function qrTagHTML(a) {
   var c  = getDeptColor(a.DEPARTMENT_NAME || a.department);
-  var qr = a.QR_CODE || a.qrCode;
+  var id = a.ASSET_ID || a.assetId;
   return '<span class="qr-tag" title="Click to view QR" ' +
     'onclick="showQRModal(' + JSON.stringify(a).replace(/'/g, "\\'") + ')" ' +
     'style="border-left:3px solid ' + c + ';color:' + c + ';background:' + c + '12;">' +
-    qr + '</span>';
-}
-
-function actionBtns(a) {
-  var id      = a.ASSET_ID;
-  var pending = a.IS_DELETED == 1;
-
-  if (pending) {
-    return '<span style="font-size:11px;color:#dc2626;font-weight:600;">Pending Deletion</span>';
-  }
-
-  return '<button class="view-btn"  onclick="viewQRById(\'' + id + '\')">View QR</button> ' +
-         '<button class="edit-btn"  onclick="editRow(\''   + id + '\')">Edit</button> '    +
-         '<button class="del-btn"   onclick="deleteRow(\'' + id + '\')">Delete</button>';
+    id + '</span>';
 }
 
 // QR MODAL
@@ -165,7 +179,9 @@ function renderAssetsTable(filter, tabFilter) {
       (a.CATEGORY_NAME   || '').toLowerCase().includes(filter) ||
       (a.DEPARTMENT_NAME || '').toLowerCase().includes(filter) ||
       (a.LOCATION        || '').toLowerCase().includes(filter) ||
-      (a.QR_CODE         || '').toLowerCase().includes(filter);
+      (a.QR_CODE         || '').toLowerCase().includes(filter) ||
+      (a.LAST_NAME       || '').toLowerCase().includes(filter) ||  // ← NEW
+      (a.FIRST_NAME      || '').toLowerCase().includes(filter);    // ← NEW
 
     var tab = true;
     if (tabFilter === 'Available')   tab = a.STATUS       === 'Available';
@@ -177,7 +193,7 @@ function renderAssetsTable(filter, tabFilter) {
   });
 
   if (!filtered.length) {
-    assetsTableBody.innerHTML = '<tr class="empty-row"><td colspan="11">No assets to display.</td></tr>';
+    assetsTableBody.innerHTML = '<tr class="empty-row"><td colspan="12">No assets to display.</td></tr>';
     return;
   }
 
@@ -186,10 +202,13 @@ function renderAssetsTable(filter, tabFilter) {
       ? '<span class="badge" style="background:#fef9c3;color:#854d0e;">Certified</span>'
       : '<span style="color:#bbb;font-size:12px;">—</span>';
 
-    // Status cell — show Pending Deletion badge if flagged
     var statusCell = a.IS_DELETED == 1
       ? '<span class="badge" style="background:#fee2e2;color:#dc2626;">Pending Deletion</span>'
       : '<span class="badge ' + badgeClass(a.STATUS) + '">' + a.STATUS + '</span>';
+
+    // Build liable person full name
+    var liable = [a.FIRST_NAME, a.MIDDLE_NAME, a.LAST_NAME, a.SUFFIX]
+                   .filter(Boolean).join(' ') || '—';
 
     return '<tr>'                                                        +
       '<td><strong>' + (a.ASSET_ID        || '—') + '</strong></td>'    +
@@ -199,6 +218,7 @@ function renderAssetsTable(filter, tabFilter) {
       '<td>'         + (a.ITEM_TYPE_NAME  || '—') + '</td>'             +
       '<td>'         + (a.CATEGORY_NAME   || '—') + '</td>'             +
       '<td>'         + (a.DEPARTMENT_NAME || '—') + '</td>'             +
+      '<td>'         + liable                     + '</td>'             + // ← NEW
       '<td>'         + (a.LOCATION        || '—') + '</td>'             +
       '<td>'         + statusCell                 + '</td>'             +
       '<td>'         + cert                       + '</td>'             +
@@ -229,14 +249,18 @@ function actionBtns(a) {
 function loadDropdowns() {
 
   // Departments
-  fetch(API + '?resource=departments')
+  fetch(API + '?resource=departments&_=' + Date.now())
     .then(function(res)  { return res.json(); })
     .then(function(data) {
       if (data.status !== 'success') return;
       var addSel  = document.getElementById('assetsDepartment');
       var editSel = document.getElementById('editDepartment');
       data.data.forEach(function(d) {
-        var opt = '<option value="' + d.DEPARTMENT_ID + '">' + d.DEPARTMENT_NAME + '</option>';
+        var liable = [d.FIRST_NAME, d.MIDDLE_NAME, d.LAST_NAME, d.SUFFIX]
+                      .filter(Boolean).join(' ');
+        var opt = '<option value="' + d.DEPARTMENT_ID + '" ' +
+                  'data-liable="'  + (liable || '—')  + '">' +
+                  d.DEPARTMENT_NAME + '</option>';
         if (addSel)  addSel.innerHTML  += opt;
         if (editSel) editSel.innerHTML += opt;
       });
@@ -304,10 +328,17 @@ function assetsClearForm() {
     var el = document.getElementById(id);
     if (el) el.selectedIndex = 0;
   });
-  var qty = document.getElementById('assetsQuantity'); if (qty) qty.value   = 1;
-  var qr  = document.getElementById('assetsQrCode');   if (qr)  qr.value   = '';
-  var aid = document.getElementById('assetsAssetId');  if (aid) aid.value  = '';
+  var qty = document.getElementById('assetsQuantity');  if (qty) qty.value    = 1;
+  var qr  = document.getElementById('assetsQrCode');    if (qr)  qr.value    = '';
+  var aid = document.getElementById('assetsAssetId');   if (aid) aid.value   = '';
   var cer = document.getElementById('assetsCertified'); if (cer) cer.checked = false;
+
+  // Reset liable dropdown
+  var liableSel = document.getElementById('assetsLiablePerson');
+  if (liableSel) {
+    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
+    liableSel.disabled  = true;
+  }
 }
 
 
@@ -376,11 +407,12 @@ function editRow(asset_id) {
       set('editAssetId',      a.ASSET_ID);
       set('editQrCode',       a.QR_CODE);
       set('editDescription',  a.DESCRIPTION);
-      set('editSerialNumber', a.SERIAL_NUMBER  || '');
-      set('editCategory',     a.CATEGORY_ID   || '');
+      set('editSerialNumber', a.SERIAL_NUMBER || '');
+      set('editCategory',     a.CATEGORY_ID  || '');
       set('editDepartment',   a.DEPARTMENT_ID || '');
+      updateLiableDropdown('editDepartment', 'editLiablePerson'); // ← populate liable
       set('editItemType',     a.ITEM_TYPE_ID  || '');
-      set('editLocation',     a.LOCATION       || '');
+      set('editLocation',     a.LOCATION      || '');
       set('editStatus',       a.STATUS);
 
       var cer = document.getElementById('editCertified');
@@ -406,7 +438,7 @@ function assetsSaveEdit() {
   var department_id = get('editDepartment');
   var item_type_id  = get('editItemType');
   var location      = get('editLocation');
-  var status        = get('editStatus')    || 'Available';
+  var status        = get('editStatus') || 'Available';
   var certEl        = document.getElementById('editCertified');
   var is_certified  = certEl && certEl.checked ? 1 : 0;
 
@@ -460,7 +492,6 @@ function deleteRow(asset_id) {
       if (contentType && contentType.includes('application/json')) {
         return res.json();
       }
-      // If response isn't JSON, treat as success if status is OK
       if (res.ok) return { status: 'success' };
       return { status: 'error', message: 'Server error.' };
     })
@@ -473,11 +504,11 @@ function deleteRow(asset_id) {
       }
     })
     .catch(function() {
-      // Even on catch, refresh the table in case it went through
       loadAssets();
       showToast('🗑 Deletion request submitted.');
     });
 }
+
 
 
 // VIEW QR BY ID
@@ -570,7 +601,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Liable person dropdown — Add modal
+  var deptSelect = document.getElementById('assetsDepartment');
+  if (deptSelect) {
+    deptSelect.addEventListener('change', function() {
+      updateLiableDropdown('assetsDepartment', 'assetsLiablePerson');
+    });
+  }
+
+  // Liable person dropdown — Edit modal
+  var editDeptSelect = document.getElementById('editDepartment');
+  if (editDeptSelect) {
+    editDeptSelect.addEventListener('change', function() {
+      updateLiableDropdown('editDepartment', 'editLiablePerson');
+    });
+  }
+
   loadDropdowns();
   loadAssets();
+  handleQRScan();
 
 });

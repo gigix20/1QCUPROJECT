@@ -64,6 +64,7 @@ if (!isset($_SESSION['user_id'])) {
             <th>ITEM TYPE</th>
             <th>CATEGORY</th>
             <th>DEPARTMENT</th>
+            <th>LIABLE PERSON</th>
             <th>LOCATION</th>
             <th>STATUS</th>
             <th>CERTIFIED</th>
@@ -138,17 +139,23 @@ if (!isset($_SESSION['user_id'])) {
           </select>
         </div>
         <div class="form-group">
-          <label>Location</label>
-          <input type="text" id="assetsLocation"
-                 placeholder="e.g. Room 301, Building A">
+          <label>Liable Person</label>
+          <select id="assetsLiablePerson" disabled>
+            <option value="">-- Select Department first --</option>
+          </select>
         </div>
       </div>
 
       <div class="modal-two-col">
         <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="assetsLocation"
+                placeholder="e.g. Room 301, Building A">
+        </div>
+        <div class="form-group">
           <label>Serial Number</label>
           <input type="text" id="assetsSerialNumber"
-                 placeholder="e.g. SN-2024-00123">
+                placeholder="e.g. SN-2024-00123">
         </div>
         <div class="form-group">
           <label>Quantity <span style="color:#dc2626;font-weight:700;">*</span></label>
@@ -234,26 +241,32 @@ if (!isset($_SESSION['user_id'])) {
         </div>
       </div>
 
-      <div class="modal-two-col">
-        <div class="form-group">
-          <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <select id="editDepartment">
-            <option value="">-- Select Department --</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Location</label>
-          <input type="text" id="editLocation"
-                 placeholder="e.g. Room 301, Building A">
-        </div>
+    <div class="modal-two-col">
+      <div class="form-group">
+        <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
+        <select id="editDepartment">
+          <option value="">-- Select Department --</option>
+        </select>
       </div>
+      <div class="form-group">
+        <label>Liable Person</label>
+        <select id="editLiablePerson" disabled>
+          <option value="">-- Select Department first --</option>
+        </select>
+      </div>
+    </div>
 
-      <div class="modal-two-col">
-        <div class="form-group">
-          <label>Serial Number</label>
-          <input type="text" id="editSerialNumber"
-                 placeholder="e.g. SN-2024-00123">
-        </div>
+    <div class="modal-two-col">
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="editLocation"
+              placeholder="e.g. Room 301, Building A">
+      </div>
+      <div class="form-group">
+        <label>Serial Number</label>
+        <input type="text" id="editSerialNumber"
+              placeholder="e.g. SN-2024-00123">
+      </div>
         <div class="form-group">
           <label>Status</label>
           <select id="editStatus">
@@ -320,6 +333,7 @@ if (!isset($_SESSION['user_id'])) {
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="../../scripts/staff/staff-assets.js"></script>
+  <script src="../../scripts/staff/staff-assets-qr.js"></script>
 </body>
 
 </html>

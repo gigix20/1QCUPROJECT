@@ -110,7 +110,7 @@ class AssetController {
     for ($i = 0; $i < $quantity; $i++) {
       $seq      = $this->model->getNextSequence();
       $asset_id = AssetIdService::generate($dept_name, $item_type_code, $seq);
-      $qr_code  = AssetIdService::generateQR();
+      $qr_code  = AssetIdService::generateQR($asset_id);
 
       $data = [
         'asset_id'      => $asset_id,

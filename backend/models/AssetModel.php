@@ -31,16 +31,16 @@ class AssetModel {
 public function getAllAssets() {
   $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
                  c.category_name, d.department_name, d.department_id,
+                 d.first_name, d.middle_name, d.last_name, d.suffix,
                  t.item_type_name, t.item_type_code, t.item_type_id,
                  a.location, a.status, a.is_certified,
                  a.is_deleted, a.deleted_at, a.deleted_by,
                  a.created_at, a.updated_at
           FROM   tbl_assets a
           LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-          LEFT JOIN tbl_departments d ON a.department_id  = d.department_id
-          LEFT JOIN tbl_item_types  t ON a.item_type_id   = t.item_type_id
+          LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+          LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
           ORDER BY a.created_at DESC";
-
   $stmt = $this->conn->prepare($sql);
   $stmt->execute();
   return $stmt->fetchAll(PDO::FETCH_ASSOC);

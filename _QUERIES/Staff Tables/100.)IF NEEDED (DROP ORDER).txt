@@ -12,3 +12,5 @@ DROP SEQUENCE asset_id_seq;
 DROP SEQUENCE cat_seq;
 DROP SEQUENCE dept_seq;
 DROP SEQUENCE item_type_seq;
+
+COMMIT;
