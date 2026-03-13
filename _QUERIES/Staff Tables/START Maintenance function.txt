@@ -1,0 +1,22 @@
+
+//Render the Start Maintenance Function
+function maintActionBtns(m) {
+  var id   = m.MAINTENANCE_ID;
+  var btns = '<button class="view-btn" onclick="viewMaint(' + id + ')">View</button> ';
+
+  if (m.STATUS === 'Pending') {
+    // ← REMOVE: btns += '<button class="edit-btn" onclick="startMaint(' + id + ')">Start</button> ';
+    btns += '<button class="del-btn" onclick="cancelMaint(' + id + ')">Cancel</button>';
+  } else if (m.STATUS === 'In Progress') {
+    btns += '<button class="return-btn" onclick="completeMaint(' + id + ')">Complete</button>';
+  }
+
+  return btns;
+}
+
+
+// START MAINTENANCE in staff-maintenance-modals
+function startMaint(maintenance_id) {
+  if (!confirm('Start this maintenance request?')) return;
+  updateMaintStatus(maintenance_id, 'In Progress', '');
+}

@@ -1,0 +1,10 @@
+-- SEED MAINTENANCE TYPES
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Repair');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Preventive Maintenance');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Inspection');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Calibration');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Replacement');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Cleaning');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Software Update');
+INSERT INTO tbl_maintenance_types (type_name) VALUES ('Hardware Upgrade');
+COMMIT;

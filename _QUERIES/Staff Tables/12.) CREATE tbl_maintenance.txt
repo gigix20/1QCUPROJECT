@@ -1,0 +1,30 @@
+-- MAINTENANCE TABLE
+CREATE TABLE tbl_maintenance (
+  maintenance_id   NUMBER,
+  asset_id         VARCHAR2(20)  NOT NULL,
+  type_id          NUMBER        NOT NULL,
+  issue_description VARCHAR2(255) NOT NULL,
+  tech_first_name  VARCHAR2(100),
+  tech_middle_name VARCHAR2(100),
+  tech_last_name   VARCHAR2(100),
+  tech_suffix      VARCHAR2(20),
+  scheduled_date   VARCHAR2(20)  NOT NULL,
+  completed_date   VARCHAR2(20),
+  notes            VARCHAR2(500),
+  status           VARCHAR2(20)  DEFAULT 'Pending',
+  created_at       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_maintenance        PRIMARY KEY (maintenance_id),
+  CONSTRAINT fk_maint_asset        FOREIGN KEY (asset_id) REFERENCES tbl_assets(asset_id),
+  CONSTRAINT fk_maint_type         FOREIGN KEY (type_id)  REFERENCES tbl_maintenance_types(type_id),
+  CONSTRAINT chk_maint_status      CHECK (status IN ('Pending', 'In Progress', 'Completed', 'Cancelled'))
+);
+CREATE SEQUENCE maint_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER tbl_maintenance_bir
+BEFORE INSERT ON tbl_maintenance
+FOR EACH ROW
+BEGIN
+  SELECT maint_seq.NEXTVAL INTO :NEW.maintenance_id FROM dual;
+END;
+/
+COMMIT;
