@@ -1,0 +1,11 @@
+CREATE TABLE tbl_reports (
+  report_id     NUMBER,
+  report_name   VARCHAR2(150)  NOT NULL,
+  report_type   VARCHAR2(100)  NOT NULL,
+  generated_by  VARCHAR2(100),
+  generated_at  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+  format        VARCHAR2(10)   DEFAULT 'PDF',
+  file_url      VARCHAR2(500),
+  CONSTRAINT pk_reports PRIMARY KEY (report_id)
+);
+CREATE SEQUENCE report_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;

@@ -1,0 +1,24 @@
+-- 1. Drop grandchildren first (FK tbl_assets AND tbl_departments/tbl_maintenance_types)
+DROP TABLE tbl_maintenance;
+DROP TABLE tbl_borrows;
+
+-- 2. Drop child (FK tbl_categories, tbl_departments, tbl_item_types)
+DROP TABLE tbl_assets;
+
+-- 3. Drop parents
+DROP TABLE tbl_categories;
+DROP TABLE tbl_item_types;
+DROP TABLE tbl_departments;
+DROP TABLE tbl_maintenance_types;
+
+-- 4. Drop all sequences
+DROP SEQUENCE asset_seq;
+DROP SEQUENCE asset_id_seq;
+DROP SEQUENCE cat_seq;
+DROP SEQUENCE dept_seq;
+DROP SEQUENCE item_type_seq;
+DROP SEQUENCE borrow_seq;
+DROP SEQUENCE maint_seq;
+DROP SEQUENCE maint_type_seq;
+
+COMMIT;

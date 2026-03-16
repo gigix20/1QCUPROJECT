@@ -5,10 +5,7 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 ?>
-<?php $activePage = 'reports'; ?>
-<?php include '../../components/staff/sidebar.php'; ?>
-<?php $activePage = 'reports'; ?>
-<?php include '../../components/staff/sidebar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +18,7 @@ if (!isset($_SESSION['user_id'])) {
 <body>
   <?php $currentPage = 'reports'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
-  <!-- MAIN -->
+
   <div class="main">
 
     <div class="topbar">
@@ -31,7 +28,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
       <div class="topbar-actions">
         <button class="outline-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
-        <button class="add-btn" id="customReportBtn">+ CUSTOM REPORT</button>
+        <button class="add-btn"     id="customReportBtn">+ CUSTOM REPORT</button>
       </div>
     </div>
 
@@ -49,7 +46,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
       <div class="stat-card">
         <div class="stat-label">Report Templates</div>
-        <div class="stat-value" id="statTemplates">6</div>
+        <div class="stat-value">5</div>
         <div class="stat-sub green">Available templates</div>
       </div>
       <div class="stat-card">
@@ -63,36 +60,38 @@ if (!isset($_SESSION['user_id'])) {
     <div class="table-section">
       <h2 class="section-title">REPORT TEMPLATES</h2>
       <div class="report-grid">
+
         <div class="report-card" onclick="generateReport('Complete Asset Inventory')">
-          <div style="font-size:22px; margin-bottom:8px;">&#128230;</div>
+          <div style="font-size:22px;margin-bottom:8px;">&#128230;</div>
           COMPLETE ASSET INVENTORY
         </div>
-        <div class="report-card" onclick="generateReport('Asset by Department')">
-          <div style="font-size:22px; margin-bottom:8px;">&#127970;</div>
-          ASSET BY DEPARTMENT
+
+        <div class="report-card" onclick="generateReport('Asset Status Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#128202;</div>
+          ASSET STATUS REPORT
         </div>
-        <div class="report-card" onclick="generateReport('Maintenance Cost Analysis')">
-          <div style="font-size:22px; margin-bottom:8px;">&#128295;</div>
-          MAINTENANCE COST ANALYSIS
+
+        <div class="report-card" onclick="generateReport('Certified Assets Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#9989;</div>
+          CERTIFIED ASSETS REPORT
         </div>
+
         <div class="report-card" onclick="generateReport('Overdue Items Report')">
-          <div style="font-size:22px; margin-bottom:8px;">&#9888;</div>
+          <div style="font-size:22px;margin-bottom:8px;">&#9888;</div>
           OVERDUE ITEMS REPORT
         </div>
-        <div class="report-card" onclick="generateReport('Borrowing Activity Report')">
-          <div style="font-size:22px; margin-bottom:8px;">&#8644;</div>
-          BORROWING ACTIVITY REPORT
+
+        <div class="report-card" onclick="generateReport('Maintenance Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#128295;</div>
+          MAINTENANCE REPORT
         </div>
-        <div class="report-card" onclick="generateReport('Asset Utilization Report')">
-          <div style="font-size:22px; margin-bottom:8px;">&#128202;</div>
-          ASSET UTILIZATION REPORT
-        </div>
+
       </div>
     </div>
 
     <!-- Recent Reports Table -->
     <div class="table-section" style="margin-top:20px;">
-      <h2 style="font-size:15px; font-weight:600; margin-bottom:16px;">Recent Reports</h2>
+      <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Recent Reports</h2>
       <table class="asset-table">
         <thead>
           <tr>
@@ -105,9 +104,7 @@ if (!isset($_SESSION['user_id'])) {
           </tr>
         </thead>
         <tbody id="reportsTableBody">
-          <tr class="empty-row">
-            <td colspan="6">No reports to display.</td>
-          </tr>
+          <tr class="empty-row"><td colspan="6">No reports to display.</td></tr>
         </tbody>
       </table>
     </div>
@@ -115,13 +112,75 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <!-- ========================
-       CUSTOM REPORT MODAL
+       REPORT OPTIONS MODAL
+       Shown before generating a template report
   ========================= -->
+  <div class="modal-overlay" id="reportOptionsModal">
+    <div class="modal">
+      <div class="modal-title" id="reportOptionsTitle">Generate Report</div>
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">REPORT OPTIONS</div>
+
+      <!-- Department filter — shown for dept-based reports -->
+      <div class="form-full" id="optsDeptWrapper" style="display:none;">
+        <label>Department</label>
+        <select id="optsDept">
+          <option value="">All Departments</option>
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+
+      <!-- Scope filter — shown for Overdue Items Report only -->
+      <div class="form-full" id="optsScopeWrapper" style="display:none;">
+        <label>Scope</label>
+        <select id="optsScope">
+          <option value="all">All (Borrows + Late Returns + Maintenance)</option>
+          <option value="borrows">Overdue Borrows Only</option>
+          <option value="late">Late Returns Only</option>
+        </select>
+      </div>
+
+      <!-- Month / Year filter — shown for all reports -->
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Month <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
+          <select id="optsMonth">
+            <option value="">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Year <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
+          <select id="optsYear">
+            <option value="">All Years</option>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn"  id="cancelReportOptionsBtn">CANCEL</button>
+        <button class="modal-close-btn" id="confirmReportOptionsBtn">GENERATE PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM REPORT MODAL -->
   <div class="modal-overlay" id="customReportModal">
     <div class="modal">
       <div class="modal-title">Custom Report</div>
       <div class="modal-divider"></div>
-
       <div class="modal-section-label">REPORT DETAILS</div>
 
       <div class="form-full">
@@ -134,67 +193,81 @@ if (!isset($_SESSION['user_id'])) {
           <label>Report Type <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="reportType">
             <option value="">-- Select Type --</option>
-            <option>Asset Inventory</option>
-            <option>Maintenance</option>
-            <option>Borrow/Return</option>
-            <option>Department Summary</option>
-            <option>Utilization</option>
-            <option>Custom</option>
+            <option value="Complete Asset Inventory">Asset Inventory</option>
+            <option value="Asset by Department">Asset by Department</option>
+            <option value="Asset Status Report">Asset Status</option>
+            <option value="Certified Assets Report">Certified Assets</option>
+            <option value="Overdue Items Report">Overdue Items</option>
+            <option value="Borrowing Activity Report">Borrowing Activity</option>
+            <option value="Asset Utilization Report">Asset Utilization</option>
+            <option value="Maintenance Report">Maintenance Report</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label>Format</label>
           <select id="reportFormat">
             <option value="PDF">PDF</option>
-            <option value="Excel">Excel</option>
-            <option value="CSV">CSV</option>
           </select>
         </div>
       </div>
 
-      <div class="modal-two-col">
-        <div class="form-group">
-          <label>Date From</label>
-          <input type="date" id="reportDateFrom">
-        </div>
-        <div class="form-group">
-          <label>Date To</label>
-          <input type="date" id="reportDateTo">
-        </div>
-      </div>
-
-      <div class="form-full">
-        <label>Department Filter</label>
-        <select id="reportDepartment">
-          <option value="All">All Departments</option>
-          <option>CICS</option>
-          <option>COENG</option>
-          <option>COED</option>
-          <option>CBA</option>
-          <option>CAS</option>
-          <option>CAUP</option>
-          <option>OSAS</option>
-          <option>Admin Office</option>
-          <option>Library</option>
-          <option>IT Department</option>
+      <!-- Dept filter — shown conditionally -->
+      <div class="form-full" id="customDeptWrapper" style="display:none;">
+        <label>Department</label>
+        <select id="customDept">
+          <option value="">All Departments</option>
+          <!-- Populated dynamically -->
         </select>
       </div>
 
+      <!-- Scope filter — shown for overdue only -->
+      <div class="form-full" id="customScopeWrapper" style="display:none;">
+        <label>Scope</label>
+        <select id="customScope">
+          <option value="all">All (Borrows + Late Returns + Maintenance)</option>
+          <option value="borrows">Overdue Borrows Only</option>
+          <option value="late">Late Returns Only</option>
+        </select>
+      </div>
+
+      <!-- Month / Year filter -->
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Month <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
+          <select id="customMonth">
+            <option value="">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Year <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
+          <select id="customYear">
+            <option value="">All Years</option>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+      </div>
+
       <div class="modal-buttons">
-        <button class="modal-edit-btn" id="cancelCustomReportBtn">CANCEL</button>
+        <button class="modal-edit-btn"  id="cancelCustomReportBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveCustomReportBtn">GENERATE REPORT</button>
       </div>
     </div>
   </div>
 
-  <!-- ========================
-       SCHEDULE REPORT MODAL
-  ========================= -->
+  <!-- SCHEDULE REPORT MODAL -->
   <div class="modal-overlay" id="scheduleReportModal">
     <div class="modal">
       <div class="modal-title">Schedule Report</div>
       <div class="modal-divider"></div>
-
       <div class="modal-section-label">SCHEDULE DETAILS</div>
 
       <div class="form-full">
@@ -207,11 +280,14 @@ if (!isset($_SESSION['user_id'])) {
           <label>Report Type <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="schedReportType">
             <option value="">-- Select Type --</option>
-            <option>Asset Inventory</option>
-            <option>Maintenance</option>
-            <option>Borrow/Return</option>
-            <option>Department Summary</option>
-            <option>Utilization</option>
+            <option value="Complete Asset Inventory">Asset Inventory</option>
+            <option value="Asset by Department">Asset by Department</option>
+            <option value="Asset Status Report">Asset Status</option>
+            <option value="Certified Assets Report">Certified Assets</option>
+            <option value="Overdue Items Report">Overdue Items</option>
+            <option value="Borrowing Activity Report">Borrowing Activity</option>
+            <option value="Asset Utilization Report">Asset Utilization</option>
+            <option value="Maintenance Report">Maintenance Report</option>
           </select>
         </div>
         <div class="form-group">
@@ -235,35 +311,29 @@ if (!isset($_SESSION['user_id'])) {
           <label>Format</label>
           <select id="schedFormat">
             <option value="PDF">PDF</option>
-            <option value="Excel">Excel</option>
-            <option value="CSV">CSV</option>
           </select>
         </div>
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn" id="cancelScheduleBtn">CANCEL</button>
+        <button class="modal-edit-btn"  id="cancelScheduleBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveScheduleBtn">SAVE SCHEDULE</button>
       </div>
     </div>
   </div>
 
-  <!-- ========================
-       REPORT PREVIEW MODAL
-  ========================= -->
+  <!-- REPORT PREVIEW MODAL -->
   <div class="modal-overlay" id="reportPreviewModal">
     <div class="modal">
       <div class="modal-title" id="previewReportTitle">Report Preview</div>
       <div class="modal-divider"></div>
-
-      <div class="modal-info-box" style="text-align:center; padding:32px 20px;">
-        <div style="font-size:40px; margin-bottom:12px;">&#128202;</div>
-        <p style="font-size:14px; font-weight:600; color:#333;" id="previewReportName"></p>
-        <p style="font-size:12px; color:#888; margin-top:6px;" id="previewReportMeta"></p>
+      <div class="modal-info-box" style="text-align:center;padding:32px 20px;">
+        <div style="font-size:40px;margin-bottom:12px;">&#128202;</div>
+        <p style="font-size:14px;font-weight:600;color:#333;" id="previewReportName"></p>
+        <p style="font-size:12px;color:#888;margin-top:6px;" id="previewReportMeta"></p>
       </div>
-
       <div class="modal-buttons">
-        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
+        <button class="modal-edit-btn"  id="closePreviewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
       </div>
     </div>
@@ -271,8 +341,8 @@ if (!isset($_SESSION['user_id'])) {
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
-
-  <script src="../../scripts/staff/staff_script.js"></script>
+  <script src="../../scripts/staff/reports/staff-reports.js"></script>
+  <script src="../../scripts/staff/reports/staff-reports-modals.js"></script>
+  <script src="../../scripts/staff/reports/staff-reports-init.js"></script>
 </body>
-
 </html>
