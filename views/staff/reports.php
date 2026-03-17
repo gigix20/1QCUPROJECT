@@ -216,12 +216,9 @@ if (!isset($_SESSION['user_id'])) {
           <select id="reportType">
             <option value="">-- Select Type --</option>
             <option value="Complete Asset Inventory">Asset Inventory</option>
-            <option value="Asset by Department">Asset by Department</option>
             <option value="Asset Status Report">Asset Status</option>
             <option value="Certified Assets Report">Certified Assets</option>
             <option value="Overdue Items Report">Overdue Items</option>
-            <option value="Borrowing Activity Report">Borrowing Activity</option>
-            <option value="Asset Utilization Report">Asset Utilization</option>
             <option value="Maintenance Report">Maintenance Report</option>
           </select>
           <select id="reportFormat">

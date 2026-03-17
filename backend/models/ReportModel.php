@@ -290,16 +290,33 @@ public function updateNextRunDate(int $id, string $nextDate): array {
 }
 
 public function getDueSchedules(): array {
+    // Get today's date and current hour:minute
+    $today       = date('Y-m-d');
+    $currentTime = date('H:i'); // e.g. '14:35'
+
     $sql = "SELECT schedule_id, schedule_name, report_type, frequency,
                    next_run_date, run_time, created_by
             FROM tbl_scheduled_reports
             WHERE is_active = 1
-              AND next_run_date <= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+              AND next_run_date <= :today
             ORDER BY next_run_date ASC, run_time ASC";
 
     $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':today', $today);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Filter in PHP — only return rows where run_time has passed
+    return array_values(array_filter($rows, function($row) use ($today, $currentTime) {
+        $nextRun = $row['next_run_date'] ?? $row['NEXT_RUN_DATE'];
+        $runTime = $row['run_time']      ?? $row['RUN_TIME'];
+
+        // If next_run_date is in the past — always due regardless of time
+        if ($nextRun < $today) return true;
+
+        // If next_run_date is today — only due if run_time has passed
+        return $runTime <= $currentTime;
+    }));
 }
 
 public function countActiveSchedules(): int {

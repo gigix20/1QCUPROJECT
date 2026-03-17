@@ -110,7 +110,7 @@ class ScheduledReportService
 
         switch ($frequency) {
             case 'Daily':     $dt->modify('+1 day');    break;
-            case 'Weekly':    $dt->modify('+7 days');   break;
+            case 'Weekly':    $dt->modify('+7 days');   break;  
             case 'Monthly':   $dt->modify('+1 month');  break;
             case 'Quarterly': $dt->modify('+3 months'); break;
             default: return null;
