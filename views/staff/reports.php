@@ -109,6 +109,28 @@ if (!isset($_SESSION['user_id'])) {
       </table>
     </div>
 
+    <!-- Scheduled Reports Table -->
+<div class="table-section" style="margin-top:20px;">
+  <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Scheduled Reports</h2>
+  <table class="asset-table">
+    <thead>
+      <tr>
+        <th>SCHEDULE NAME</th>
+        <th>REPORT TYPE</th>
+        <th>FREQUENCY</th>
+        <th>START DATE</th>
+        <th>NEXT RUN</th>
+        <th>RUN TIME</th>
+        <th>STATUS</th>
+        <th>ACTIONS</th>
+      </tr>
+    </thead>
+    <tbody id="scheduledTableBody">
+      <tr class="empty-row"><td colspan="8">No scheduled reports.</td></tr>
+    </tbody>
+  </table>
+</div>
+
   </div>
 
   <!-- ========================
@@ -280,13 +302,10 @@ if (!isset($_SESSION['user_id'])) {
           <label>Report Type <span style="color:#dc2626;font-weight:700;">*</span></label>
           <select id="schedReportType">
             <option value="">-- Select Type --</option>
-            <option value="Complete Asset Inventory">Asset Inventory</option>
-            <option value="Asset by Department">Asset by Department</option>
+            <option value="Complete Asset Inventory">Complete Asset Inventory</option>
             <option value="Asset Status Report">Asset Status</option>
             <option value="Certified Assets Report">Certified Assets</option>
             <option value="Overdue Items Report">Overdue Items</option>
-            <option value="Borrowing Activity Report">Borrowing Activity</option>
-            <option value="Asset Utilization Report">Asset Utilization</option>
             <option value="Maintenance Report">Maintenance Report</option>
           </select>
         </div>
@@ -308,10 +327,8 @@ if (!isset($_SESSION['user_id'])) {
           <input type="date" id="schedStartDate">
         </div>
         <div class="form-group">
-          <label>Format</label>
-          <select id="schedFormat">
-            <option value="PDF">PDF</option>
-          </select>
+          <label>Run Time <span style="color:#dc2626;font-weight:700;">*</span></label>
+          <input type="time" id="schedRunTime" value="08:00">
         </div>
       </div>
 
@@ -342,7 +359,9 @@ if (!isset($_SESSION['user_id'])) {
   <!-- Toast -->
   <div class="toast" id="toast"></div>
   <script src="../../scripts/staff/reports/staff-reports.js"></script>
+  <script src="../../scripts/staff/reports/staff-reports-scheduled.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-modals.js"></script>
+  <script src="../../scripts/staff/reports/staff-reports-scheduler.js"></script> 
   <script src="../../scripts/staff/reports/staff-reports-init.js"></script>
 </body>
 </html>

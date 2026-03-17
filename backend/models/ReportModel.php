@@ -20,7 +20,7 @@ class ReportModel {
     $this->conn->exec("COMMIT");
   }
 
-  // GET RECENT REPORTS (latest 20)
+  // GET RECENT REPORTS (latest 10)
   public function getRecentReports() {
     $sql = "SELECT * FROM (
               SELECT report_id, report_name, report_type, generated_by,
@@ -28,7 +28,7 @@ class ReportModel {
                      format, file_url
               FROM tbl_reports
               ORDER BY generated_at DESC
-            ) WHERE ROWNUM <= 20";
+            ) WHERE ROWNUM <= 10";
     $stmt = $this->conn->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -209,4 +209,103 @@ class ReportModel {
 
     return ['summary' => $summary, 'by_type' => $byType];
   }
+
+  //SCHEDULED REPORTS
+public function createSchedule(array $data): array {
+    $sql = "INSERT INTO tbl_scheduled_reports
+                (schedule_id, schedule_name, report_type, frequency,
+                 start_date, next_run_date, run_time, created_by, created_at, is_active)
+            VALUES
+                (schedule_seq.NEXTVAL, :name, :type, :freq,
+                 :start, :next,
+                 :run_time, :by, CURRENT_TIMESTAMP, 1)";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':name',     $data['schedule_name']);
+    $stmt->bindValue(':type',     $data['report_type']);
+    $stmt->bindValue(':freq',     $data['frequency']);
+    $stmt->bindValue(':start',    $data['start_date']);
+    $stmt->bindValue(':next',     $data['start_date']);
+    $stmt->bindValue(':run_time', $data['run_time'] ?? '08:00');
+    $stmt->bindValue(':by',       $data['created_by'] ?? 'Staff');
+    $stmt->execute();
+    $this->conn->exec("COMMIT");
+
+    $idStmt = $this->conn->query("SELECT schedule_seq.CURRVAL AS id FROM dual");
+    $idRow  = $idStmt->fetch(PDO::FETCH_ASSOC);
+
+    return ['ok' => true, 'message' => 'Schedule created.', 'id' => (int) ($idRow['id'] ?? 0)];
+}
+
+public function getAllSchedules(): array {
+    $sql = "SELECT schedule_id, schedule_name, report_type, frequency,
+                   start_date,       
+                   next_run_date,   
+                   run_time,
+                   created_by,
+                   TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+                   is_active
+            FROM tbl_scheduled_reports
+            ORDER BY created_at DESC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getScheduleById(int $id): ?array {
+    $sql  = "SELECT * FROM tbl_scheduled_reports WHERE schedule_id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':id', $id);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+public function toggleSchedule(int $id, int $newState): bool {
+    $sql  = "UPDATE tbl_scheduled_reports SET is_active = :state WHERE schedule_id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':state', $newState);
+    $stmt->bindValue(':id',    $id);
+    $stmt->execute();
+    $this->conn->exec("COMMIT");
+    return $stmt->rowCount() > 0;
+}
+
+public function deleteSchedule(int $id): bool {
+    $sql  = "DELETE FROM tbl_scheduled_reports WHERE schedule_id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':id', $id);
+    $stmt->execute();
+    $this->conn->exec("COMMIT");
+    return $stmt->rowCount() > 0;
+}
+
+public function updateNextRunDate(int $id, string $nextDate): array {
+    $sql  = "UPDATE tbl_scheduled_reports SET next_run_date = :next WHERE schedule_id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':next', $nextDate);
+    $stmt->bindValue(':id',   $id);
+    $stmt->execute();
+    $this->conn->exec("COMMIT");
+    return ['ok' => true, 'message' => 'Next run date advanced.', 'next_run_date' => $nextDate];
+}
+
+public function getDueSchedules(): array {
+    $sql = "SELECT schedule_id, schedule_name, report_type, frequency,
+                   next_run_date, run_time, created_by
+            FROM tbl_scheduled_reports
+            WHERE is_active = 1
+              AND next_run_date <= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+            ORDER BY next_run_date ASC, run_time ASC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countActiveSchedules(): int {
+    $sql  = "SELECT COUNT(*) AS CNT FROM tbl_scheduled_reports WHERE is_active = 1";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);
+}
 }

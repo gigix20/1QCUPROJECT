@@ -94,5 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
   //Init
   loadReportDepts();
   loadRecentReports();
-
+  loadScheduledCount();
+  loadScheduledReports();
+  startSchedulerPolling();  
 });

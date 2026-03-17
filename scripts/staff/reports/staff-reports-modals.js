@@ -102,16 +102,90 @@ function clearScheduleForm() {
 }
 
 function saveSchedule() {
-  var name      = document.getElementById('schedReportName') ? document.getElementById('schedReportName').value.trim() : '';
-  var type      = document.getElementById('schedReportType') ? document.getElementById('schedReportType').value        : '';
-  var frequency = document.getElementById('schedFrequency')  ? document.getElementById('schedFrequency').value         : '';
-  var startDate = document.getElementById('schedStartDate')  ? document.getElementById('schedStartDate').value         : '';
+  var name      = (document.getElementById('schedReportName') || {}).value || '';
+  var type      = (document.getElementById('schedReportType') || {}).value || '';
+  var frequency = (document.getElementById('schedFrequency')  || {}).value || '';
+  var startDate = (document.getElementById('schedStartDate')  || {}).value || '';
+  var runTime   = (document.getElementById('schedRunTime')    || {}).value || '08:00'; // ← add
 
-  if (!name || !type || !frequency || !startDate) { showToast('⚠ Please fill in all required fields.'); return; }
+  name = name.trim();
 
-  scheduledList.push({ name: name, type: type, frequency: frequency, startDate: formatDate(startDate) });
-  closeModal('scheduleReportModal');
-  clearScheduleForm();
-  updateReportStats();
-  showToast('✓ Report scheduled: ' + frequency + ' starting ' + formatDate(startDate));
+  if (!name || !type || !frequency || !startDate) {
+    showToast('⚠ Please fill in all required fields.');
+    return;
+  }
+
+  var btn = document.getElementById('saveScheduleBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'SAVING…'; }
+
+  var formData = new FormData();
+  formData.append('schedule_name', name);
+  formData.append('report_type',   type);
+  formData.append('frequency',     frequency);
+  formData.append('start_date',    startDate);
+  formData.append('run_time',      runTime); // ← add
+
+  fetch(REPORT_API + '?resource=scheduled_reports', {
+    method: 'POST',
+    body:   formData
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        closeModal('scheduleReportModal');
+        clearScheduleForm();
+        loadScheduledReports(); // replace loadScheduledCount() so table also refreshes
+        showToast('✓ Report scheduled: ' + frequency + ' starting ' + formatDate(startDate));
+      } else {
+        showToast('⚠ ' + (data.message || 'Failed to save schedule.'));
+      }
+    })
+    .catch(function() {
+      showToast('⚠ Network error — schedule not saved.');
+    })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = 'SAVE SCHEDULE'; }
+    });
+  }
+//PAUSE SCHEDULED
+  function toggleSchedule(id) {
+  var formData = new FormData();
+  formData.append('id', id);
+
+  fetch(REPORT_API + '?resource=toggle_schedule&id=' + id, {
+    method: 'POST',
+    body:   formData
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        showToast('✓ ' + data.message);
+        loadScheduledReports(); // refresh table stat card
+      } else {
+        showToast('⚠ ' + (data.message || 'Toggle failed.'));
+      }
+    })
+    .catch(function() { showToast('⚠ Network error.'); });
+}
+//DELETE SCHEDULED 
+function deleteSchedule(id) {
+  if (!confirm('Delete this scheduled report? This cannot be undone.')) return;
+
+  var formData = new FormData();
+  formData.append('id', id);
+
+  fetch(REPORT_API + '?resource=delete_schedule&id=' + id, {
+    method: 'POST',
+    body:   formData
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        showToast('✓ Schedule deleted.');
+        loadScheduledReports(); // refresh table + stat card
+      } else {
+        showToast('⚠ ' + (data.message || 'Delete failed.'));
+      }
+    })
+    .catch(function() { showToast('⚠ Network error.'); });
 }

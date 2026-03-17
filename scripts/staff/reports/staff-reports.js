@@ -95,9 +95,9 @@ function populateDeptDropdowns() {
     if (!el) return;
     el.innerHTML = '<option value="">All Departments</option>';
     reportDepts.forEach(function(d) {
-      var opt    = document.createElement('option');
-      opt.value  = d.DEPARTMENT_ID;
-      opt.textContent = d.DEPARTMENT_NAME;
+      var opt         = document.createElement('option');
+      opt.value       = d.department_id   || d.DEPARTMENT_ID;
+      opt.textContent = d.department_name || d.DEPARTMENT_NAME;
       el.appendChild(opt);
     });
   });
@@ -134,12 +134,12 @@ function loadRecentReports() {
         reportsList = (data.data || []).map(function(r, i) {
           return {
             _id:         i + 1,
-            name:        r.REPORT_NAME,
-            type:        r.REPORT_TYPE,
-            generatedBy: r.GENERATED_BY,
-            date:        r.GENERATED_AT,
-            format:      r.FORMAT || 'PDF',
-            url:         r.FILE_URL || ''
+            name:        r.report_name  || r.REPORT_NAME,
+            type:        r.report_type  || r.REPORT_TYPE,
+            generatedBy: r.generated_by || r.GENERATED_BY,
+            date:        r.generated_at || r.GENERATED_AT,
+            format:      r.format       || r.FORMAT || 'PDF',
+            url:         r.file_url     || r.FILE_URL || ''
           };
         });
         renderReportsTable();
@@ -177,6 +177,8 @@ function addToRecentReports(name, type, url) {
       updateReportStats();
     });
 }
+
+
 
 // STATS + TABLE
 function updateReportStats() {
