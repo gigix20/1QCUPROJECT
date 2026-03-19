@@ -46,6 +46,18 @@ function saveBorrow() {
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
 
+// AUTO-FILL CURRENT DATE
+var openBtn = document.getElementById('borrowOpenModalBtn');
+if (openBtn) {
+  openBtn.addEventListener('click', function() {
+    openModal('borrowModalOverlay');
+    // auto-fill today
+    var borrowDateEl = document.getElementById('borrowDate');
+    if (borrowDateEl) borrowDateEl.value = new Date().toISOString().split('T')[0];
+    var f = document.getElementById('borrowFirstName');
+    if (f) f.focus();
+  });
+}
 
 // VIEW BORROW
 function viewBorrow(borrow_id) {
@@ -179,28 +191,6 @@ function fetchAssetInfo(asset_id) {
       if (descEl)   descEl.value   = '⚠ Error fetching asset';
       if (liableEl) liableEl.value = '—';
     });
-}
-
-// APPROVE BORROW
-function approveBorrow(borrow_id) {
-  if (!confirm('Approve this borrow request?')) return;
-
-  var formData = new FormData();
-  formData.append('resource',  'borrows');
-  formData.append('action',    'approve');
-  formData.append('borrow_id', borrow_id);
-
-  fetch(BORROW_API, { method: 'POST', body: formData })
-    .then(function(res)  { return res.json(); })
-    .then(function(data) {
-      if (data.status === 'success') {
-        loadBorrows();
-        showToast('✓ Borrow request approved!');
-      } else {
-        showToast('⚠ ' + data.message);
-      }
-    })
-    .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
 
 // CANCEL BORROW

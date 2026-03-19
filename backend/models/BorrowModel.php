@@ -188,6 +188,42 @@ public function cancelBorrow($borrow_id) {
     $this->conn->exec("COMMIT");
   }
 
+  // GET OVERDUE ACTIVE — still borrowed/overdue past due date
+public function getOverdueActive() {
+    $sql = "SELECT b.borrow_id, b.asset_id, b.department_id,
+                   b.first_name, b.middle_name, b.last_name, b.suffix,
+                   b.borrow_date, b.due_date, b.purpose, b.status,
+                   a.description AS asset_description,
+                   d.department_name
+            FROM tbl_borrows b
+            JOIN tbl_assets a ON b.asset_id = a.asset_id
+            JOIN tbl_departments d ON b.department_id = d.department_id
+            WHERE b.status IN ('Borrowed', 'Overdue')
+              AND TO_DATE(SUBSTR(b.due_date, 1, 10), 'YYYY-MM-DD') < TRUNC(SYSDATE)
+            ORDER BY b.due_date ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// GET OVERDUE RETURNS — returned but after due date
+public function getOverdueReturns() {
+    $sql = "SELECT b.borrow_id, b.asset_id, b.department_id,
+                   b.first_name, b.middle_name, b.last_name, b.suffix,
+                   b.borrow_date, b.due_date, b.return_date, b.purpose,
+                   a.description AS asset_description,
+                   d.department_name
+            FROM tbl_borrows b
+            JOIN tbl_assets a ON b.asset_id = a.asset_id
+            JOIN tbl_departments d ON b.department_id = d.department_id
+            WHERE b.status = 'Returned'
+              AND TO_DATE(SUBSTR(b.return_date, 1, 10), 'YYYY-MM-DD') > TO_DATE(SUBSTR(b.due_date, 1, 10), 'YYYY-MM-DD')
+            ORDER BY b.due_date ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
   // GET ASSET INFO FOR MODAL
   public function getAssetInfo($asset_id) {
     $sql = "SELECT a.asset_id, a.description, a.status,

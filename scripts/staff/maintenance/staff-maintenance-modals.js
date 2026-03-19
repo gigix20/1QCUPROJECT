@@ -12,9 +12,10 @@ function saveMaintenance() {
   var scheduled_date    = get('maintScheduledDate');
   var notes             = get('maintNotes');
 
-  if (!asset_id || !type_id || !issue_description || !scheduled_date) {
-    showToast('⚠ Please fill in all required fields.');
-    return;
+  if (!asset_id || !type_id || !issue_description || !scheduled_date ||
+      !tech_first_name || !tech_last_name) { 
+      showToast('⚠ Please fill in all required fields.');
+      return;
   }
 
   var formData = new FormData();

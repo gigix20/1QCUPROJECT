@@ -148,7 +148,7 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>First Name</label>
+          <label>First Name <span style="color:#dc2626;font-weight:700;">*</span></label>
           <input type="text" id="maintTechFirstName" placeholder="e.g. Pedro">
         </div>
         <div class="form-group">
@@ -159,7 +159,7 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Last Name</label>
+          <label>Last Name <span style="color:#dc2626;font-weight:700;">*</span></label>
           <input type="text" id="maintTechLastName" placeholder="e.g. Reyes">
         </div>
         <div class="form-group">

@@ -47,15 +47,22 @@ if (!isset($_SESSION['user_id'])) {
         <div class="stat-value" id="statActiveBorrows">0</div>
         <div class="stat-sub">Currently borrowed</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Overdue Returns</div>
+            <div class="stat-card">
+        <div class="stat-label">Overdue Borrows</div>
         <div class="stat-value" id="statOverdue">0</div>
         <div class="stat-sub red">Past due date</div>
       </div>
+
+      <div class="stat-card">
+    <div class="stat-label">Overdue Returns</div>
+    <div class="stat-value" id="statOverdueReturns">0</div>
+    <div class="stat-sub red">Returned late</div>
+    </div>
+
       <div class="stat-card">
         <div class="stat-label">Returned This Month</div>
         <div class="stat-value" id="statReturnedMonth">0</div>
-        <div class="stat-sub green">On time returns</div>
+        <div class="stat-sub">Total Returned this month</div>
       </div>
     </div>
 
@@ -71,6 +78,7 @@ if (!isset($_SESSION['user_id'])) {
       <button class="filter-tab">PENDING</button>
       <button class="filter-tab">ACTIVE</button>
       <button class="filter-tab">OVERDUE</button>
+      <button class="filter-tab">OVERDUE RETURNS</button>
       <button class="filter-tab">RETURNED</button>
       <button class="filter-tab">CANCELLED</button>
     </div>
@@ -88,6 +96,8 @@ if (!isset($_SESSION['user_id'])) {
             <th>REASON FOR BORROWING</th>
             <th>BORROW DATE</th>
             <th>DUE DATE</th>
+            <th>RETURN DATE</th>
+            <th>RETURN STATUS</th>
             <th>STATUS</th>
             <th>ACTIONS</th>
           </tr>

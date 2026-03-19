@@ -27,6 +27,8 @@ class BorrowController {
       case 'getAsset': $this->getAssetInfo(); break;
       case 'add':      $this->add();          break;
       case 'return':   $this->returnAsset();  break;
+      case 'getOverdueActive':   $this->getOverdueActive();   break;
+      case 'getOverdueReturns':  $this->getOverdueReturns();  break;
       default:         ResponseHelper::sendError(400, 'Invalid action.'); break;
     }
   }
@@ -187,6 +189,17 @@ private function cancelBorrow() {
 
     ResponseHelper::sendSuccess(null, 'Asset returned successfully.');
   }
+    //Get the Active Borrow that is currently Active that is overdue
+    private function getOverdueActive() {
+        $data = $this->model->getOverdueActive();
+        ResponseHelper::sendSuccess($data);
+    }
+
+    //Get the Active Borrow that is Returned but the returned date is overdue
+    private function getOverdueReturns() {
+        $data = $this->model->getOverdueReturns();
+        ResponseHelper::sendSuccess($data);
+}
 
 }
 ?>

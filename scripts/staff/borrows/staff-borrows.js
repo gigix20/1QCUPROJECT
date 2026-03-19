@@ -64,6 +64,17 @@ function borrowBadgeClass(status) {
   }[status] || 'pending';
 }
 
+//RETURN STATUS If late or not
+function returnStatus(b) {
+  if (!b.RETURN_DATE) return '—';
+  if (b.RETURN_DATE <= b.DUE_DATE) {
+    return '<span style="color:#15803d;font-weight:600;">On Time</span>';
+  }
+  var due  = new Date(b.DUE_DATE);
+  var ret  = new Date(b.RETURN_DATE);
+  var diff = Math.floor((ret - due) / (1000 * 60 * 60 * 24));
+  return '<span style="color:#dc2626;font-weight:600;">Late by ' + diff + ' day(s)</span>';
+}
 
 // RENDER TABLE
 function renderBorrowTable(filter, tabFilter) {
@@ -85,6 +96,7 @@ function renderBorrowTable(filter, tabFilter) {
       if (tabFilter === 'PENDING')   tab = b.STATUS === 'Pending';
       if (tabFilter === 'ACTIVE')    tab = b.STATUS === 'Borrowed';
       if (tabFilter === 'OVERDUE')   tab = b.STATUS === 'Overdue';
+      if (tabFilter === 'OVERDUE RETURNS') tab = b.STATUS === 'Returned' && b.RETURN_DATE && b.DUE_DATE && b.RETURN_DATE > b.DUE_DATE;
       if (tabFilter === 'RETURNED')  tab = b.STATUS === 'Returned';
       if (tabFilter === 'CANCELLED') tab = b.STATUS === 'Cancelled';
 
@@ -92,7 +104,7 @@ function renderBorrowTable(filter, tabFilter) {
   });
 
   if (!filtered.length) {
-    borrowTableBody.innerHTML = '<tr class="empty-row"><td colspan="9">No borrow requests to display.</td></tr>';
+    borrowTableBody.innerHTML = '<tr class="empty-row"><td colspan="11">No borrow requests to display.</td></tr>';
     return;
   }
 
@@ -107,9 +119,11 @@ function renderBorrowTable(filter, tabFilter) {
       '<td>'         + (b.ASSET_ID        || '—') + '</td>'                                     +
       '<td><span style="color:' + deptColor + ';font-weight:600;">'
                      + (b.DEPARTMENT_NAME || '—') + '</span></td>'                              +
-      '<td>'         + (b.PURPOSE         || '—') + '</td>'                                     + // ← NEW
+      '<td>'         + (b.PURPOSE         || '—') + '</td>'                                     +
       '<td>'         + formatDate(b.BORROW_DATE)  + '</td>'                                     +
       '<td>'         + formatDate(b.DUE_DATE)     + '</td>'                                     +
+      '<td>'         + (b.RETURN_DATE ? formatDate(b.RETURN_DATE) : '—') + '</td>'              +
+      '<td>'          + returnStatus(b)           + '</td>'                                     +      
       '<td><span class="badge ' + borrowBadgeClass(b.STATUS) + '">' + b.STATUS + '</span></td>' +
       '<td>'         + borrowActionBtns(b)         + '</td>'                                     +
     '</tr>';
@@ -172,12 +186,12 @@ function updateBorrowStats() {
   var active   = borrows.filter(function(b) { return b.STATUS === 'Borrowed'; }).length;
 
   // Count both active overdue AND returned late
-  var overdue  = borrows.filter(function(b) {
-    if (b.STATUS === 'Overdue') return true;
-    if (b.STATUS === 'Returned' && b.RETURN_DATE && b.DUE_DATE) {
-      return b.RETURN_DATE > b.DUE_DATE; // returned after due date
-    }
-    return false;
+  var overdue = borrows.filter(function(b) {
+      return b.STATUS === 'Overdue';
+  }).length;
+
+  var overdueReturns = borrows.filter(function(b) {
+      return b.STATUS === 'Returned' && b.RETURN_DATE && b.DUE_DATE && b.RETURN_DATE > b.DUE_DATE;
   }).length;
 
   var returned = borrows.filter(function(b) {
@@ -190,6 +204,7 @@ function updateBorrowStats() {
   set('statPendingBorrows', pending);
   set('statActiveBorrows',  active);
   set('statOverdue',        overdue);
+  set('statOverdueReturns', overdueReturns);
   set('statReturnedMonth',  returned);
 }
 
