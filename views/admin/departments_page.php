@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU - Departments</title>
-  <link rel="stylesheet" href="../../styles/admin/admin_style.css">
+  <link rel="stylesheet" href="../../styles/admin/admin-department.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -19,7 +19,6 @@
         <p class="page-sub">Manage university departments and locations</p>
       </div>
       <div class="topbar-actions">
-        <button class="outline-btn">CAMPUS MAP</button>
         <button class="add-btn">+ ADD DEPARTMENT</button>
       </div>
     </div>
@@ -74,6 +73,6 @@
     </div>
   </div>
 
-  <script src="../../scripts/admin/admin_script.js"></script>
+  <script src="../../scripts/admin/departments/admin-departments.js"></script>
 </body>
 </html>

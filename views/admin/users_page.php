@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU - Users</title>
-  <link rel="stylesheet" href="../../styles/admin/admin_style.css">
+  <link rel="stylesheet" href="../../styles/admin/admin-users.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -18,10 +18,7 @@
         <h1 class="page-title">USER MANAGEMENT</h1>
         <p class="page-sub">Manage system users and their roles</p>
       </div>
-      <div class="topbar-actions">
-        <button class="outline-btn">EXPORT USERS</button>
-        <button class="add-btn">+ ADD USER</button>
-      </div>
+
     </div>
 
     <div class="search-bar-full">
@@ -60,6 +57,6 @@
     </div>
   </div>
 
-  <script src="../../scripts/admin/admin_script.js"></script>
+  <script src="../../scripts/admin/user/admin-user.js"></script>
 </body>
 </html>
