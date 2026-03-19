@@ -125,13 +125,12 @@ function buildExportUrl(templateName, deptId, deptName, scope, month, year) {
   return url;
 }
 
-// LOAD RECENT REPORTS FROM DB
 function loadRecentReports() {
   fetch(REPORT_API + '?resource=recent_reports&_=' + Date.now())
     .then(function(res)  { return res.json(); })
     .then(function(data) {
       if (data.status === 'success') {
-        reportsList = (data.data || []).map(function(r, i) {
+        reportsList = (data.data.reports || []).map(function(r, i) {
           return {
             _id:         i + 1,
             name:        r.report_name  || r.REPORT_NAME,
@@ -142,11 +141,16 @@ function loadRecentReports() {
             url:         r.file_url     || r.FILE_URL || ''
           };
         });
+        // use the actual count from DB
+        var countEl = document.getElementById('statReportsGenerated');
+        if (countEl) countEl.textContent = data.data.monthly_count || 0;
+
+        var totalEl = document.getElementById('statTotalReports');
+        if (totalEl) totalEl.textContent = data.data.all_time_count || 0;
         renderReportsTable();
         updateReportStats();
       }
-    })
-    .catch(function() { showToast('⚠ Failed to load recent reports.'); });
+    });
 }
 
 // ADD TO RECENT REPORTS (POST to DB then reload)
@@ -190,9 +194,7 @@ function updateReportStats() {
   }).length;
 
   var set = function(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
-  set('statReportsGenerated', generated);
   set('statScheduled',        scheduledList.length);
-  set('statDownloads',        totalDownloads);
 }
 
 function renderReportsTable() {

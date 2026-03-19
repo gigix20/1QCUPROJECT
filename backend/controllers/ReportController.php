@@ -53,9 +53,15 @@ class ReportController {
 
   // GET RECENT REPORTS
   public function getRecentReports() {
-    $rows = $this->model->getRecentReports();
-    ResponseHelper::sendSuccess($rows, 'Recent reports retrieved.');
-  }
+    $rows     = $this->model->getRecentReports();
+    $monthly  = $this->model->countReportsThisMonth();
+    $allTime  = $this->model->countAllReports();
+    ResponseHelper::sendSuccess([
+        'reports'        => $rows,
+        'monthly_count'  => $monthly,
+        'all_time_count' => $allTime,
+    ]);
+}
 
   // GET DEPARTMENTS
   public function getDepartments() {
@@ -66,12 +72,13 @@ class ReportController {
     // EXPORT: Asset Complete (Complete Asset Inventory)
   public function exportAssetComplete() {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
-    $period = $this->periodLabel($month, $year);
+    $breakdown  = $this->model->getAssetBreakdown($month, $year);
 
     $rows = $this->model->getAssetStatusSummary($month, $year);
     ReportService::exportAssetComplete([
-    'rows'   => $rows,
-    'period' => $period,
+        'rows'        => $rows,
+    'by_category' => $breakdown['by_category'],
+    'by_item_type'=> $breakdown['by_item_type'],
   ]);
   }
 
@@ -114,7 +121,7 @@ class ReportController {
     ReportService::exportOverdueItemsReport([
       'overdue_borrows' => $items['overdue_borrows'],
       'late_returns'    => $items['late_returns'],
-      'overdue_maint'   => $items['overdue_maint'],
+      'overdue_active'  => $items['overdue_active'],
       'summary'         => $summary,
       'scope'           => $scope,
       'period'          => $period,

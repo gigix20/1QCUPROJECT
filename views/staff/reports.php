@@ -49,9 +49,9 @@ if (!isset($_SESSION['user_id'])) {
         <div class="stat-sub green">Available templates</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Total Downloads</div>
-        <div class="stat-value" id="statDownloads">0</div>
-        <div class="stat-sub">All time</div>
+        <div class="stat-label">Total Reports Generated</div>
+        <div class="stat-value" id="statTotalReports">0</div>
+        <div class="stat-sub">All Time</div>
       </div>
     </div>
 

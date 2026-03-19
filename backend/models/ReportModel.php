@@ -20,6 +20,25 @@ class ReportModel {
     $this->conn->exec("COMMIT");
   }
 
+  //COUNT ALL TIME
+  public function countAllReports(): int {
+    $sql  = "SELECT COUNT(*) AS CNT FROM tbl_reports";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);
+}
+  
+  // GET RECENT REPORTS This month
+  public function countReportsThisMonth(): int {
+      $thisMonth = date('Y-m');
+      $sql = "SELECT COUNT(*) AS CNT FROM tbl_reports
+              WHERE SUBSTR(TO_CHAR(generated_at, 'YYYY-MM-DD'), 1, 7) = :month";
+      $stmt = $this->conn->prepare($sql);
+      $stmt->bindValue(':month', $thisMonth);
+      $stmt->execute();
+      return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);
+  }
+
   // GET RECENT REPORTS (latest 10)
   public function getRecentReports() {
     $sql = "SELECT * FROM (
@@ -59,7 +78,37 @@ class ReportModel {
     return '';
   }
 
-  // REPORT 1 & 3: ASSET STATUS SUMMARY
+  // REPORT 1: GET ASSET BREAKDOWN BY CATEGORY AND ITEM TYPE
+public function getAssetBreakdown($month = '', $year = '') {
+    $filter = $this->monthYearClause('a.created_at', $month, $year);
+
+    // By category
+    $sql1 = "SELECT c.category_name AS label, COUNT(*) AS total
+             FROM tbl_assets a
+             LEFT JOIN tbl_categories c ON a.category_id = c.category_id
+             WHERE a.is_deleted = 0{$filter}
+             GROUP BY c.category_name
+             ORDER BY total DESC";
+    $stmt1 = $this->conn->prepare($sql1);
+    $stmt1->execute();
+
+    // By item type
+    $sql2 = "SELECT t.item_type_name AS label, COUNT(*) AS total
+             FROM tbl_assets a
+             LEFT JOIN tbl_item_types t ON a.item_type_id = t.item_type_id
+             WHERE a.is_deleted = 0{$filter}
+             GROUP BY t.item_type_name
+             ORDER BY total DESC";
+    $stmt2 = $this->conn->prepare($sql2);
+    $stmt2->execute();
+
+    return [
+        'by_category'  => $stmt1->fetchAll(PDO::FETCH_ASSOC),
+        'by_item_type' => $stmt2->fetchAll(PDO::FETCH_ASSOC),
+    ];
+}
+
+  // REPORT 2: ASSET STATUS SUMMARY
   // Filters tbl_assets.created_at
   public function getAssetStatusSummary($month = '', $year = '') {
     $filter = $this->monthYearClause('a.created_at', $month, $year);
@@ -73,7 +122,7 @@ class ReportModel {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  // REPORT 2: CERTIFIED ASSETS
+  // REPORT 3: CERTIFIED ASSETS
   public function getCertifiedAssets($deptId = '', $month = '', $year = '') {
     $filter = $this->monthYearClause('a.created_at', $month, $year);
     $deptFilter = $deptId ? " AND a.department_id = :dept_id" : '';
@@ -94,69 +143,52 @@ class ReportModel {
   }
 
   // REPORT 3: OVERDUE ITEMS
-  // Filters: due_date (borrows) / scheduled_date (maintenance)
+  // Filters: due_date (borrows)
   public function getOverdueItems($scope = 'all', $month = '', $year = '') {
     $borrowFilter = $this->monthYearClause('b.due_date', $month, $year);
     $maintFilter  = $this->monthYearClause('m.scheduled_date', $month, $year);
 
     $overdueBorrows = [];
     $lateReturns    = [];
-    $overdueMaint   = [];
 
-    // Overdue borrows
-    if ($scope === 'all' || $scope === 'borrows') {
-      $sql = "SELECT b.borrow_id, a.asset_id, a.description AS asset_description,
-                     d.department_name,
-                     b.first_name, b.middle_name, b.last_name, b.suffix,
-                     b.due_date
-              FROM tbl_borrows b
-              JOIN tbl_assets a ON b.asset_id = a.id
-              JOIN tbl_departments d ON b.department_id = d.department_id
-              WHERE b.status IN ('Borrowed','Overdue')
-                AND TO_DATE(b.due_date,'YYYY-MM-DD') < TRUNC(SYSDATE){$borrowFilter}
-              ORDER BY b.due_date ASC";
-      $stmt = $this->conn->prepare($sql);
-      $stmt->execute();
-      $overdueBorrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Late returns
-    if ($scope === 'all' || $scope === 'late') {
-      $sql = "SELECT b.borrow_id, a.asset_id, a.description AS asset_description,
-               d.department_name,
-               b.first_name, b.middle_name, b.last_name, b.suffix,
-               b.due_date
-        FROM tbl_borrows b
-        JOIN tbl_assets a ON b.asset_id = a.id
-        JOIN tbl_departments d ON b.department_id = d.department_id
-        WHERE b.status IN ('Borrowed','Overdue')
-          AND TO_DATE(SUBSTR(b.due_date,1,10),'YYYY-MM-DD') < TRUNC(SYSDATE)
-        ORDER BY b.due_date ASC";
+// Late returns — STATUS = 'Returned' AND returned AFTER due date
+if ($scope === 'all' || $scope === 'late') {
+    $sql = "SELECT b.borrow_id, a.asset_id, a.description AS asset_description,
+                   d.department_name,
+                   b.first_name, b.middle_name, b.last_name, b.suffix,
+                   b.due_date, b.return_date
+            FROM tbl_borrows b
+            JOIN tbl_assets a ON b.asset_id = a.asset_id
+            JOIN tbl_departments d ON b.department_id = d.department_id
+            WHERE b.status = 'Returned'
+              AND TO_DATE(SUBSTR(b.return_date,1,10),'YYYY-MM-DD') > TO_DATE(SUBSTR(b.due_date,1,10),'YYYY-MM-DD'){$borrowFilter}
+            ORDER BY b.due_date ASC";
     $stmt = $this->conn->prepare($sql);
     $stmt->execute();
-      $lateReturns = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    $lateReturns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    // Overdue maintenance
-    if ($scope === 'all') {
-      $sql = "SELECT m.maintenance_id, a.asset_id, a.description AS asset_description,
-                     d.department_name, mt.type_name AS maintenance_type, m.scheduled_date
-              FROM tbl_maintenance m
-              JOIN tbl_assets a ON m.asset_id = a.id
-              JOIN tbl_departments d ON a.department_id = d.department_id
-              JOIN tbl_maintenance_types mt ON m.type_id = mt.type_id
-              WHERE m.status IN ('Pending','In Progress')
-                AND TO_DATE(m.scheduled_date,'YYYY-MM-DD') < TRUNC(SYSDATE){$maintFilter}
-              ORDER BY m.scheduled_date ASC";
-      $stmt = $this->conn->prepare($sql);
-      $stmt->execute();
-      $overdueMaint = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+// Overdue borrows — borrowed/overdue and past due date
+if ($scope === 'all' || $scope === 'borrows') {
+    $sql = "SELECT b.borrow_id, a.asset_id, a.description AS asset_description,
+                   d.department_name,
+                   b.first_name, b.middle_name, b.last_name, b.suffix,
+                   b.due_date
+            FROM tbl_borrows b
+            JOIN tbl_assets a ON b.asset_id = a.asset_id
+            JOIN tbl_departments d ON b.department_id = d.department_id
+            WHERE b.status IN ('Borrowed', 'Overdue')
+              AND TO_DATE(SUBSTR(b.due_date,1,10),'YYYY-MM-DD') < TRUNC(SYSDATE){$borrowFilter}
+            ORDER BY b.due_date ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    $overdueBorrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    return [
+return [
       'overdue_borrows' => $overdueBorrows,
       'late_returns'    => $lateReturns,
-      'overdue_maint'   => $overdueMaint,
+      'overdue_active'  => $overdueActive ?? []
     ];
   }
 
@@ -165,7 +197,7 @@ class ReportModel {
     return [
       'overdue_borrows' => count($items['overdue_borrows']),
       'late_returns'    => count($items['late_returns']),
-      'overdue_maint'   => count($items['overdue_maint']),
+      'overdue_active'  => count($items['overdue_active']),
     ];
   }
 
