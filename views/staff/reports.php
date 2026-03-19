@@ -27,8 +27,7 @@ if (!isset($_SESSION['user_id'])) {
         <p class="page-sub">Generate comprehensive asset reports</p>
       </div>
       <div class="topbar-actions">
-        <button class="outline-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
-        <button class="add-btn"     id="customReportBtn">+ CUSTOM REPORT</button>
+        <button class="add-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
       </div>
     </div>
 

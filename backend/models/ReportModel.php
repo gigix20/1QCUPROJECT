@@ -123,15 +123,17 @@ class ReportModel {
     // Late returns
     if ($scope === 'all' || $scope === 'late') {
       $sql = "SELECT b.borrow_id, a.asset_id, a.description AS asset_description,
-                     b.first_name, b.middle_name, b.last_name, b.suffix,
-                     b.due_date, b.return_date
-              FROM tbl_borrows b
-              JOIN tbl_assets a ON b.asset_id = a.id
-              WHERE b.status = 'Returned'
-                AND TO_DATE(b.return_date,'YYYY-MM-DD') > TO_DATE(b.due_date,'YYYY-MM-DD'){$borrowFilter}
-              ORDER BY b.due_date ASC";
-      $stmt = $this->conn->prepare($sql);
-      $stmt->execute();
+               d.department_name,
+               b.first_name, b.middle_name, b.last_name, b.suffix,
+               b.due_date
+        FROM tbl_borrows b
+        JOIN tbl_assets a ON b.asset_id = a.id
+        JOIN tbl_departments d ON b.department_id = d.department_id
+        WHERE b.status IN ('Borrowed','Overdue')
+          AND TO_DATE(SUBSTR(b.due_date,1,10),'YYYY-MM-DD') < TRUNC(SYSDATE)
+        ORDER BY b.due_date ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
       $lateReturns = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
