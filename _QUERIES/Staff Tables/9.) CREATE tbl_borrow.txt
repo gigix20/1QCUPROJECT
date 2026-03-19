@@ -1,7 +1,7 @@
 -- BORROW/RETURN TABLE
 CREATE TABLE tbl_borrows (
   borrow_id     NUMBER,
-  asset_id      VARCHAR2(20)   NOT NULL,
+  asset_id      VARCHAR2(50)   NOT NULL,
   department_id NUMBER         NOT NULL,
   first_name    VARCHAR2(100)  NOT NULL,
   middle_name   VARCHAR2(100),

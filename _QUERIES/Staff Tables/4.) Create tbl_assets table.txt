@@ -1,6 +1,6 @@
 CREATE TABLE tbl_assets (
   id            NUMBER,
-  asset_id      VARCHAR2(20)   NOT NULL,
+  asset_id      VARCHAR2(50)   NOT NULL,
   qr_code       VARCHAR2(100)  NOT NULL,
   category_id   NUMBER,
   department_id NUMBER,

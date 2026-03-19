@@ -1,7 +1,7 @@
 -- MAINTENANCE TABLE
 CREATE TABLE tbl_maintenance (
   maintenance_id   NUMBER,
-  asset_id         VARCHAR2(20)  NOT NULL,
+  asset_id         VARCHAR2(50)  NOT NULL,
   type_id          NUMBER        NOT NULL,
   issue_description VARCHAR2(255) NOT NULL,
   tech_first_name  VARCHAR2(100),
