@@ -22,7 +22,7 @@ CREATE TABLE tbl_assets (
   CONSTRAINT uq_assets_asset_id
     UNIQUE (asset_id),
   CONSTRAINT uq_assets_qrcode
-    UNIQUE (qr_code)
+    UNIQUE (qr_code),
   CONSTRAINT chk_asset_certified CHECK (is_certified IN (0, 1)),
   CONSTRAINT chk_asset_deleted   CHECK (is_deleted   IN (0, 1))
 );
