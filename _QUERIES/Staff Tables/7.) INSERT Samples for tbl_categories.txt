@@ -1,0 +1,9 @@
+INSERT INTO tbl_categories (category_name) VALUES ('Computer Equipment');
+INSERT INTO tbl_categories (category_name) VALUES ('Office Furniture');
+INSERT INTO tbl_categories (category_name) VALUES ('Audio/Visual');
+INSERT INTO tbl_categories (category_name) VALUES ('Laboratory Equipment');
+INSERT INTO tbl_categories (category_name) VALUES ('Network Equipment');
+INSERT INTO tbl_categories (category_name) VALUES ('Peripherals');
+INSERT INTO tbl_categories (category_name) VALUES ('Vehicles');
+INSERT INTO tbl_categories (category_name) VALUES ('Others');
+COMMIT;

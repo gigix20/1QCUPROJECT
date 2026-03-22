@@ -1,0 +1,11 @@
+ALTER TABLE tbl_assets
+  ADD CONSTRAINT fk_asset_category
+    FOREIGN KEY (category_id)   REFERENCES tbl_categories(category_id);
+
+ALTER TABLE tbl_assets
+  ADD CONSTRAINT fk_asset_department
+    FOREIGN KEY (department_id) REFERENCES tbl_departments(department_id);
+
+ALTER TABLE tbl_assets
+  ADD CONSTRAINT fk_asset_item_type
+    FOREIGN KEY (item_type_id)  REFERENCES tbl_item_types(item_type_id);

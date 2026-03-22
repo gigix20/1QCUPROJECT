@@ -1,0 +1,14 @@
+CREATE TABLE tbl_scheduled_reports (
+  schedule_id    NUMBER,
+  schedule_name  VARCHAR2(150)  NOT NULL,
+  report_type    VARCHAR2(100)  NOT NULL,
+  frequency      VARCHAR2(20)   NOT NULL,  -- Daily, Weekly, Monthly, Quarterly
+  start_date     VARCHAR2(10)   NOT NULL,
+  next_run_date  VARCHAR2(10),
+  created_by     VARCHAR2(100),
+  created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+  is_active      NUMBER(1)      DEFAULT 1,
+  run_time       VARCHAR2(5) DEFAULT '08:00' NOT NULL,
+  CONSTRAINT pk_scheduled_reports PRIMARY KEY (schedule_id)
+);
+CREATE SEQUENCE schedule_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;

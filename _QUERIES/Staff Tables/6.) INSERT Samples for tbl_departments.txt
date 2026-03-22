@@ -1,0 +1,12 @@
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CICS',         'Juan',     'Santos',   'Dela Cruz',  NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('COENG',        'Maria',    'Reyes',    'Garcia',     NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('COED',         'Roberto',  'Lim',      'Mendoza',    'Jr.');
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CBA',          'Ana',      'Cruz',     'Torres',     NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CAS',          'Pedro',    'Bautista', 'Ramos',      'Sr.');
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CAUP',         'Luisa',    'Villanueva','Aquino',    NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('OSAS',         'Carlos',   'Domingo',  'Flores',     NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('Admin Office', 'Elena',    'Pascual',  'Rivera',     NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('Library',      'Miguel',   'Castillo','Navarro',    'III');
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CCS',          'Kurt',     'Avenido',   'Laride',   NULL);
+INSERT INTO tbl_departments (department_name, first_name, middle_name, last_name, suffix) VALUES ('CCS',          'Kurt Axl',     'P',   'Avenido',   NULL);
+COMMIT;

@@ -1,0 +1,4 @@
+DELETE FROM tbl_maintenance;
+DELETE FROM tbl_borrows;
+DELETE FROM tbl_assets;
+COMMIT;

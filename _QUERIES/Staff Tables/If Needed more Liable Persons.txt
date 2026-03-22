@@ -1,0 +1,115 @@
+CREATE TABLE tbl_liable_persons (
+  liable_id     NUMBER,
+  department_id NUMBER        NOT NULL,
+  first_name    VARCHAR2(100) NOT NULL,
+  middle_name   VARCHAR2(100),
+  last_name     VARCHAR2(100) NOT NULL,
+  suffix        VARCHAR2(20),
+  CONSTRAINT pk_liable_persons  PRIMARY KEY (liable_id),
+  CONSTRAINT fk_liable_dept     FOREIGN KEY (department_id)
+    REFERENCES tbl_departments(department_id)
+);
+
+CREATE SEQUENCE liable_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER tbl_liable_bir
+BEFORE INSERT ON tbl_liable_persons
+FOR EACH ROW
+BEGIN
+  SELECT liable_seq.NEXTVAL INTO :NEW.liable_id FROM dual;
+END;
+/
+
+--RUN THE SCRIPT ABOVE FIRST THEN THIS:
+
+--USE THE SAMPLE INSERTS
+INSERT INTO tbl_liable_persons (department_id, first_name, middle_name, last_name, suffix)
+SELECT department_id, first_name, middle_name, last_name, suffix
+FROM   tbl_departments
+WHERE  first_name IS NOT NULL
+AND    last_name  IS NOT NULL;
+COMMIT;
+
+-- Then optionally drop the columns from tbl_departments
+ALTER TABLE tbl_departments DROP COLUMN first_name;
+ALTER TABLE tbl_departments DROP COLUMN middle_name;
+ALTER TABLE tbl_departments DROP COLUMN last_name;
+ALTER TABLE tbl_departments DROP COLUMN suffix;
+
+
+
+--NEW MODEL
+<?php
+class LiablePersonModel {
+  private $conn;
+  public function __construct($conn) { $this->conn = $conn; }
+
+  // GET ALL LIABLE PERSONS BY DEPARTMENT
+  public function getByDepartment($department_id) {
+    $sql = "SELECT liable_id,
+                   first_name, middle_name, last_name, suffix
+            FROM   tbl_liable_persons
+            WHERE  department_id = :department_id
+            ORDER  BY last_name, first_name";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindParam(':department_id', $department_id);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+}
+?>
+
+UPDATED ROUTES (ADD THIS TO EXISTING)
+require_once __DIR__ . '/../models/LiablePersonModel.php';
+
+// Inside switch:
+case 'liable_persons':
+  $department_id = $_GET['department_id'] ?? '';
+  if (empty($department_id)) {
+    ResponseHelper::sendError(400, 'Department ID required.');
+    break;
+  }
+  $model = new LiablePersonModel($conn);
+  ResponseHelper::sendSuccess($model->getByDepartment($department_id));
+  break;
+
+UPDATED DROPDOWN (ADD THIS TO EXISTING)
+function updateLiableDropdown(deptSelectId, liableSelectId) {
+  var deptSel   = document.getElementById(deptSelectId);
+  var liableSel = document.getElementById(liableSelectId);
+  if (!deptSel || !liableSel) return;
+
+  var dept_id = deptSel.value;
+
+  if (!dept_id) {
+    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
+    liableSel.disabled  = true;
+    return;
+  }
+
+  // Show loading state
+  liableSel.innerHTML = '<option value="">Loading...</option>';
+  liableSel.disabled  = true;
+
+  fetch(API + '?resource=liable_persons&department_id=' + dept_id)
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      liableSel.innerHTML = '<option value="">-- Select Liable Person --</option>';
+
+      if (data.status === 'success' && data.data.length > 0) {
+        data.data.forEach(function(p) {
+          var name = [p.FIRST_NAME, p.MIDDLE_NAME, p.LAST_NAME, p.SUFFIX]
+                       .filter(Boolean).join(' ');
+          liableSel.innerHTML += '<option value="' + p.LIABLE_ID + '">' + name + '</option>';
+        });
+        liableSel.disabled = false;
+      } else {
+        liableSel.innerHTML = '<option value="">No liable person assigned</option>';
+        liableSel.disabled  = true;
+      }
+    })
+    .catch(function() {
+      liableSel.innerHTML = '<option value="">Failed to load</option>';
+      liableSel.disabled  = true;
+    });
+}

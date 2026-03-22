@@ -1,0 +1,6 @@
+INSERT INTO tbl_item_types (item_type_name, item_type_code) VALUES ('Printer',   '0001');
+INSERT INTO tbl_item_types (item_type_name, item_type_code) VALUES ('Computer',  '0002');
+INSERT INTO tbl_item_types (item_type_name, item_type_code) VALUES ('Monitor',   '0003');
+INSERT INTO tbl_item_types (item_type_name, item_type_code) VALUES ('Laptop',    '0004');
+INSERT INTO tbl_item_types (item_type_name, item_type_code) VALUES ('Projector', '0005');
+COMMIT;

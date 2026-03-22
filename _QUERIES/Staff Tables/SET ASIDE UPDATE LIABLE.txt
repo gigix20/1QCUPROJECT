@@ -1,0 +1,26 @@
+  private function updateLiable() {
+    $department_id = trim($_POST['department_id'] ?? '');
+    $first_name    = trim($_POST['first_name']    ?? '');
+    $middle_name   = trim($_POST['middle_name']   ?? '');
+    $last_name     = trim($_POST['last_name']     ?? '');
+    $suffix        = trim($_POST['suffix']        ?? '');
+
+    if (empty($department_id)) { ResponseHelper::sendError(400, 'Department ID required.'); return; }
+    if (empty($first_name))    { ResponseHelper::sendError(400, 'First name required.');    return; }
+    if (empty($last_name))     { ResponseHelper::sendError(400, 'Last name required.');     return; }
+
+    $data = [
+      'department_id' => $department_id,
+      'first_name'    => $first_name,
+      'middle_name'   => $middle_name ?: null,
+      'last_name'     => $last_name,
+      'suffix'        => $suffix      ?: null,
+    ];
+
+    if ($this->model->updateLiablePerson($data)) {
+      ResponseHelper::sendSuccess(null, 'Liable person updated.');
+    } else {
+      ResponseHelper::sendError(500, 'Failed to update.');
+    }
+  }
+}
