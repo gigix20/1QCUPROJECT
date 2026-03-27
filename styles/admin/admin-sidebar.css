@@ -1,0 +1,131 @@
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  background: #2d1b47;
+  color: white;
+  padding: 20px 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: white;
+}
+
+.logo-sub {
+  font-size: 9px;
+  color: #a78bfa;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.menu li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
+  text-decoration: none;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu li:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.menu li:hover a { color: white; }
+
+.menu li.active {
+  background: rgba(124, 58, 237, 0.35);
+  color: white;
+  font-weight: 600;
+}
+
+.menu li.active a {
+  color: white;
+  font-weight: 600;
+}
+
+.menu-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.admin-user .name {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.admin-user .role {
+  font-size: 11px;
+  color: #a78bfa;
+}

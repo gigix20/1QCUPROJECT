@@ -13,7 +13,13 @@ if (!isset($_SESSION['user_id'])) {
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Dashboard</title>
-  <link rel="stylesheet" href="../../styles/staff/staff_style.css">
+   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-base.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-sidebar.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-layout.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-toast.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-table.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-modal.css">
+      <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-stats.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 

@@ -1,0 +1,178 @@
+.search-bar-full {
+  background: white;
+  border-radius: 10px;
+  padding: 4px 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.search-bar-full input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: "Outfit", sans-serif;
+  padding: 10px;
+  color: #333;
+  background: transparent;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  background: #e5e7eb;
+  color: #555;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-tab:hover  { background: #d1d5db; }
+.filter-tab.active { background: #5b21b6; color: white; }
+
+.table-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.table-header h2 { font-size: 17px; font-weight: 600; }
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.view-all-btn {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid #7c3aed;
+  color: #7c3aed;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.view-all-btn:hover { background: #7c3aed; color: white; }
+
+.asset-table { width: 100%; border-collapse: collapse; }
+
+.asset-table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.asset-table tbody tr { transition: background 0.15s; }
+.asset-table tbody tr:hover { background: #faf8ff; }
+
+.asset-table tbody td {
+  padding: 13px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid #f5f5f5;
+  color: #333;
+  vertical-align: middle;
+}
+
+.asset-table tbody tr:last-child td { border-bottom: none; }
+
+.empty-row td {
+  text-align: center;
+  padding: 40px 0;
+  color: #bbb;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ── BADGES ── */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge.in-use      { background: #ede9fe; color: #6d28d9; }
+.badge.available   { background: #dcfce7; color: #15803d; }
+.badge.maintenance { background: #fee2e2; color: #b91c1c; }
+.badge.active      { background: #dcfce7; color: #15803d; }
+.badge.pending     { background: #fef9c3; color: #854d0e; }
+.badge.overdue     { background: #fee2e2; color: #b91c1c; }
+.badge.returned    { background: #e0f2fe; color: #0369a1; }
+
+/* ── ACTION BUTTONS ── */
+.view-btn, .del-btn, .edit-btn, .return-btn {
+  padding: 5px 14px;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 11px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  transition: border-color 0.2s, color 0.2s;
+  margin-right: 4px;
+}
+
+.view-btn:hover   { border-color: #7c3aed; color: #7c3aed; }
+.del-btn:hover    { border-color: #dc2626; color: #dc2626; }
+.edit-btn:hover   { border-color: #16a34a; color: #16a34a; }
+.return-btn:hover { border-color: #0369a1; color: #0369a1; }
+
+/* ── QR ── */
+.qr-tag {
+  font-family: monospace;
+  font-size: 11px;
+  background: #f3f0ff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #6d28d9;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.qr-tag:hover { background: #ede9fe; }
+
+@keyframes qrHighlight {
+  0%   { background: #7c3aed22; }
+  50%  { background: #7c3aed44; }
+  100% { background: transparent; }
+}
+
+tr.qr-highlight {
+  animation: qrHighlight 3s ease forwards;
+  outline: 2px solid #7c3aed;
+  outline-offset: -2px;
+}
+
+tr.qr-highlight td { background: transparent; }
