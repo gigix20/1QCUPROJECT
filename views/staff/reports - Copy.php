@@ -1,13 +1,10 @@
 <?php
-require_once __DIR__ . '/../../backend/auth.php';
-if (!isset($_SESSION['user_id'])) {
-  header("Location: /1QCUPROJECT/views/auth/login.php");
-  exit;
-}
+require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Reports</title>
@@ -28,7 +25,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
       <div class="topbar-actions">
         <button class="outline-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
-        <button class="add-btn"     id="customReportBtn">+ CUSTOM REPORT</button>
+        <button class="add-btn" id="customReportBtn">+ CUSTOM REPORT</button>
       </div>
     </div>
 
@@ -119,7 +116,9 @@ if (!isset($_SESSION['user_id'])) {
           </tr>
         </thead>
         <tbody id="reportsTableBody">
-          <tr class="empty-row"><td colspan="6">No reports to display.</td></tr>
+          <tr class="empty-row">
+            <td colspan="6">No reports to display.</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -185,7 +184,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelReportOptionsBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelReportOptionsBtn">CANCEL</button>
         <button class="modal-close-btn" id="confirmReportOptionsBtn">GENERATE PDF</button>
       </div>
     </div>
@@ -272,7 +271,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelCustomReportBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelCustomReportBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveCustomReportBtn">GENERATE REPORT</button>
       </div>
     </div>
@@ -331,7 +330,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelScheduleBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelScheduleBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveScheduleBtn">SAVE SCHEDULE</button>
       </div>
     </div>
@@ -348,7 +347,7 @@ if (!isset($_SESSION['user_id'])) {
         <p style="font-size:12px;color:#888;margin-top:6px;" id="previewReportMeta"></p>
       </div>
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="closePreviewBtn">CLOSE</button>
+        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
       </div>
     </div>
@@ -360,4 +359,5 @@ if (!isset($_SESSION['user_id'])) {
   <script src="../../scripts/staff/reports/staff-reports-modals.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-init.js"></script>
 </body>
+
 </html>

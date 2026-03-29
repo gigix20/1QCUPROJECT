@@ -46,11 +46,6 @@
       <a href="users_page.php">Users</a>
     </li>
 
-    <li class="<?= ($currentPage === 'settings') ? 'active' : '' ?>">
-      <span class="menu-icon">⚙</span>
-      <a href="settings_page.php">Settings</a>
-    </li>
-
     <!-- TEMPORARY PLACEMENT -->
     <li><span class="menu-icon">➜]</span>
       <a href="/1QCUPROJECT/backend/controllers/LogoutController.php" class="logout-btn">

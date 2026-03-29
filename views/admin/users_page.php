@@ -1,21 +1,26 @@
+<?php
+require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
+?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>ONEQCU - Users</title>
+  <title>ONEQCU | Admin Users Management</title>
   <link rel="stylesheet" href="../../styles/admin/admin-users.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<?php $currentPage = 'users'; ?>
-<?php require __DIR__ . '/../../components/admin/admin_sidebar.php'; ?>
+  <?php $currentPage = 'users'; ?>
+  <?php require __DIR__ . '/../../components/admin/admin_sidebar.php'; ?>
 
   <div class="main">
     <div class="topbar">
       <div>
-        <h1 class="page-title">USER MANAGEMENT</h1>
+        <h1 class="page-title">USERS MANAGEMENT</h1>
         <p class="page-sub">Manage system users and their roles</p>
       </div>
 
@@ -59,4 +64,5 @@
 
   <script src="../../scripts/admin/user/admin-user.js"></script>
 </body>
+
 </html>

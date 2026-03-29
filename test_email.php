@@ -24,6 +24,7 @@ try {
 
     $mail->send();
     echo "Email sent successfully!";
+    echo " If this email exist, check your inbox.";
 } catch (PHPMailerException $e) {
     echo "Mail error: " . $e->getMessage();
 }

@@ -1,10 +1,5 @@
 <?php
-require_once __DIR__ . '/../../backend/auth.php';
-
-if (!isset($_SESSION['user_id'])) {
-  header("Location: /1QCUPROJECT/views/auth/login.php");
-  exit;
-}
+require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 ?>
 
 <!DOCTYPE html>
@@ -13,13 +8,13 @@ if (!isset($_SESSION['user_id'])) {
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Borrow/Return</title>
-        <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-stats.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-stats.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -53,17 +48,17 @@ if (!isset($_SESSION['user_id'])) {
         <div class="stat-value" id="statActiveBorrows">0</div>
         <div class="stat-sub">Currently borrowed</div>
       </div>
-            <div class="stat-card">
+      <div class="stat-card">
         <div class="stat-label">Overdue Borrows</div>
         <div class="stat-value" id="statOverdue">0</div>
         <div class="stat-sub red">Past due date</div>
       </div>
 
       <div class="stat-card">
-    <div class="stat-label">Overdue Returns</div>
-    <div class="stat-value" id="statOverdueReturns">0</div>
-    <div class="stat-sub red">Returned late</div>
-    </div>
+        <div class="stat-label">Overdue Returns</div>
+        <div class="stat-value" id="statOverdueReturns">0</div>
+        <div class="stat-sub red">Returned late</div>
+      </div>
 
       <div class="stat-card">
         <div class="stat-label">Returned This Month</div>
@@ -74,8 +69,7 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- Search -->
     <div class="search-bar-full">
-      <input type="text" id="borrowSearchInput"
-             placeholder="Search by borrower name, Asset ID, or request ID...">
+      <input type="text" id="borrowSearchInput" placeholder="Search by borrower name, Asset ID, or request ID...">
     </div>
 
     <!-- Filter Tabs -->
@@ -191,8 +185,7 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="form-full">
         <label>Purpose</label>
-        <input type="text" id="borrowPurpose"
-               placeholder="e.g. For classroom presentation use">
+        <input type="text" id="borrowPurpose" placeholder="e.g. For classroom presentation use">
       </div>
 
       <div class="modal-buttons">
@@ -263,8 +256,7 @@ if (!isset($_SESSION['user_id'])) {
 
       <div class="form-full">
         <label>Remarks</label>
-        <input type="text" id="returnRemarks"
-               placeholder="e.g. Returned in good condition">
+        <input type="text" id="returnRemarks" placeholder="e.g. Returned in good condition">
       </div>
 
       <div class="modal-buttons">
@@ -275,39 +267,38 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <!-- EXPORT MODAL -->
-<div class="modal-overlay" id="borrowExportModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-title">Export Borrow Records</div>
-    <div class="modal-divider"></div>
+  <div class="modal-overlay" id="borrowExportModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-title">Export Borrow Records</div>
+      <div class="modal-divider"></div>
 
-    <div class="modal-section-label">EXPORT OPTIONS</div>
+      <div class="modal-section-label">EXPORT OPTIONS</div>
 
-    <div class="modal-two-col">
-      <div class="form-group">
-        <label>Data Scope</label>
-        <select id="borrowExportScope">
-          <option value="all">All Borrows</option>
-          <option value="filtered">Current View Only</option>
-        </select>
-      </div>
-      <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
-        <label>Options</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;
+      <div class="modal-two-col">
+        <div class="form-group">
+          <label>Data Scope</label>
+          <select id="borrowExportScope">
+            <option value="all">All Borrows</option>
+            <option value="filtered">Current View Only</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
+          <label>Options</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
                       font-weight:400;color:#333;cursor:pointer;
                       text-transform:none;letter-spacing:0;">
-          <input type="checkbox" id="borrowExportIncludeCancelled"
-                 style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
-          Include cancelled borrows
-        </label>
+            <input type="checkbox" id="borrowExportIncludeCancelled" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
+            Include cancelled borrows
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn" id="borrowExportCancelBtn">CANCEL</button>
+        <button class="modal-close-btn" id="borrowExportConfirmBtn">⬇ EXPORT PDF</button>
       </div>
     </div>
-
-    <div class="modal-buttons">
-      <button class="modal-edit-btn" id="borrowExportCancelBtn">CANCEL</button>
-      <button class="modal-close-btn" id="borrowExportConfirmBtn">⬇ EXPORT PDF</button>
-    </div>
   </div>
-</div>
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
@@ -317,4 +308,5 @@ if (!isset($_SESSION['user_id'])) {
   <script src="../../scripts/staff/borrows/staff-borrows-init.js"></script>
 
 </body>
+
 </html>

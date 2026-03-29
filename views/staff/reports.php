@@ -1,23 +1,20 @@
 <?php
-require_once __DIR__ . '/../../backend/auth.php';
-if (!isset($_SESSION['user_id'])) {
-  header("Location: /1QCUPROJECT/views/auth/login.php");
-  exit;
-}
+require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Reports</title>
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-reports.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-reports.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -109,32 +106,36 @@ if (!isset($_SESSION['user_id'])) {
           </tr>
         </thead>
         <tbody id="reportsTableBody">
-          <tr class="empty-row"><td colspan="6">No reports to display.</td></tr>
+          <tr class="empty-row">
+            <td colspan="6">No reports to display.</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Scheduled Reports Table -->
-<div class="table-section" style="margin-top:20px;">
-  <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Scheduled Reports</h2>
-  <table class="asset-table">
-    <thead>
-      <tr>
-        <th>SCHEDULE NAME</th>
-        <th>REPORT TYPE</th>
-        <th>FREQUENCY</th>
-        <th>START DATE</th>
-        <th>NEXT RUN</th>
-        <th>RUN TIME</th>
-        <th>STATUS</th>
-        <th>ACTIONS</th>
-      </tr>
-    </thead>
-    <tbody id="scheduledTableBody">
-      <tr class="empty-row"><td colspan="8">No scheduled reports.</td></tr>
-    </tbody>
-  </table>
-</div>
+    <div class="table-section" style="margin-top:20px;">
+      <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Scheduled Reports</h2>
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th>SCHEDULE NAME</th>
+            <th>REPORT TYPE</th>
+            <th>FREQUENCY</th>
+            <th>START DATE</th>
+            <th>NEXT RUN</th>
+            <th>RUN TIME</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="scheduledTableBody">
+          <tr class="empty-row">
+            <td colspan="8">No scheduled reports.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
   </div>
 
@@ -197,7 +198,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelReportOptionsBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelReportOptionsBtn">CANCEL</button>
         <button class="modal-close-btn" id="confirmReportOptionsBtn">GENERATE PDF</button>
       </div>
     </div>
@@ -281,7 +282,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelCustomReportBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelCustomReportBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveCustomReportBtn">GENERATE REPORT</button>
       </div>
     </div>
@@ -335,7 +336,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="cancelScheduleBtn">CANCEL</button>
+        <button class="modal-edit-btn" id="cancelScheduleBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveScheduleBtn">SAVE SCHEDULE</button>
       </div>
     </div>
@@ -352,7 +353,7 @@ if (!isset($_SESSION['user_id'])) {
         <p style="font-size:12px;color:#888;margin-top:6px;" id="previewReportMeta"></p>
       </div>
       <div class="modal-buttons">
-        <button class="modal-edit-btn"  id="closePreviewBtn">CLOSE</button>
+        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
       </div>
     </div>
@@ -363,7 +364,8 @@ if (!isset($_SESSION['user_id'])) {
   <script src="../../scripts/staff/reports/staff-reports.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-scheduled.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-modals.js"></script>
-  <script src="../../scripts/staff/reports/staff-reports-scheduler.js"></script> 
+  <script src="../../scripts/staff/reports/staff-reports-scheduler.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-init.js"></script>
 </body>
+
 </html>
