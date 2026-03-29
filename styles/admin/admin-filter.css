@@ -1,0 +1,188 @@
+/* ── Filter Row ─────────────────────────────────────────── */
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-tabs-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-tabs-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dropdown filter buttons */
+.filter-dropdown-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #fff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-family: "Outfit", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+  letter-spacing: 0.02em;
+}
+
+.filter-dropdown-btn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.filter-dropdown-btn.active-filter {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #fff;
+}
+
+.filter-dropdown-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.18s;
+}
+
+.filter-dropdown-btn.open svg.chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.filter-dropdown-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  padding: 6px 0;
+  animation: dropFade 0.15s ease;
+}
+
+.filter-dropdown-panel.show {
+  display: block;
+}
+
+@keyframes dropFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-dropdown-panel .ddp-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-family: "Outfit", sans-serif;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.13s;
+  border-radius: 0;
+}
+
+.filter-dropdown-panel .ddp-item:hover {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.filter-dropdown-panel .ddp-item.selected {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.filter-dropdown-panel .ddp-item .ddp-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #7c3aed;
+  opacity: 0;
+}
+
+.filter-dropdown-panel .ddp-item.selected .ddp-check {
+  opacity: 1;
+}
+
+.filter-dropdown-panel .ddp-divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 4px 0;
+}
+
+/* Active filter badge on button */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #7c3aed;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.filter-dropdown-btn.active-filter .filter-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* Clear-all filters pill */
+.clear-filters-btn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  border-radius: 8px;
+  font-family: "Outfit", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.clear-filters-btn:hover {
+  background: #fee2e2;
+}
+
+.clear-filters-btn.visible {
+  display: inline-flex;
+}

@@ -5,18 +5,21 @@ require_once __DIR__ . '/../services/ReportService.php';
 require_once __DIR__ . '/../services/ScheduledReportService.php';
 require_once __DIR__ . '/../helpers/ResponseHelper.php';
 
-class ReportController {
+class ReportController
+{
 
   private $model;
   private $scheduleSvc;
 
-  public function __construct($conn) {
+  public function __construct($conn)
+  {
     $this->model = new ReportModel($conn);
     $this->scheduleSvc = new ScheduledReportService($this->model);
   }
 
   // Helper: read + sanitize month/year from GET
-  private function getMonthYear() {
+  private function getMonthYear()
+  {
     $month = isset($_GET['month']) ? preg_replace('/[^0-9]/', '', $_GET['month']) : '';
     $year  = isset($_GET['year'])  ? preg_replace('/[^0-9]/', '', $_GET['year'])  : '';
 
@@ -27,7 +30,8 @@ class ReportController {
   }
 
   // Helper: build period label for PDF subtitle
-  private function periodLabel($month, $year) {
+  private function periodLabel($month, $year)
+  {
     if ($year && $month) {
       $dt = DateTime::createFromFormat('Y-m', $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT));
       return $dt ? $dt->format('F Y') : '';
@@ -37,7 +41,8 @@ class ReportController {
   }
 
   // SAVE REPORT
-  public function saveReport() {
+  public function saveReport()
+  {
     $name = isset($_POST['report_name']) ? trim($_POST['report_name']) : '';
     $type = isset($_POST['report_type']) ? trim($_POST['report_type']) : '';
     $url  = isset($_POST['file_url'])    ? trim($_POST['file_url'])    : '';
@@ -52,38 +57,42 @@ class ReportController {
   }
 
   // GET RECENT REPORTS
-  public function getRecentReports() {
+  public function getRecentReports()
+  {
     $rows     = $this->model->getRecentReports();
     $monthly  = $this->model->countReportsThisMonth();
     $allTime  = $this->model->countAllReports();
     ResponseHelper::sendSuccess([
-        'reports'        => $rows,
-        'monthly_count'  => $monthly,
-        'all_time_count' => $allTime,
+      'reports'        => $rows,
+      'monthly_count'  => $monthly,
+      'all_time_count' => $allTime,
     ]);
-}
+  }
 
   // GET DEPARTMENTS
-  public function getDepartments() {
+  public function getDepartments()
+  {
     $rows = $this->model->getDepartments();
     ResponseHelper::sendSuccess($rows, 'Departments retrieved.');
   }
 
-    // EXPORT: Asset Complete (Complete Asset Inventory)
-  public function exportAssetComplete() {
+  // EXPORT: Asset Complete (Complete Asset Inventory)
+  public function exportAssetComplete()
+  {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $breakdown  = $this->model->getAssetBreakdown($month, $year);
 
     $rows = $this->model->getAssetStatusSummary($month, $year);
     ReportService::exportAssetComplete([
-        'rows'        => $rows,
-    'by_category' => $breakdown['by_category'],
-    'by_item_type'=> $breakdown['by_item_type'],
-  ]);
+      'rows'        => $rows,
+      'by_category' => $breakdown['by_category'],
+      'by_item_type' => $breakdown['by_item_type'],
+    ]);
   }
 
   // EXPORT: ASSET STATUS (Complete Asset Inventory + Asset Status Report)
-  public function exportAssetStatus() {
+  public function exportAssetStatus()
+  {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $period = $this->periodLabel($month, $year);
 
@@ -95,7 +104,8 @@ class ReportController {
   }
 
   // EXPORT: CERTIFIED ASSETS
-  public function exportCertifiedAssets() {
+  public function exportCertifiedAssets()
+  {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $period   = $this->periodLabel($month, $year);
     $deptId   = isset($_GET['dept_id'])   ? trim($_GET['dept_id'])   : '';
@@ -110,7 +120,8 @@ class ReportController {
   }
 
   // EXPORT: OVERDUE ITEMS
-  public function exportOverdueItems() {
+  public function exportOverdueItems()
+  {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $period = $this->periodLabel($month, $year);
     $scope  = isset($_GET['scope']) ? trim($_GET['scope']) : 'all';
@@ -129,7 +140,8 @@ class ReportController {
   }
 
   // EXPORT: MAINTENANCE REPORT
-  public function exportMaintenanceReport() {
+  public function exportMaintenanceReport()
+  {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $period = $this->periodLabel($month, $year);
 
@@ -142,26 +154,28 @@ class ReportController {
   }
 
   // SCHEDULED REPORTS
-  
-  public function getScheduledReports() {
-      $rows = $this->scheduleSvc->getAll();
-      ResponseHelper::sendSuccess($rows, 'Scheduled reports retrieved.');
+
+  public function getScheduledReports()
+  {
+    $rows = $this->scheduleSvc->getAll();
+    ResponseHelper::sendSuccess($rows, 'Scheduled reports retrieved.');
   }
 
-  public function createSchedule() {
+  public function createSchedule()
+  {
     $body = $_POST;
     if (empty($body)) {
       $body = json_decode(file_get_contents('php://input'), true) ?? [];
     }
 
     $result = $this->scheduleSvc->create([
-    'schedule_name' => $body['schedule_name'] ?? ($body['name'] ?? ''),
-    'report_type'   => $body['report_type']   ?? ($body['type'] ?? ''),
-    'frequency'     => $body['frequency']     ?? '',
-    'start_date'    => $body['start_date']    ?? '',
-    'run_time'      => $body['run_time']      ?? '08:00',
-    'created_by'    => $_SESSION['username']  ?? 'Staff',
-  ]);
+      'schedule_name' => $body['schedule_name'] ?? ($body['name'] ?? ''),
+      'report_type'   => $body['report_type']   ?? ($body['type'] ?? ''),
+      'frequency'     => $body['frequency']     ?? '',
+      'start_date'    => $body['start_date']    ?? '',
+      'run_time'      => $body['run_time']      ?? '08:00',
+      'created_by'    => $_SESSION['username']  ?? 'Staff',
+    ]);
 
     if ($result['ok']) {
       ResponseHelper::sendSuccess(['schedule_id' => $result['id'] ?? null], 'Schedule created.');
@@ -170,9 +184,13 @@ class ReportController {
     }
   }
 
-  public function toggleSchedule() {
+  public function toggleSchedule()
+  {
     $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
-    if ($id <= 0) { ResponseHelper::sendError(400, 'Missing schedule id.'); return; }
+    if ($id <= 0) {
+      ResponseHelper::sendError(400, 'Missing schedule id.');
+      return;
+    }
 
     $result = $this->scheduleSvc->toggle($id);
     if ($result['ok']) {
@@ -182,9 +200,13 @@ class ReportController {
     }
   }
 
-  public function deleteSchedule() {
+  public function deleteSchedule()
+  {
     $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
-    if ($id <= 0) { ResponseHelper::sendError(400, 'Missing schedule id.'); return; }
+    if ($id <= 0) {
+      ResponseHelper::sendError(400, 'Missing schedule id.');
+      return;
+    }
 
     $result = $this->scheduleSvc->delete($id);
     if ($result['ok']) {
@@ -194,9 +216,13 @@ class ReportController {
     }
   }
 
-  public function bumpSchedule() {
+  public function bumpSchedule()
+  {
     $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
-    if ($id <= 0) { ResponseHelper::sendError(400, 'Missing schedule id.'); return; }
+    if ($id <= 0) {
+      ResponseHelper::sendError(400, 'Missing schedule id.');
+      return;
+    }
 
     $result = $this->scheduleSvc->bumpNextRun($id);
     if ($result['ok']) {
@@ -206,12 +232,14 @@ class ReportController {
     }
   }
 
-  public function getDueSchedules() {
+  public function getDueSchedules()
+  {
     $rows = $this->scheduleSvc->getDue();
     ResponseHelper::sendSuccess($rows, 'Due schedules retrieved.');
   }
 
-  public function runScheduledReport() {
+  public function runScheduledReport()
+  {
     $type   = isset($_GET['type']) ? trim($_GET['type']) : '';
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
 
@@ -251,5 +279,14 @@ class ReportController {
     $this->model->saveReport($type . ' (Scheduled)', $type, $url);
 
     ResponseHelper::sendSuccess(['url' => $url], 'Report generated successfully.');
+  }
+
+  public function getScheduledCount()
+  {
+    $rows = $this->scheduleSvc->getAll();
+    $count = count(array_filter($rows, function ($s) {
+      return ($s['is_active'] ?? $s['IS_ACTIVE'] ?? 0) == 1;
+    }));
+    ResponseHelper::sendSuccess(['count' => $count]);
   }
 }

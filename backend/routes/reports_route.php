@@ -33,12 +33,12 @@ switch ($resource) {
     $controller->exportMaintenanceReport();
     break;
 
-  //Scheduled Reports 
+    //Scheduled Reports 
   case 'scheduled_reports':
     if ($method === 'GET')  $controller->getScheduledReports();
     if ($method === 'POST') $controller->createSchedule();
     break;
-    
+
   case 'toggle_schedule':
     $controller->toggleSchedule();
     break;
@@ -54,6 +54,10 @@ switch ($resource) {
 
   case 'run_scheduled':
     $controller->runScheduledReport();
+    break;
+
+  case 'scheduled_count':
+    if ($method === 'GET') $controller->getScheduledCount();
     break;
 
   default:
