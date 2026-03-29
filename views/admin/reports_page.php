@@ -89,6 +89,22 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           MAINTENANCE REPORT
         </div>
 
+        <!-- ADMIN ONLY ACTIONS -->
+        <div class="report-card" onclick="generateReport('Asset by Department')">
+          <div style="font-size:22px;margin-bottom:8px;">&#127970;</div>
+          ASSET BY DEPARTMENT
+        </div>
+
+        <div class="report-card" onclick="generateReport('Borrowing Activity Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#8644;</div>
+          BORROWING ACTIVITY REPORT
+        </div>
+
+        <div class="report-card" onclick="generateReport('Asset Utilization Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#128200;</div>
+          ASSET UTILIZATION REPORT
+        </div>
+
       </div>
     </div>
 

@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 </head>
 
 <body>
+
   <?php $currentPage = 'borrow'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 

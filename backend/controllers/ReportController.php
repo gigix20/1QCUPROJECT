@@ -7,17 +7,15 @@ require_once __DIR__ . '/../helpers/ResponseHelper.php';
 
 class ReportController
 {
-
   private $model;
   private $scheduleSvc;
 
   public function __construct($conn)
   {
-    $this->model = new ReportModel($conn);
+    $this->model       = new ReportModel($conn);
     $this->scheduleSvc = new ScheduledReportService($this->model);
   }
 
-  // Helper: read + sanitize month/year from GET
   private function getMonthYear()
   {
     $month = isset($_GET['month']) ? preg_replace('/[^0-9]/', '', $_GET['month']) : '';
@@ -29,7 +27,6 @@ class ReportController
     return ['month' => $month, 'year' => $year];
   }
 
-  // Helper: build period label for PDF subtitle
   private function periodLabel($month, $year)
   {
     if ($year && $month) {
@@ -40,7 +37,6 @@ class ReportController
     return '';
   }
 
-  // SAVE REPORT
   public function saveReport()
   {
     $name = isset($_POST['report_name']) ? trim($_POST['report_name']) : '';
@@ -56,12 +52,11 @@ class ReportController
     ResponseHelper::sendSuccess([], 'Report saved successfully.');
   }
 
-  // GET RECENT REPORTS
   public function getRecentReports()
   {
-    $rows     = $this->model->getRecentReports();
-    $monthly  = $this->model->countReportsThisMonth();
-    $allTime  = $this->model->countAllReports();
+    $rows    = $this->model->getRecentReports();
+    $monthly = $this->model->countReportsThisMonth();
+    $allTime = $this->model->countAllReports();
     ResponseHelper::sendSuccess([
       'reports'        => $rows,
       'monthly_count'  => $monthly,
@@ -69,41 +64,52 @@ class ReportController
     ]);
   }
 
-  // GET DEPARTMENTS
   public function getDepartments()
   {
     $rows = $this->model->getDepartments();
     ResponseHelper::sendSuccess($rows, 'Departments retrieved.');
   }
 
-  // EXPORT: Asset Complete (Complete Asset Inventory)
   public function exportAssetComplete()
   {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
-    $breakdown  = $this->model->getAssetBreakdown($month, $year);
+    $breakdown = $this->model->getAssetBreakdown($month, $year);
+    $rows      = $this->model->getAssetStatusSummary($month, $year);
 
-    $rows = $this->model->getAssetStatusSummary($month, $year);
     ReportService::exportAssetComplete([
-      'rows'        => $rows,
-      'by_category' => $breakdown['by_category'],
+      'rows'         => $rows,
+      'by_category'  => $breakdown['by_category'],
       'by_item_type' => $breakdown['by_item_type'],
     ]);
   }
 
-  // EXPORT: ASSET STATUS (Complete Asset Inventory + Asset Status Report)
   public function exportAssetStatus()
   {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
     $period = $this->periodLabel($month, $year);
+    $rows   = $this->model->getAssetStatusSummary($month, $year);
 
-    $rows = $this->model->getAssetStatusSummary($month, $year);
     ReportService::exportAssetStatusReport([
       'rows'   => $rows,
       'period' => $period,
     ]);
   }
 
-  // EXPORT: CERTIFIED ASSETS
+  public function exportAssetByDepartment()
+  {
+    ['month' => $month, 'year' => $year] = $this->getMonthYear();
+    $period   = $this->periodLabel($month, $year);
+    $deptId   = isset($_GET['dept_id'])   ? trim($_GET['dept_id'])   : '';
+    $deptName = isset($_GET['dept_name']) ? trim($_GET['dept_name']) : 'All Departments';
+
+    $rows = $this->model->getAssetsByDepartment($deptId, $month, $year);
+    ReportService::exportAssetByDepartmentReport([
+      'rows'      => $rows,
+      'dept_name' => $deptName,
+      'period'    => $period,
+    ]);
+  }
+
   public function exportCertifiedAssets()
   {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
@@ -119,7 +125,6 @@ class ReportController
     ]);
   }
 
-  // EXPORT: OVERDUE ITEMS
   public function exportOverdueItems()
   {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
@@ -133,13 +138,26 @@ class ReportController
       'overdue_borrows' => $items['overdue_borrows'],
       'late_returns'    => $items['late_returns'],
       'overdue_active'  => $items['overdue_active'],
+      'overdue_maint'   => $items['overdue_maint'],
       'summary'         => $summary,
       'scope'           => $scope,
       'period'          => $period,
     ]);
   }
 
-  // EXPORT: MAINTENANCE REPORT
+  public function exportBorrowingActivity()
+  {
+    ['month' => $month, 'year' => $year] = $this->getMonthYear();
+    $period = $this->periodLabel($month, $year);
+
+    $data = $this->model->getBorrowingActivity($month, $year);
+    ReportService::exportBorrowingActivityReport([
+      'summary' => $data['summary'],
+      'records' => $data['records'],
+      'period'  => $period,
+    ]);
+  }
+
   public function exportMaintenanceReport()
   {
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
@@ -153,7 +171,18 @@ class ReportController
     ]);
   }
 
-  // SCHEDULED REPORTS
+  public function exportAssetUtilization()
+  {
+    ['month' => $month, 'year' => $year] = $this->getMonthYear();
+    $period = $this->periodLabel($month, $year);
+
+    $data = $this->model->getAssetUtilization($month, $year);
+    ReportService::exportAssetUtilizationReport([
+      'rows'    => $data['rows'],
+      'overall' => $data['overall'],
+      'period'  => $period,
+    ]);
+  }
 
   public function getScheduledReports()
   {
@@ -240,7 +269,7 @@ class ReportController
 
   public function runScheduledReport()
   {
-    $type   = isset($_GET['type']) ? trim($_GET['type']) : '';
+    $type = isset($_GET['type']) ? trim($_GET['type']) : '';
     ['month' => $month, 'year' => $year] = $this->getMonthYear();
 
     if (!$type) {
@@ -250,43 +279,31 @@ class ReportController
 
     $routeBase = '/1QCUPROJECT/backend/routes/reports_route.php';
 
-    switch ($type) {
-      case 'Complete Asset Inventory':
-        $url = $routeBase . '?resource=report_complete';
-        break;
-      case 'Asset Status Report':
-        $url = $routeBase . '?resource=report_status';
-        break;
-      case 'Certified Assets Report':
-        $url = $routeBase . '?resource=report_certified';
-        break;
-      case 'Overdue Items Report':
-        $url = $routeBase . '?resource=report_overdue';
-        break;
-      case 'Maintenance Report':
-        $url = $routeBase . '?resource=report_maintenance';
-        break;
-      default:
-        ResponseHelper::sendError(400, 'Unknown report type: ' . $type);
-        return;
+    $map = [
+      'Complete Asset Inventory' => 'report_complete',
+      'Asset Status Report'      => 'report_status',
+      'Certified Assets Report'  => 'report_certified',
+      'Overdue Items Report'     => 'report_overdue',
+      'Maintenance Report'       => 'report_maintenance',
+    ];
+
+    if (!isset($map[$type])) {
+      ResponseHelper::sendError(400, 'Unknown report type: ' . $type);
+      return;
     }
 
-    // Append month/year to URL if provided
+    $url = $routeBase . '?resource=' . $map[$type];
     if ($month) $url .= '&month=' . $month;
     if ($year)  $url .= '&year='  . $year;
 
-    // Save entry to recent reports so staff can view it later
     $this->model->saveReport($type . ' (Scheduled)', $type, $url);
-
     ResponseHelper::sendSuccess(['url' => $url], 'Report generated successfully.');
   }
 
   public function getScheduledCount()
   {
-    $rows = $this->scheduleSvc->getAll();
-    $count = count(array_filter($rows, function ($s) {
-      return ($s['is_active'] ?? $s['IS_ACTIVE'] ?? 0) == 1;
-    }));
+    $rows  = $this->scheduleSvc->getAll();
+    $count = count(array_filter($rows, fn ($s) => ($s['is_active'] ?? $s['IS_ACTIVE'] ?? 0) == 1));
     ResponseHelper::sendSuccess(['count' => $count]);
   }
 }

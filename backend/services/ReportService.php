@@ -1,13 +1,15 @@
 <?php
-// Dompdf only — JPGraph completely removed
+
 require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class ReportService {
+class ReportService
+{
 
-  // SHARED PDF SETUP
-  private static function makePDF($html, $filename) {
+  private static function makePDF($html, $filename)
+  {
     $options = new Options();
     $options->set('isHtml5ParserEnabled', true);
     $options->set('isRemoteEnabled',      true);
@@ -21,8 +23,8 @@ class ReportService {
     exit;
   }
 
-  // SHARED HEADER
-  private static function buildHeader($title, $subtitle = '') {
+  private static function buildHeader($title, $subtitle = '')
+  {
     $date = date('F d, Y h:i A');
     return '
       <div style="
@@ -45,8 +47,8 @@ class ReportService {
     ';
   }
 
-  // SHARED FOOTER
-  private static function buildFooter() {
+  private static function buildFooter()
+  {
     return '
       <div style="
         margin-top: 32px;
@@ -61,8 +63,8 @@ class ReportService {
     ';
   }
 
-  // SHARED SUMMARY BOXES
-  private static function buildSummaryBoxes($boxes) {
+  private static function buildSummaryBoxes($boxes)
+  {
     $html = '<div style="display:flex; gap:12px; margin-bottom:24px;">';
     foreach ($boxes as $box) {
       $html .= '
@@ -86,8 +88,8 @@ class ReportService {
     return $html;
   }
 
-  // PAGE HTML WRAPPER
-  private static function buildPageHTML($body) {
+  private static function buildPageHTML($body)
+  {
     return '
       <!DOCTYPE html>
       <html>
@@ -111,8 +113,8 @@ class ReportService {
     ';
   }
 
-  // GD HELPER — image to base64
-  private static function gdToBase64($img) {
+  private static function gdToBase64($img)
+  {
     ob_start();
     imagepng($img);
     $data = ob_get_clean();
@@ -120,72 +122,77 @@ class ReportService {
     return 'data:image/png;base64,' . base64_encode($data);
   }
 
-  // GD HELPER — hex to GD color
-  private static function hex2gd($img, $hex) {
+  private static function hex2gd($img, $hex)
+  {
     $hex = ltrim($hex, '#');
-    return imagecolorallocate($img,
+    return imagecolorallocate(
+      $img,
       hexdec(substr($hex, 0, 2)),
       hexdec(substr($hex, 2, 2)),
       hexdec(substr($hex, 4, 2))
     );
   }
 
-  // PIE CHART — pure GD
-  // $slices = [['label'=>'Available','value'=>10,'color'=>'#15803d'], ...]
-  private static function buildPieChart($slices, $title) {
-    $W = 550; $H = 380;
+  private static function buildPieChart($slices, $title)
+  {
+    $W = 550;
+    $H = 380;
     $img = imagecreatetruecolor($W, $H);
     imagesavealpha($img, true);
 
-    $white   = imagecolorallocate($img, 255, 255, 255);
-    $dark    = imagecolorallocate($img, 45,  27,  71);
-    $grey    = imagecolorallocate($img, 100, 100, 100);
+    $white = imagecolorallocate($img, 255, 255, 255);
+    $dark  = imagecolorallocate($img, 45,  27,  71);
+    $grey  = imagecolorallocate($img, 100, 100, 100);
     imagefilledrectangle($img, 0, 0, $W, $H, $white);
 
-    // Title
     imagestring($img, 5, 10, 10, $title, $dark);
 
-    // Filter out zero-value slices
-    $slices = array_filter($slices, fn($s) => $s['value'] > 0);
+    $slices = array_filter($slices, fn ($s) => $s['value'] > 0);
     if (empty($slices)) {
       imagestring($img, 3, 200, 150, 'No data', $grey);
       return self::gdToBase64($img);
     }
 
-    $total = array_sum(array_column($slices, 'value'));
-
-    // Pie position & size
-    $cx = 200; $cy = 160; $r = 120;
+    $total      = array_sum(array_column($slices, 'value'));
+    $cx         = 200;
+    $cy = 160;
+    $r = 120;
     $startAngle = 0;
 
     foreach ($slices as $slice) {
       $sweep = ($slice['value'] / $total) * 360;
       $color = self::hex2gd($img, $slice['color']);
-      imagefilledarc($img, $cx, $cy, $r * 2, $r * 2,
-        (int)$startAngle, (int)($startAngle + $sweep),
-        $color, IMG_ARC_PIE);
+      imagefilledarc(
+        $img,
+        $cx,
+        $cy,
+        $r * 2,
+        $r * 2,
+        (int)$startAngle,
+        (int)($startAngle + $sweep),
+        $color,
+        IMG_ARC_PIE
+      );
 
-      // Percentage label inside slice
       $midAngle = deg2rad($startAngle + $sweep / 2);
-      $lx = (int)($cx + cos($midAngle) * $r * 0.6);
-      $ly = (int)($cy + sin($midAngle) * $r * 0.6);
+      $lx  = (int)($cx + cos($midAngle) * $r * 0.6);
+      $ly  = (int)($cy + sin($midAngle) * $r * 0.6);
       $pct = round($slice['value'] / $total * 100, 1) . '%';
       imagestring($img, 5, $lx - 10, $ly - 6, $pct, $white);
 
       $startAngle += $sweep;
     }
 
-    // Draw pie border
     $border = imagecolorallocate($img, 255, 255, 255);
     imagearc($img, $cx, $cy, $r * 2, $r * 2, 0, 360, $border);
 
-    // Legend — right side
-    $lx = 360; $ly = 80;
+    $lx = 360;
+    $ly = 80;
     foreach ($slices as $slice) {
       $color = self::hex2gd($img, $slice['color']);
       imagefilledrectangle($img, $lx, $ly, $lx + 14, $ly + 14, $color);
       imagerectangle($img, $lx, $ly, $lx + 14, $ly + 14, $dark);
-      $pct  = round($slice['value'] / $total * 100, 1);
+      $pct = round($slice['value'] / $total * 100, 1);
       imagestring($img, 3, $lx + 20, $ly + 2, $slice['label'] . ' (' . $pct . '%)', $dark);
       $ly += 32;
     }
@@ -193,10 +200,8 @@ class ReportService {
     return self::gdToBase64($img);
   }
 
-  // BAR CHART — pure GD
-  // $groups = [['label'=>'CICS','values'=>[10,5,2],'colors'=>['#15803d','#1d4ed8','#b45309']], ...]
-  // $legendLabels = ['Available','In Use','Maintenance']
-  private static function buildBarChart($groups, $legendLabels, $title) {
+  private static function buildBarChart($groups, $legendLabels, $title)
+  {
     $groupCount  = count($groups);
     $seriesCount = empty($groups) ? 1 : count($groups[0]['values']);
 
@@ -218,10 +223,8 @@ class ReportService {
     $mgrey = imagecolorallocate($img, 150, 150, 150);
     imagefilledrectangle($img, 0, 0, $chartW, $chartH, $white);
 
-    // Title
     imagestring($img, 4, 10, 10, $title, $dark);
 
-    // Find max value for scaling
     $maxVal = 1;
     foreach ($groups as $g) {
       foreach ($g['values'] as $v) {
@@ -231,15 +234,13 @@ class ReportService {
 
     $chartAreaH = $chartH - $topPad - $bottomPad;
 
-    // Horizontal grid lines (5 lines)
     for ($i = 0; $i <= 5; $i++) {
-      $y = $topPad + $chartAreaH - (int)($chartAreaH * $i / 5);
-      imageline($img, $leftPad, $y, $chartW - $rightPad, $y, $lgrey);
+      $y   = $topPad + $chartAreaH - (int)($chartAreaH * $i / 5);
       $val = (int)round($maxVal * $i / 5);
+      imageline($img, $leftPad, $y, $chartW - $rightPad, $y, $lgrey);
       imagestring($img, 1, 2, $y - 6, $val, $mgrey);
     }
 
-    // Bars
     $x = $leftPad + (int)($groupGap / 2);
     foreach ($groups as $g) {
       $bx = $x;
@@ -253,208 +254,179 @@ class ReportService {
         $color = self::hex2gd($img, $g['colors'][$si] ?? '#7c3aed');
         imagefilledrectangle($img, $left, $top, $right, $bot, $color);
 
-        // Value label above bar
         if ($val > 0) {
           imagestring($img, 1, $left + 2, $top - 12, (string)$val, $dark);
         }
         $bx += $barW;
       }
 
-      // Group label below
       $labelX = $x + (int)(($seriesCount * $barW) / 2) - (int)(strlen($g['label']) * 3);
       imagestring($img, 1, $labelX, $topPad + $chartAreaH + 5, $g['label'], $dark);
 
       $x += $seriesCount * $barW + $groupGap;
     }
 
-    // Y-axis line
     imageline($img, $leftPad, $topPad, $leftPad, $topPad + $chartAreaH, $mgrey);
-    // X-axis line
     imageline($img, $leftPad, $topPad + $chartAreaH, $chartW - $rightPad, $topPad + $chartAreaH, $mgrey);
 
-    // Legend
     if (!empty($legendLabels) && !empty($groups)) {
-        $lx = $leftPad;
-        $ly = $chartH - 20;
-        foreach ($legendLabels as $i => $label) {
-            // 👇 use $groups[$i] instead of $groups[0]
-            $color = self::hex2gd($img, $groups[$i]['colors'][0] ?? '#7c3aed');
-            imagefilledrectangle($img, $lx, $ly, $lx + 10, $ly + 10, $color);
-            imagestring($img, 1, $lx + 14, $ly + 1, $label, $dark);
-            $lx += strlen($label) * 7 + 24;
-        }
-}
+      $lx = $leftPad;
+      $ly = $chartH - 20;
+      foreach ($legendLabels as $i => $label) {
+        $color = self::hex2gd($img, $groups[$i]['colors'][0] ?? '#7c3aed');
+        imagefilledrectangle($img, $lx, $ly, $lx + 10, $ly + 10, $color);
+        imagestring($img, 1, $lx + 14, $ly + 1, $label, $dark);
+        $lx += strlen($label) * 7 + 24;
+      }
+    }
 
     return self::gdToBase64($img);
   }
 
- // REPORT 1: ASSET Complete
-  public static function exportAssetComplete($data) {
+  public static function exportAssetComplete($data)
+  {
     $rows       = $data['rows'];
     $byCategory = $data['by_category'] ?? [];
     $byItemType = $data['by_item_type'] ?? [];
     $total      = 0;
 
     $statusColors = [
-        'Available'   => '#15803d',
-        'In Use'      => '#1d4ed8',
-        'Maintenance' => '#b45309',
+      'Available'   => '#15803d',
+      'In Use'      => '#1d4ed8',
+      'Maintenance' => '#b45309',
     ];
 
-    // Status slices
     $statusSlices = [];
     foreach ($rows as $row) {
-        $total += (int)$row['TOTAL'];
-        $statusSlices[] = [
-            'label' => $row['STATUS'],
-            'value' => (int)$row['TOTAL'],
-            'color' => $statusColors[$row['STATUS']] ?? '#7c3aed',
-        ];
+      $total          += (int)$row['TOTAL'];
+      $statusSlices[]  = [
+        'label' => $row['STATUS'],
+        'value' => (int)$row['TOTAL'],
+        'color' => $statusColors[$row['STATUS']] ?? '#7c3aed',
+      ];
     }
 
-    // Category slices — auto assign colors
-    $categoryColors = ['#7c3aed','#1d4ed8','#15803d','#b45309','#be185d','#0369a1','#c2410c'];
+    $categoryColors = ['#7c3aed', '#1d4ed8', '#15803d', '#b45309', '#be185d', '#0369a1', '#c2410c'];
     $categorySlices = [];
     foreach ($byCategory as $i => $row) {
-        $categorySlices[] = [
-            'label' => $row['LABEL'] ?? '—',
-            'value' => (int)$row['TOTAL'],
-            'color' => $categoryColors[$i % count($categoryColors)],
-        ];
+      $categorySlices[] = [
+        'label' => $row['LABEL'] ?? '—',
+        'value' => (int)$row['TOTAL'],
+        'color' => $categoryColors[$i % count($categoryColors)],
+      ];
     }
 
-    // Item type slices — auto assign colors
-    $typeColors = ['#065f46','#1d4ed8','#b45309','#7c3aed','#dc2626','#0f766e','#374151'];
+    $typeColors = ['#065f46', '#1d4ed8', '#b45309', '#7c3aed', '#dc2626', '#0f766e', '#374151'];
     $typeSlices = [];
     foreach ($byItemType as $i => $row) {
-        $typeSlices[] = [
-            'label' => $row['LABEL'] ?? '—',
-            'value' => (int)$row['TOTAL'],
-            'color' => $typeColors[$i % count($typeColors)],
-        ];
+      $typeSlices[] = [
+        'label' => $row['LABEL'] ?? '—',
+        'value' => (int)$row['TOTAL'],
+        'color' => $typeColors[$i % count($typeColors)],
+      ];
     }
 
-    // Build all 3 charts
     $statusChartImg   = self::buildPieChart($statusSlices,   'By Status');
     $categoryChartImg = self::buildPieChart($categorySlices, 'By Category');
     $typeChartImg     = self::buildPieChart($typeSlices,     'By Item Type');
 
-    // Summary boxes
     $boxes = [];
     foreach ($rows as $row) {
-        $color   = $statusColors[$row['STATUS']] ?? '#7c3aed';
-        $boxes[] = ['label' => $row['STATUS'], 'value' => $row['TOTAL'], 'color' => $color, 'bg' => $color . '18'];
+      $color   = $statusColors[$row['STATUS']] ?? '#7c3aed';
+      $boxes[] = ['label' => $row['STATUS'], 'value' => $row['TOTAL'], 'color' => $color, 'bg' => $color . '18'];
     }
     $boxes[] = ['label' => 'Total Assets', 'value' => $total, 'color' => '#7c3aed', 'bg' => '#7c3aed18'];
 
-    // Status table rows
     $statusRows = '';
     foreach ($rows as $i => $row) {
-        $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
-        $color = $statusColors[$row['STATUS']] ?? '#333';
-        $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
-        $statusRows .= '
-            <tr style="background:' . $bg . ';">
-                <td style="padding:10px 14px;">
-                    <span style="display:inline-block;padding:3px 10px;border-radius:20px;
-                        background:' . $color . '18;color:' . $color . ';font-weight:600;font-size:11px;">
-                        ' . $row['STATUS'] . '
-                    </span>
-                </td>
-                <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
-                <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
-            </tr>
-        ';
+      $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $color = $statusColors[$row['STATUS']] ?? '#333';
+      $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
+      $statusRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:10px 14px;">
+            <span style="display:inline-block;padding:3px 10px;border-radius:20px;
+              background:' . $color . '18;color:' . $color . ';font-weight:600;font-size:11px;">
+              ' . $row['STATUS'] . '
+            </span>
+          </td>
+          <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
+          <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
+        </tr>
+      ';
     }
 
-    // Category table rows
     $categoryRows = '';
     foreach ($byCategory as $i => $row) {
-        $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
-        $color = $categoryColors[$i % count($categoryColors)];
-        $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
-        $categoryRows .= '
-            <tr style="background:' . $bg . ';">
-                <td style="padding:10px 14px;font-weight:600;">' . htmlspecialchars($row['LABEL'] ?? '—') . '</td>
-                <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
-                <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
-            </tr>
-        ';
+      $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $color = $categoryColors[$i % count($categoryColors)];
+      $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
+      $categoryRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:10px 14px;font-weight:600;">' . htmlspecialchars($row['LABEL'] ?? '—') . '</td>
+          <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
+          <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
+        </tr>
+      ';
     }
 
-    // Item type table rows
     $typeRows = '';
     foreach ($byItemType as $i => $row) {
-        $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
-        $color = $typeColors[$i % count($typeColors)];
-        $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
-        $typeRows .= '
-            <tr style="background:' . $bg . ';">
-                <td style="padding:10px 14px;font-weight:600;">' . htmlspecialchars($row['LABEL'] ?? '—') . '</td>
-                <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
-                <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
-            </tr>
-        ';
+      $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $color = $typeColors[$i % count($typeColors)];
+      $pct   = $total > 0 ? round($row['TOTAL'] / $total * 100, 1) : 0;
+      $typeRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:10px 14px;font-weight:600;">' . htmlspecialchars($row['LABEL'] ?? '—') . '</td>
+          <td style="padding:10px 14px;text-align:center;font-weight:700;color:' . $color . ';">' . $row['TOTAL'] . '</td>
+          <td style="padding:10px 14px;text-align:center;">' . $pct . '%</td>
+        </tr>
+      ';
     }
 
     $html = self::buildPageHTML(
-        self::buildHeader('Complete Asset Inventory Report', 'Full breakdown by status, category, and item type') .
+      self::buildHeader('Complete Asset Inventory Report', 'Full breakdown by status, category, and item type') .
         self::buildSummaryBoxes($boxes) .
-
-        // 3 charts side by side
         '<table style="width:100%;margin-bottom:24px;"><tr>
-            <td style="text-align:center;width:33%;">
-                <img src="' . $statusChartImg   . '" style="max-width:100%;">
-            </td>
-            <td style="text-align:center;width:33%;">
-                <img src="' . $categoryChartImg . '" style="max-width:100%;">
-            </td>
-            <td style="text-align:center;width:33%;">
-                <img src="' . $typeChartImg     . '" style="max-width:100%;">
-            </td>
-        </tr></table>' .
-
-        // Status table
+        <td style="text-align:center;width:33%;"><img src="' . $statusChartImg   . '" style="max-width:100%;"></td>
+        <td style="text-align:center;width:33%;"><img src="' . $categoryChartImg . '" style="max-width:100%;"></td>
+        <td style="text-align:center;width:33%;"><img src="' . $typeChartImg     . '" style="max-width:100%;"></td>
+      </tr></table>' .
         '<h3 style="color:#2d1b47;margin:0 0 10px;">Asset Status Breakdown</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
-            <thead><tr style="background:#2d1b47;color:#fff;">
-                <th style="padding:10px 14px;text-align:left;">STATUS</th>
-                <th style="padding:10px 14px;text-align:center;">COUNT</th>
-                <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
-            </tr></thead>
-            <tbody>' . $statusRows . '</tbody>
-        </table>' .
-
-        // Category table
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:10px 14px;text-align:left;">STATUS</th>
+          <th style="padding:10px 14px;text-align:center;">COUNT</th>
+          <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
+        </tr></thead>
+        <tbody>' . $statusRows . '</tbody>
+      </table>' .
         '<h3 style="color:#2d1b47;margin:0 0 10px;">By Category</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
-            <thead><tr style="background:#2d1b47;color:#fff;">
-                <th style="padding:10px 14px;text-align:left;">CATEGORY</th>
-                <th style="padding:10px 14px;text-align:center;">COUNT</th>
-                <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
-            </tr></thead>
-            <tbody>' . $categoryRows . '</tbody>
-        </table>' .
-
-        // Item type table
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:10px 14px;text-align:left;">CATEGORY</th>
+          <th style="padding:10px 14px;text-align:center;">COUNT</th>
+          <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
+        </tr></thead>
+        <tbody>' . $categoryRows . '</tbody>
+      </table>' .
         '<h3 style="color:#2d1b47;margin:0 0 10px;">By Item Type</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
-            <thead><tr style="background:#2d1b47;color:#fff;">
-                <th style="padding:10px 14px;text-align:left;">ITEM TYPE</th>
-                <th style="padding:10px 14px;text-align:center;">COUNT</th>
-                <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
-            </tr></thead>
-            <tbody>' . $typeRows . '</tbody>
-        </table>' .
-
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:10px 14px;text-align:left;">ITEM TYPE</th>
+          <th style="padding:10px 14px;text-align:center;">COUNT</th>
+          <th style="padding:10px 14px;text-align:center;">PERCENTAGE</th>
+        </tr></thead>
+        <tbody>' . $typeRows . '</tbody>
+      </table>' .
         self::buildFooter()
     );
 
     self::makePDF($html, 'Complete_Inventory_Report_' . date('Ymd'));
-}
+  }
 
-  // REPORT 2: ASSET STATUS REPORT
-  public static function exportAssetStatusReport($data) {
+  public static function exportAssetStatusReport($data)
+  {
     $rows  = $data['rows'];
     $total = 0;
 
@@ -466,8 +438,8 @@ class ReportService {
 
     $slices = [];
     foreach ($rows as $row) {
-      $total += (int)$row['TOTAL'];
-      $slices[] = [
+      $total    += (int)$row['TOTAL'];
+      $slices[]  = [
         'label' => $row['STATUS'],
         'value' => (int)$row['TOTAL'],
         'color' => $statusColors[$row['STATUS']] ?? '#7c3aed',
@@ -476,7 +448,6 @@ class ReportService {
 
     $chartImg = self::buildPieChart($slices, 'Asset Distribution by Status');
 
-    // Summary boxes
     $boxes = [];
     foreach ($rows as $row) {
       $color   = $statusColors[$row['STATUS']] ?? '#7c3aed';
@@ -484,7 +455,6 @@ class ReportService {
     }
     $boxes[] = ['label' => 'Total Assets', 'value' => $total, 'color' => '#7c3aed', 'bg' => '#7c3aed18'];
 
-    // Table rows
     $tableRows = '';
     foreach ($rows as $i => $row) {
       $bg    = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
@@ -506,9 +476,9 @@ class ReportService {
 
     $html = self::buildPageHTML(
       self::buildHeader('Asset Status Report', 'Overview of all asset statuses') .
-      self::buildSummaryBoxes($boxes) .
-      '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
-      '<table style="width:100%;border-collapse:collapse;font-size:12px;">
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="background:#2d1b47;color:#fff;">
           <th style="padding:10px 14px;text-align:left;">STATUS</th>
           <th style="padding:10px 14px;text-align:center;">COUNT</th>
@@ -516,14 +486,83 @@ class ReportService {
         </tr></thead>
         <tbody>' . $tableRows . '</tbody>
       </table>' .
-      self::buildFooter()
+        self::buildFooter()
     );
 
     self::makePDF($html, 'Asset_Status_Report_' . date('Ymd'));
   }
 
-  // REPORT 2: CERTIFIED ASSETS REPORT
-  public static function exportCertifiedAssetsReport($data) {
+  public static function exportAssetByDepartmentReport($data)
+  {
+    $rows     = $data['rows'];
+    $deptName = $data['dept_name'] ?? 'All Departments';
+
+    $groups     = [];
+    $grandTotal = 0;
+    $totAvail   = 0;
+    $totInUse   = 0;
+    $totMaint   = 0;
+
+    foreach ($rows as $row) {
+      $label    = strlen($row['DEPARTMENT_NAME']) > 6
+        ? substr($row['DEPARTMENT_NAME'], 0, 6) . '.'
+        : $row['DEPARTMENT_NAME'];
+      $groups[] = [
+        'label'  => $label,
+        'values' => [(int)$row['AVAILABLE'], (int)$row['IN_USE'], (int)$row['MAINTENANCE']],
+        'colors' => ['#15803d', '#1d4ed8', '#b45309'],
+      ];
+      $grandTotal += (int)$row['TOTAL'];
+      $totAvail   += (int)$row['AVAILABLE'];
+      $totInUse   += (int)$row['IN_USE'];
+      $totMaint   += (int)$row['MAINTENANCE'];
+    }
+
+    $chartImg = self::buildBarChart($groups, ['Available', 'In Use', 'Maintenance'], 'Assets by Department');
+
+    $boxes = [
+      ['label' => 'Total Assets',    'value' => $grandTotal, 'color' => '#7c3aed', 'bg' => '#7c3aed18'],
+      ['label' => 'Total Available', 'value' => $totAvail,   'color' => '#15803d', 'bg' => '#15803d18'],
+      ['label' => 'Total In Use',    'value' => $totInUse,   'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
+      ['label' => 'Maintenance',     'value' => $totMaint,   'color' => '#b45309', 'bg' => '#b4530918'],
+    ];
+
+    $tableRows = '';
+    foreach ($rows as $i => $row) {
+      $bg = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $tableRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:10px 14px;font-weight:600;">'                                . $row['DEPARTMENT_NAME'] . '</td>
+          <td style="padding:10px 14px;text-align:center;font-weight:700;color:#7c3aed;">' . $row['TOTAL']          . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . $row['AVAILABLE']      . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#1d4ed8;font-weight:600;">' . $row['IN_USE']         . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#b45309;font-weight:600;">' . $row['MAINTENANCE']    . '</td>
+        </tr>
+      ';
+    }
+
+    $html = self::buildPageHTML(
+      self::buildHeader('Asset by Department Report', $deptName) .
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:10px 14px;text-align:left;">DEPARTMENT</th>
+          <th style="padding:10px 14px;text-align:center;">TOTAL</th>
+          <th style="padding:10px 14px;text-align:center;">AVAILABLE</th>
+          <th style="padding:10px 14px;text-align:center;">IN USE</th>
+          <th style="padding:10px 14px;text-align:center;">MAINTENANCE</th>
+        </tr></thead>
+        <tbody>' . $tableRows . '</tbody>
+      </table>' .
+        self::buildFooter()
+    );
+
+    self::makePDF($html, 'Asset_By_Department_' . date('Ymd'));
+  }
+
+  public static function exportCertifiedAssetsReport($data)
+  {
     $rows     = $data['rows'];
     $deptName = $data['dept_name'] ?? 'All Departments';
 
@@ -532,9 +571,9 @@ class ReportService {
     $totalCert  = 0;
 
     foreach ($rows as $row) {
-      $label = strlen($row['DEPARTMENT_NAME']) > 6
-                ? substr($row['DEPARTMENT_NAME'], 0, 6) . '.'
-                : $row['DEPARTMENT_NAME'];
+      $label    = strlen($row['DEPARTMENT_NAME']) > 6
+        ? substr($row['DEPARTMENT_NAME'], 0, 6) . '.'
+        : $row['DEPARTMENT_NAME'];
       $groups[] = [
         'label'  => $label,
         'values' => [(int)$row['CERTIFIED'], (int)$row['NOT_CERTIFIED']],
@@ -548,10 +587,10 @@ class ReportService {
 
     $certPct = $grandTotal > 0 ? round($totalCert / $grandTotal * 100, 1) : 0;
     $boxes   = [
-      ['label' => 'Total Assets',      'value' => $grandTotal,             'color' => '#7c3aed', 'bg' => '#7c3aed18'],
-      ['label' => 'Certified',         'value' => $totalCert,              'color' => '#15803d', 'bg' => '#15803d18'],
-      ['label' => 'Not Certified',     'value' => $grandTotal - $totalCert,'color' => '#dc2626', 'bg' => '#dc262618'],
-      ['label' => 'Certification Rate','value' => $certPct . '%',          'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
+      ['label' => 'Total Assets',       'value' => $grandTotal,              'color' => '#7c3aed', 'bg' => '#7c3aed18'],
+      ['label' => 'Certified',          'value' => $totalCert,               'color' => '#15803d', 'bg' => '#15803d18'],
+      ['label' => 'Not Certified',      'value' => $grandTotal - $totalCert, 'color' => '#dc2626', 'bg' => '#dc262618'],
+      ['label' => 'Certification Rate', 'value' => $certPct . '%',           'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
     ];
 
     $tableRows = '';
@@ -560,20 +599,20 @@ class ReportService {
       $pct = $row['TOTAL'] > 0 ? round($row['CERTIFIED'] / $row['TOTAL'] * 100, 1) : 0;
       $tableRows .= '
         <tr style="background:' . $bg . ';">
-          <td style="padding:10px 14px;font-weight:600;">'                               . $row['DEPARTMENT_NAME']  . '</td>
-          <td style="padding:10px 14px;text-align:center;color:#7c3aed;font-weight:700;">' . $row['TOTAL']           . '</td>
-          <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . $row['CERTIFIED']       . '</td>
-          <td style="padding:10px 14px;text-align:center;color:#dc2626;font-weight:600;">' . $row['NOT_CERTIFIED']   . '</td>
-          <td style="padding:10px 14px;text-align:center;">'                             . $pct . '%'                . '</td>
+          <td style="padding:10px 14px;font-weight:600;">'                                . $row['DEPARTMENT_NAME'] . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#7c3aed;font-weight:700;">' . $row['TOTAL']          . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . $row['CERTIFIED']      . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#dc2626;font-weight:600;">' . $row['NOT_CERTIFIED']  . '</td>
+          <td style="padding:10px 14px;text-align:center;">'                              . $pct . '%'              . '</td>
         </tr>
       ';
     }
 
     $html = self::buildPageHTML(
       self::buildHeader('Certified Assets Report', $deptName) .
-      self::buildSummaryBoxes($boxes) .
-      '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
-      '<table style="width:100%;border-collapse:collapse;font-size:12px;">
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="background:#2d1b47;color:#fff;">
           <th style="padding:10px 14px;text-align:left;">DEPARTMENT</th>
           <th style="padding:10px 14px;text-align:center;">TOTAL</th>
@@ -583,192 +622,352 @@ class ReportService {
         </tr></thead>
         <tbody>' . $tableRows . '</tbody>
       </table>' .
-      self::buildFooter()
+        self::buildFooter()
     );
 
     self::makePDF($html, 'Certified_Assets_Report_' . date('Ymd'));
   }
 
-  // REPORT 4: OVERDUE ITEMS REPORT
-public static function exportOverdueItemsReport($data) {
+  public static function exportOverdueItemsReport($data)
+  {
     $overdueBorrows = $data['overdue_borrows'];
     $lateReturns    = $data['late_returns'];
+    $overdueMaint   = $data['overdue_maint']   ?? [];
+    $overdueActive  = $data['overdue_active']  ?? [];
     $summary        = $data['summary'];
     $scope          = $data['scope'];
 
     $groups = [
-        ['label' => 'Overdue',  'values' => [$summary['overdue_borrows']], 'colors' => ['#dc2626']],
-        ['label' => 'Late Ret', 'values' => [$summary['late_returns']],    'colors' => ['#b45309']],
+      ['label' => 'Overdue',   'values' => [$summary['overdue_borrows']], 'colors' => ['#dc2626']],
+      ['label' => 'Late Ret',  'values' => [$summary['late_returns']],    'colors' => ['#b45309']],
+      ['label' => 'Ov.Maint',  'values' => [$summary['overdue_maint']],   'colors' => ['#7c3aed']],
     ];
-    $chartImg = self::buildBarChart($groups, ['Overdue Borrows', 'Late Returns'], 'Overdue Items Summary');
+    $chartImg = self::buildBarChart($groups, ['Overdue Borrows', 'Late Returns', 'Overdue Maint'], 'Overdue Items Summary');
+
     $boxes = [
-        ['label' => 'Overdue Borrows', 'value' => $summary['overdue_borrows'], 'color' => '#dc2626', 'bg' => '#dc262618'],
-        ['label' => 'Late Returns',    'value' => $summary['late_returns'],    'color' => '#b45309', 'bg' => '#b4530918'],
+      ['label' => 'Overdue Borrows',     'value' => $summary['overdue_borrows'], 'color' => '#dc2626', 'bg' => '#dc262618'],
+      ['label' => 'Late Returns',        'value' => $summary['late_returns'],    'color' => '#b45309', 'bg' => '#b4530918'],
+      ['label' => 'Overdue Maintenance', 'value' => $summary['overdue_maint'],   'color' => '#7c3aed', 'bg' => '#7c3aed18'],
     ];
 
     $html = self::buildHeader('Overdue Items Report', 'Scope: ' . ucfirst($scope)) .
-            self::buildSummaryBoxes($boxes) .
-            '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:60%;">';
+      self::buildSummaryBoxes($boxes) .
+      '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">';
 
-    // Overdue Borrows table
     if (!empty($overdueBorrows)) {
-        $rows = '';
-        foreach ($overdueBorrows as $i => $b) {
-            $bg       = $i % 2 === 0 ? '#ffffff' : '#fff5f5';
-            $borrower = trim(implode(' ', array_filter([$b['FIRST_NAME'], $b['MIDDLE_NAME'], $b['LAST_NAME'], $b['SUFFIX']])));
-            $rows .= '
-                <tr style="background:' . $bg . ';">
-                    <td style="padding:8px 12px;">' . $b['BORROW_ID']         . '</td>
-                    <td style="padding:8px 12px;">' . $b['ASSET_ID']          . '</td>
-                    <td style="padding:8px 12px;">' . $b['ASSET_DESCRIPTION'] . '</td>
-                    <td style="padding:8px 12px;">' . $b['DEPARTMENT_NAME']   . '</td>
-                    <td style="padding:8px 12px;">' . $borrower               . '</td>
-                    <td style="padding:8px 12px;">' . $b['DUE_DATE']          . '</td>
-                </tr>
-            ';
-        }
-        $html .= '
-            <h3 style="color:#dc2626;margin:20px 0 10px;">Overdue Borrows</h3>
-            <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
-                <thead><tr style="background:#dc2626;color:#fff;">
-                    <th style="padding:8px 12px;text-align:left;">BORROW ID</th>
-                    <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
-                    <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
-                    <th style="padding:8px 12px;text-align:left;">DEPARTMENT</th>
-                    <th style="padding:8px 12px;text-align:left;">BORROWER</th>
-                    <th style="padding:8px 12px;text-align:left;">DUE DATE</th>
-                </tr></thead>
-                <tbody>' . $rows . '</tbody>
-            </table>
+      $rows = '';
+      foreach ($overdueBorrows as $i => $b) {
+        $bg       = $i % 2 === 0 ? '#ffffff' : '#fff5f5';
+        $borrower = trim(implode(' ', array_filter([$b['FIRST_NAME'], $b['MIDDLE_NAME'], $b['LAST_NAME'], $b['SUFFIX']])));
+        $rows .= '
+          <tr style="background:' . $bg . ';">
+            <td style="padding:8px 12px;">' . $b['BORROW_ID']         . '</td>
+            <td style="padding:8px 12px;">' . $b['ASSET_ID']          . '</td>
+            <td style="padding:8px 12px;">' . $b['ASSET_DESCRIPTION'] . '</td>
+            <td style="padding:8px 12px;">' . $b['DEPARTMENT_NAME']   . '</td>
+            <td style="padding:8px 12px;">' . $borrower               . '</td>
+            <td style="padding:8px 12px;">' . $b['DUE_DATE']          . '</td>
+          </tr>
         ';
+      }
+      $html .= '
+        <h3 style="color:#dc2626;margin:20px 0 10px;">Overdue Borrows</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
+          <thead><tr style="background:#dc2626;color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">BORROW ID</th>
+            <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
+            <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
+            <th style="padding:8px 12px;text-align:left;">DEPARTMENT</th>
+            <th style="padding:8px 12px;text-align:left;">BORROWER</th>
+            <th style="padding:8px 12px;text-align:left;">DUE DATE</th>
+          </tr></thead>
+          <tbody>' . $rows . '</tbody>
+        </table>
+      ';
     } else {
-        $html .= '<p style="color:#888;font-size:12px;margin:12px 0 24px;">No overdue borrows found.</p>';
+      $html .= '<p style="color:#888;font-size:12px;margin:12px 0 24px;">No overdue borrows found.</p>';
     }
 
-    // Late Returns table
     if (!empty($lateReturns)) {
-        $rows = '';
-        foreach ($lateReturns as $i => $b) {
-            $bg       = $i % 2 === 0 ? '#ffffff' : '#fffbeb';
-            $borrower = trim(implode(' ', array_filter([$b['FIRST_NAME'], $b['MIDDLE_NAME'], $b['LAST_NAME'], $b['SUFFIX']])));
-            $rows .= '
-                <tr style="background:' . $bg . ';">
-                    <td style="padding:8px 12px;">' . $b['BORROW_ID']         . '</td>
-                    <td style="padding:8px 12px;">' . $b['ASSET_ID']          . '</td>
-                    <td style="padding:8px 12px;">' . $b['ASSET_DESCRIPTION'] . '</td>
-                    <td style="padding:8px 12px;">' . $borrower               . '</td>
-                    <td style="padding:8px 12px;">' . $b['DUE_DATE']          . '</td>
-                    <td style="padding:8px 12px;">' . $b['RETURN_DATE']       . '</td>
-                </tr>
-            ';
-        }
-        $html .= '
-            <h3 style="color:#b45309;margin:20px 0 10px;">Late Returns</h3>
-            <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
-                <thead><tr style="background:#b45309;color:#fff;">
-                    <th style="padding:8px 12px;text-align:left;">BORROW ID</th>
-                    <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
-                    <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
-                    <th style="padding:8px 12px;text-align:left;">BORROWER</th>
-                    <th style="padding:8px 12px;text-align:left;">DUE DATE</th>
-                    <th style="padding:8px 12px;text-align:left;">RETURN DATE</th>
-                </tr></thead>
-                <tbody>' . $rows . '</tbody>
-            </table>
+      $rows = '';
+      foreach ($lateReturns as $i => $b) {
+        $bg       = $i % 2 === 0 ? '#ffffff' : '#fffbeb';
+        $borrower = trim(implode(' ', array_filter([$b['FIRST_NAME'], $b['MIDDLE_NAME'], $b['LAST_NAME'], $b['SUFFIX']])));
+        $rows .= '
+          <tr style="background:' . $bg . ';">
+            <td style="padding:8px 12px;">' . $b['BORROW_ID']         . '</td>
+            <td style="padding:8px 12px;">' . $b['ASSET_ID']          . '</td>
+            <td style="padding:8px 12px;">' . $b['ASSET_DESCRIPTION'] . '</td>
+            <td style="padding:8px 12px;">' . $borrower               . '</td>
+            <td style="padding:8px 12px;">' . $b['DUE_DATE']          . '</td>
+            <td style="padding:8px 12px;">' . $b['RETURN_DATE']       . '</td>
+          </tr>
         ';
+      }
+      $html .= '
+        <h3 style="color:#b45309;margin:20px 0 10px;">Late Returns</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
+          <thead><tr style="background:#b45309;color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">BORROW ID</th>
+            <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
+            <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
+            <th style="padding:8px 12px;text-align:left;">BORROWER</th>
+            <th style="padding:8px 12px;text-align:left;">DUE DATE</th>
+            <th style="padding:8px 12px;text-align:left;">RETURN DATE</th>
+          </tr></thead>
+          <tbody>' . $rows . '</tbody>
+        </table>
+      ';
     } else {
-        $html .= '<p style="color:#888;font-size:12px;margin:12px 0 24px;">No late returns found.</p>';
+      $html .= '<p style="color:#888;font-size:12px;margin:12px 0 24px;">No late returns found.</p>';
+    }
+
+    if (!empty($overdueMaint)) {
+      $rows = '';
+      foreach ($overdueMaint as $i => $m) {
+        $bg = $i % 2 === 0 ? '#ffffff' : '#faf5ff';
+        $rows .= '
+          <tr style="background:' . $bg . ';">
+            <td style="padding:8px 12px;">' . $m['MAINTENANCE_ID']    . '</td>
+            <td style="padding:8px 12px;">' . $m['ASSET_ID']          . '</td>
+            <td style="padding:8px 12px;">' . $m['ASSET_DESCRIPTION'] . '</td>
+            <td style="padding:8px 12px;">' . $m['DEPARTMENT_NAME']   . '</td>
+            <td style="padding:8px 12px;">' . $m['MAINTENANCE_TYPE']  . '</td>
+            <td style="padding:8px 12px;">' . $m['SCHEDULED_DATE']    . '</td>
+          </tr>
+        ';
+      }
+      $html .= '
+        <h3 style="color:#7c3aed;margin:20px 0 10px;">Overdue Maintenance</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:24px;">
+          <thead><tr style="background:#7c3aed;color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">MAINT ID</th>
+            <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
+            <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
+            <th style="padding:8px 12px;text-align:left;">DEPARTMENT</th>
+            <th style="padding:8px 12px;text-align:left;">TYPE</th>
+            <th style="padding:8px 12px;text-align:left;">SCHEDULED DATE</th>
+          </tr></thead>
+          <tbody>' . $rows . '</tbody>
+        </table>
+      ';
     }
 
     $html .= self::buildFooter();
     self::makePDF(self::buildPageHTML($html), 'Overdue_Items_Report_' . date('Ymd'));
-}
+  }
 
-// MAINTENANCE REPORT
-// Data: summary (status counts), by_type (per type breakdown), period
-public static function exportMaintenanceReport($data) {
-  $summary = $data['summary'] ?? [];
-  $byType  = $data['by_type'] ?? [];
-  $period  = $data['period']  ?? '';
+  public static function exportBorrowingActivityReport($data)
+  {
+    $summary = $data['summary'];
+    $records = $data['records'];
 
-  $subtitle = $period
-    ? 'Maintenance status summary — ' . $period
-    : 'Maintenance status summary — All Time';
+    $statusColors = [
+      'Pending'   => '#b45309',
+      'Borrowed'  => '#1d4ed8',
+      'Returned'  => '#15803d',
+      'Overdue'   => '#dc2626',
+      'Cancelled' => '#6b7280',
+    ];
 
-  // Index summary by status
-  $counts = [
-    'Pending'     => 0,
-    'In Progress' => 0,
-    'Completed'   => 0,
-    'Cancelled'   => 0
-  ];
+    $groups       = [];
+    $boxes        = [];
+    $legendLabels = [];
+    $total        = 0;
 
-  foreach ($summary as $row) {
-    $s = $row['STATUS'] ?? '';
-    if (isset($counts[$s])) {
-      $counts[$s] = (int)$row['TOTAL'];
+    foreach ($summary as $row) {
+      $color          = $statusColors[$row['STATUS']] ?? '#7c3aed';
+      $groups[]       = ['label' => $row['STATUS'], 'values' => [(int)$row['TOTAL']], 'colors' => [$color]];
+      $legendLabels[] = $row['STATUS'];
+      $boxes[]        = ['label' => $row['STATUS'], 'value' => $row['TOTAL'], 'color' => $color, 'bg' => $color . '18'];
+      $total         += (int)$row['TOTAL'];
     }
+
+    $chartImg  = self::buildBarChart($groups, $legendLabels, 'Borrowing Activity by Status');
+    $tableRows = '';
+
+    foreach ($records as $i => $b) {
+      $bg       = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $color    = $statusColors[$b['STATUS']] ?? '#333';
+      $borrower = trim(implode(' ', array_filter([$b['FIRST_NAME'], $b['MIDDLE_NAME'], $b['LAST_NAME'], $b['SUFFIX']])));
+      $tableRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:8px 12px;">' . $b['BORROW_ID']                 . '</td>
+          <td style="padding:8px 12px;">' . $b['ASSET_ID']                  . '</td>
+          <td style="padding:8px 12px;">' . $b['ASSET_DESCRIPTION']         . '</td>
+          <td style="padding:8px 12px;">' . $b['DEPARTMENT_NAME']           . '</td>
+          <td style="padding:8px 12px;">' . $borrower                       . '</td>
+          <td style="padding:8px 12px;">' . $b['BORROW_DATE']               . '</td>
+          <td style="padding:8px 12px;">' . $b['DUE_DATE']                  . '</td>
+          <td style="padding:8px 12px;">' . ($b['RETURN_DATE'] ?: '—')      . '</td>
+          <td style="padding:8px 12px;">
+            <span style="display:inline-block;padding:2px 8px;border-radius:20px;
+              background:' . $color . '18;color:' . $color . ';font-weight:600;font-size:10px;">
+              ' . $b['STATUS'] . '
+            </span>
+          </td>
+        </tr>
+      ';
+    }
+
+    $html = self::buildPageHTML(
+      self::buildHeader('Borrowing Activity Report', 'Latest 50 borrow records') .
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:8px 12px;text-align:left;">ID</th>
+          <th style="padding:8px 12px;text-align:left;">ASSET ID</th>
+          <th style="padding:8px 12px;text-align:left;">DESCRIPTION</th>
+          <th style="padding:8px 12px;text-align:left;">DEPARTMENT</th>
+          <th style="padding:8px 12px;text-align:left;">BORROWER</th>
+          <th style="padding:8px 12px;text-align:left;">BORROW DATE</th>
+          <th style="padding:8px 12px;text-align:left;">DUE DATE</th>
+          <th style="padding:8px 12px;text-align:left;">RETURN DATE</th>
+          <th style="padding:8px 12px;text-align:left;">STATUS</th>
+        </tr></thead>
+        <tbody>' . $tableRows . '</tbody>
+      </table>' .
+        self::buildFooter()
+    );
+
+    self::makePDF($html, 'Borrowing_Activity_Report_' . date('Ymd'));
   }
 
-  // Summary boxes
-  $boxes = [
-    ['label' => 'PENDING',     'value' => $counts['Pending'],     'color' => '#b45309', 'bg' => '#b4530918'],
-    ['label' => 'IN PROGRESS', 'value' => $counts['In Progress'], 'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
-    ['label' => 'COMPLETED',   'value' => $counts['Completed'],   'color' => '#15803d', 'bg' => '#15803d18'],
-    ['label' => 'CANCELLED',   'value' => $counts['Cancelled'],   'color' => '#6b7280', 'bg' => '#6b728018'],
-  ];
+  public static function exportAssetUtilizationReport($data)
+  {
+    $rows    = $data['rows'];
+    $overall = $data['overall'];
 
-  // Build slices correctly for pie chart
-  $slices = [
-    ['label'=>'Pending',     'value'=>$counts['Pending'],     'color'=>'#b45309'],
-    ['label'=>'In Progress', 'value'=>$counts['In Progress'], 'color'=>'#1d4ed8'],
-    ['label'=>'Completed',   'value'=>$counts['Completed'],   'color'=>'#15803d'],
-    ['label'=>'Cancelled',   'value'=>$counts['Cancelled'],   'color'=>'#6b7280'],
-  ];
+    $groups = [];
+    foreach ($rows as $row) {
+      $label    = strlen($row['DEPARTMENT_NAME']) > 6
+        ? substr($row['DEPARTMENT_NAME'], 0, 6) . '.'
+        : $row['DEPARTMENT_NAME'];
+      $groups[] = [
+        'label'  => $label,
+        'values' => [(float)($row['UTILIZATION_PCT'] ?? 0)],
+        'colors' => ['#7c3aed'],
+      ];
+    }
 
-  $chartImg = self::buildPieChart($slices, 'Maintenance by Status');
+    $chartImg = self::buildBarChart($groups, ['Utilization %'], 'Asset Utilization Rate by Department (%)');
 
-  // Per-type table rows
-  $tableRows = '';
+    $boxes = [
+      ['label' => 'Total Assets',        'value' => $overall['TOTAL'],                 'color' => '#7c3aed', 'bg' => '#7c3aed18'],
+      ['label' => 'In Use',              'value' => $overall['IN_USE'],                'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
+      ['label' => 'Available',           'value' => $overall['AVAILABLE'],             'color' => '#15803d', 'bg' => '#15803d18'],
+      ['label' => 'Overall Utilization', 'value' => $overall['UTILIZATION_PCT'] . '%', 'color' => '#b45309', 'bg' => '#b4530918'],
+    ];
 
-  foreach ($byType as $row) {
-    $tableRows .= '
-      <tr style="border-bottom:1px solid #e5e7eb;">
-        <td style="padding:10px 14px;">' . htmlspecialchars($row['MAINTENANCE_TYPE'] ?? '—') . '</td>
-        <td style="padding:10px 14px;text-align:center;">' . ($row['TOTAL'] ?? 0) . '</td>
-        <td style="padding:10px 14px;text-align:center;color:#b45309;font-weight:600;">' . ($row['PENDING'] ?? 0) . '</td>
-        <td style="padding:10px 14px;text-align:center;color:#1d4ed8;font-weight:600;">' . ($row['IN_PROGRESS'] ?? 0) . '</td>
-        <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . ($row['COMPLETED'] ?? 0) . '</td>
-        <td style="padding:10px 14px;text-align:center;color:#6b7280;font-weight:600;">' . ($row['CANCELLED'] ?? 0) . '</td>
-      </tr>
-    ';
+    $tableRows = '';
+    foreach ($rows as $i => $row) {
+      $bg       = $i % 2 === 0 ? '#ffffff' : '#f9f5ff';
+      $pct      = $row['UTILIZATION_PCT'] ?? 0;
+      $pctColor = $pct >= 75 ? '#15803d' : ($pct >= 40 ? '#b45309' : '#dc2626');
+      $tableRows .= '
+        <tr style="background:' . $bg . ';">
+          <td style="padding:10px 14px;font-weight:600;">'                                . $row['DEPARTMENT_NAME'] . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#7c3aed;font-weight:700;">' . $row['TOTAL']          . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#1d4ed8;font-weight:600;">' . $row['IN_USE']         . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . $row['AVAILABLE']      . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#b45309;font-weight:600;">' . $row['MAINTENANCE']    . '</td>
+          <td style="padding:10px 14px;text-align:center;">
+            <span style="font-weight:700;color:' . $pctColor . ';font-size:13px;">' . $pct . '%</span>
+          </td>
+        </tr>
+      ';
+    }
+
+    $html = self::buildPageHTML(
+      self::buildHeader('Asset Utilization Report', 'Utilization rate per department') .
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
+          <th style="padding:10px 14px;text-align:left;">DEPARTMENT</th>
+          <th style="padding:10px 14px;text-align:center;">TOTAL</th>
+          <th style="padding:10px 14px;text-align:center;">IN USE</th>
+          <th style="padding:10px 14px;text-align:center;">AVAILABLE</th>
+          <th style="padding:10px 14px;text-align:center;">MAINTENANCE</th>
+          <th style="padding:10px 14px;text-align:center;">UTILIZATION %</th>
+        </tr></thead>
+        <tbody>' . $tableRows . '</tbody>
+      </table>' .
+        self::buildFooter()
+    );
+
+    self::makePDF($html, 'Asset_Utilization_Report_' . date('Ymd'));
   }
 
-  if (!$tableRows) {
-    $tableRows = '<tr><td colspan="6" style="padding:20px;text-align:center;color:#888;">No maintenance records found.</td></tr>';
-  }
+  public static function exportMaintenanceReport($data)
+  {
+    $summary = $data['summary'] ?? [];
+    $byType  = $data['by_type'] ?? [];
+    $period  = $data['period']  ?? '';
 
-  $html = self::buildPageHTML(
-    self::buildHeader('Maintenance Report', $subtitle) .
-    self::buildSummaryBoxes($boxes) .
-    '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
-    '<table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead>
-        <tr style="background:#2d1b47;color:#fff;">
+    $subtitle = $period
+      ? 'Maintenance status summary — ' . $period
+      : 'Maintenance status summary — All Time';
+
+    $counts = ['Pending' => 0, 'In Progress' => 0, 'Completed' => 0, 'Cancelled' => 0];
+    foreach ($summary as $row) {
+      $s = $row['STATUS'] ?? '';
+      if (isset($counts[$s])) $counts[$s] = (int)$row['TOTAL'];
+    }
+
+    $boxes = [
+      ['label' => 'PENDING',     'value' => $counts['Pending'],     'color' => '#b45309', 'bg' => '#b4530918'],
+      ['label' => 'IN PROGRESS', 'value' => $counts['In Progress'], 'color' => '#1d4ed8', 'bg' => '#1d4ed818'],
+      ['label' => 'COMPLETED',   'value' => $counts['Completed'],   'color' => '#15803d', 'bg' => '#15803d18'],
+      ['label' => 'CANCELLED',   'value' => $counts['Cancelled'],   'color' => '#6b7280', 'bg' => '#6b728018'],
+    ];
+
+    $slices = [
+      ['label' => 'Pending',     'value' => $counts['Pending'],     'color' => '#b45309'],
+      ['label' => 'In Progress', 'value' => $counts['In Progress'], 'color' => '#1d4ed8'],
+      ['label' => 'Completed',   'value' => $counts['Completed'],   'color' => '#15803d'],
+      ['label' => 'Cancelled',   'value' => $counts['Cancelled'],   'color' => '#6b7280'],
+    ];
+
+    $chartImg  = self::buildPieChart($slices, 'Maintenance by Status');
+    $tableRows = '';
+
+    foreach ($byType as $row) {
+      $tableRows .= '
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 14px;">'                                               . htmlspecialchars($row['MAINTENANCE_TYPE'] ?? '—') . '</td>
+          <td style="padding:10px 14px;text-align:center;">'                             . ($row['TOTAL'] ?? 0)       . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#b45309;font-weight:600;">' . ($row['PENDING'] ?? 0)     . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#1d4ed8;font-weight:600;">' . ($row['IN_PROGRESS'] ?? 0) . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#15803d;font-weight:600;">' . ($row['COMPLETED'] ?? 0)   . '</td>
+          <td style="padding:10px 14px;text-align:center;color:#6b7280;font-weight:600;">' . ($row['CANCELLED'] ?? 0)   . '</td>
+        </tr>
+      ';
+    }
+
+    if (!$tableRows) {
+      $tableRows = '<tr><td colspan="6" style="padding:20px;text-align:center;color:#888;">No maintenance records found.</td></tr>';
+    }
+
+    $html = self::buildPageHTML(
+      self::buildHeader('Maintenance Report', $subtitle) .
+        self::buildSummaryBoxes($boxes) .
+        '<img src="' . $chartImg . '" style="display:block;margin:0 auto 24px;max-width:100%;">' .
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:#2d1b47;color:#fff;">
           <th style="padding:10px 14px;text-align:left;">MAINTENANCE TYPE</th>
           <th style="padding:10px 14px;text-align:center;">TOTAL</th>
           <th style="padding:10px 14px;text-align:center;">PENDING</th>
           <th style="padding:10px 14px;text-align:center;">IN PROGRESS</th>
           <th style="padding:10px 14px;text-align:center;">COMPLETED</th>
           <th style="padding:10px 14px;text-align:center;">CANCELLED</th>
-        </tr>
-      </thead>
-      <tbody>' . $tableRows . '</tbody>
-    </table>' .
-    self::buildFooter()
-  );
+        </tr></thead>
+        <tbody>' . $tableRows . '</tbody>
+      </table>' .
+        self::buildFooter()
+    );
 
-  self::makePDF($html, 'Maintenance_Report_' . date('Ymd'));
-}
-
+    self::makePDF($html, 'Maintenance_Report_' . date('Ymd'));
+  }
 }

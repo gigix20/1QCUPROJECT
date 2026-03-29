@@ -15,10 +15,12 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-reports.css">
+
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+
   <?php $currentPage = 'reports'; ?>
   <?php require __DIR__ . '/../../components/staff/staff_sidebar.php'; ?>
 
@@ -361,11 +363,13 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
+
   <script src="../../scripts/staff/reports/staff-reports.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-scheduled.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-modals.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-scheduler.js"></script>
   <script src="../../scripts/staff/reports/staff-reports-init.js"></script>
+
 </body>
 
 </html>
