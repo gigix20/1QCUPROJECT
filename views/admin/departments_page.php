@@ -1,16 +1,21 @@
+<?php
+require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
+?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>ONEQCU - Departments</title>
+  <title>ONEQCU | Admin Departments</title>
   <link rel="stylesheet" href="../../styles/admin/admin-department.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<?php $currentPage = 'departments'; ?>
-<?php require __DIR__ . '/../../components/admin/admin_sidebar.php'; ?>
+  <?php $currentPage = 'departments'; ?>
+  <?php require __DIR__ . '/../../components/admin/admin_sidebar.php'; ?>
 
   <div class="main">
     <div class="topbar">
@@ -75,4 +80,5 @@
 
   <script src="../../scripts/admin/departments/admin-departments.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,5 @@
 <?php
-// Visit: http://localhost/1QCUPROJECT/check.php
+// Visit: http://localhost/1QCUPROJECT/check_jgraph.php
 echo extension_loaded('gd') ? 'GD is enabled' : 'GD is NOT enabled';
 echo '<br>';
 echo extension_loaded('gd') ? json_encode(gd_info()) : '';

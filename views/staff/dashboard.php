@@ -1,10 +1,5 @@
 <?php
-require_once __DIR__ . '/../../backend/auth.php';
-
-if (!isset($_SESSION['user_id'])) {
-  header("Location: /1QCUPROJECT/views/auth/login.php");
-  exit;
-}
+require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 ?>
 
 <!DOCTYPE html>
@@ -13,13 +8,13 @@ if (!isset($_SESSION['user_id'])) {
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Dashboard</title>
-        <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
-      <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-stats.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-base.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-sidebar.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-layout.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-toast.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-stats.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -93,8 +88,7 @@ if (!isset($_SESSION['user_id'])) {
       <div class="table-section" style="flex:1;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h2 style="font-size:15px;font-weight:600;">Recent Assets</h2>
-          <a href="/1QCUPROJECT/views/staff/assets.php"
-             style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+          <a href="/1QCUPROJECT/views/staff/assets.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
             VIEW ALL →
           </a>
         </div>
@@ -109,7 +103,9 @@ if (!isset($_SESSION['user_id'])) {
             </tr>
           </thead>
           <tbody id="dashAssetTableBody">
-            <tr class="empty-row"><td colspan="5">Loading...</td></tr>
+            <tr class="empty-row">
+              <td colspan="5">Loading...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -118,8 +114,7 @@ if (!isset($_SESSION['user_id'])) {
       <div class="table-section" style="flex:1;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h2 style="font-size:15px;font-weight:600;">Recent Borrow Requests</h2>
-          <a href="/1QCUPROJECT/views/staff/borrow.php"
-             style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+          <a href="/1QCUPROJECT/views/staff/borrow.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
             VIEW ALL →
           </a>
         </div>
@@ -134,7 +129,9 @@ if (!isset($_SESSION['user_id'])) {
             </tr>
           </thead>
           <tbody id="dashBorrowTableBody">
-            <tr class="empty-row"><td colspan="5">Loading...</td></tr>
+            <tr class="empty-row">
+              <td colspan="5">Loading...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -145,8 +142,7 @@ if (!isset($_SESSION['user_id'])) {
     <div class="table-section">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <h2 style="font-size:15px;font-weight:600;">Recent Maintenance</h2>
-        <a href="/1QCUPROJECT/views/staff/maintenance.php"
-           style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+        <a href="/1QCUPROJECT/views/staff/maintenance.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
           VIEW ALL →
         </a>
       </div>
@@ -161,7 +157,9 @@ if (!isset($_SESSION['user_id'])) {
           </tr>
         </thead>
         <tbody id="dashMaintTableBody">
-          <tr class="empty-row"><td colspan="5">Loading...</td></tr>
+          <tr class="empty-row">
+            <td colspan="5">Loading...</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -173,4 +171,5 @@ if (!isset($_SESSION['user_id'])) {
   <script src="../../scripts/staff/dashboard/staff-dashboard.js"></script>
   <script src="../../scripts/staff/dashboard/staff-dashboard-init.js"></script>
 </body>
+
 </html>
