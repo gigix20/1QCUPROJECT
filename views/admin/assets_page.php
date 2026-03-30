@@ -236,14 +236,17 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         </div>
       </div>
       <div class="modal-two-col">
+
+      <!-- asset status options -->
         <div class="form-group">
           <label>Status</label>
           <select id="assetsStatus">
             <option value="Available">Available</option>
             <option value="In Use">In Use</option>
-            <option value="Maintenance">Maintenance</option>
+            <!-- <option value="Maintenance">Maintenance</option> -->
           </select>
         </div>
+
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Certified</label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">

@@ -89,19 +89,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Liable person dropdown — Add modal
+  // ── Liable person dropdown — Add modal ───────────────────────────────────
   var deptSelect = document.getElementById('assetsDepartment');
   if (deptSelect) {
     deptSelect.addEventListener('change', function() {
-      updateLiableDropdown('assetsDepartment', 'assetsLiablePerson');
+      fetchCustodiansByDept(this.value, 'assetsLiablePerson', null);
     });
   }
 
-  // Liable person dropdown — Edit modal
+  // ── Liable person dropdown — Edit modal ──────────────────────────────────
   var editDeptSelect = document.getElementById('editDepartment');
   if (editDeptSelect) {
     editDeptSelect.addEventListener('change', function() {
-      updateLiableDropdown('editDepartment', 'editLiablePerson');
+      fetchCustodiansByDept(this.value, 'editLiablePerson', null);
     });
   }
 

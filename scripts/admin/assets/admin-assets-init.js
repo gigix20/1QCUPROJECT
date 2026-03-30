@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Filter tabs — including the Pending Deletions tab
+  // Filter tabs
   document.querySelectorAll('.filter-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.filter-tab').forEach(function(t) {
@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var status = this.dataset.status || 'ALL';
 
-      // Toggle between normal table and pending deletions section
       var normalSection   = document.getElementById('normalAssetsSection');
       var pendingSection  = document.getElementById('pendingDeletionsSection');
 
@@ -103,19 +102,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Liable person dropdown — Add modal
+  // ── Liable person dropdown — Add modal ───────────────────────────────────
   var deptSelect = document.getElementById('assetsDepartment');
   if (deptSelect) {
     deptSelect.addEventListener('change', function() {
-      updateLiableDropdown('assetsDepartment', 'assetsLiablePerson');
+      fetchCustodiansByDept(this.value, 'assetsLiablePerson', null);
     });
   }
 
-  // Liable person dropdown — Edit modal
+  // ── Liable person dropdown — Edit modal ──────────────────────────────────
   var editDeptSelect = document.getElementById('editDepartment');
   if (editDeptSelect) {
     editDeptSelect.addEventListener('change', function() {
-      updateLiableDropdown('editDepartment', 'editLiablePerson');
+      fetchCustodiansByDept(this.value, 'editLiablePerson', null);
     });
   }
 

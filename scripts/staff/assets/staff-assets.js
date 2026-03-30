@@ -36,8 +36,6 @@ function getActiveTab() {
 }
 
 
-
-
 // DEPT COLORS
 var DEPT_COLORS = {
   'CICS':          '#1d4ed8',
@@ -56,33 +54,6 @@ function getDeptColor(dept) {
   return DEPT_COLORS[dept] || '#2d1b47';
 }
 
-function getLiablePerson(selectId) {
-  var sel = document.getElementById(selectId);
-  if (!sel) return '—';
-  var opt = sel.options[sel.selectedIndex];
-  return opt ? (opt.getAttribute('data-liable') || '—') : '—';
-}
-
-function updateLiableDropdown(deptSelectId, liableSelectId) {
-  var deptSel   = document.getElementById(deptSelectId);
-  var liableSel = document.getElementById(liableSelectId);
-  if (!deptSel || !liableSel) return;
-
-  var opt    = deptSel.options[deptSel.selectedIndex];
-  var liable = opt ? opt.getAttribute('data-liable') : null;
-
-  liableSel.innerHTML = '';
-
-  if (!liable || liable === '—' || !deptSel.value) {
-    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
-    liableSel.disabled  = true;
-    return;
-  }
-
-  liableSel.innerHTML = '<option value="' + liable + '">' + liable + '</option>';
-  liableSel.disabled  = false;
-}
-
 function badgeClass(status) {
   return {
     'Available':   'available',
@@ -92,6 +63,49 @@ function badgeClass(status) {
 }
 
 
+// ── FETCH CUSTODIANS BY DEPARTMENT ───────────────────────────────────────────
+function fetchCustodiansByDept(dept_id, liableSelectId, selectedCustodianId) {
+  var liableSel = document.getElementById(liableSelectId);
+  if (!liableSel) return;
+
+  if (!dept_id) {
+    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
+    liableSel.disabled  = true;
+    return;
+  }
+
+  liableSel.innerHTML = '<option value="">Loading...</option>';
+  liableSel.disabled  = true;
+
+  fetch(API + '?resource=custodians&department_id=' + encodeURIComponent(dept_id) + '&_=' + Date.now())
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status !== 'success' || !data.data.length) {
+        liableSel.innerHTML = '<option value="">No custodians found</option>';
+        liableSel.disabled  = true;
+        return;
+      }
+
+      liableSel.innerHTML = '<option value="">-- Select Liable Person --</option>';
+      data.data.forEach(function(c) {
+        var name = [c.FIRST_NAME, c.MIDDLE_NAME, c.LAST_NAME, c.SUFFIX]
+                    .filter(Boolean).join(' ');
+        var opt  = document.createElement('option');
+        opt.value       = c.CUSTODIAN_ID;
+        opt.textContent = name;
+        if (selectedCustodianId && c.CUSTODIAN_ID == selectedCustodianId) {
+          opt.selected = true;
+        }
+        liableSel.appendChild(opt);
+      });
+
+      liableSel.disabled = false;
+    })
+    .catch(function() {
+      liableSel.innerHTML = '<option value="">⚠ Failed to load</option>';
+      liableSel.disabled  = true;
+    });
+}
 
 
 // RENDER TABLE
@@ -102,6 +116,9 @@ function renderAssetsTable(filter, tabFilter) {
   tabFilter =  tabFilter || 'ALL';
 
   var filtered = assets.filter(function(a) {
+    var liable = [a.CUSTODIAN_FIRST, a.CUSTODIAN_MIDDLE, a.CUSTODIAN_LAST, a.CUSTODIAN_SUFFIX]
+                   .filter(Boolean).join(' ');
+
     var match =
       (a.ASSET_ID        || '').toLowerCase().includes(filter) ||
       (a.DESCRIPTION     || '').toLowerCase().includes(filter) ||
@@ -111,8 +128,7 @@ function renderAssetsTable(filter, tabFilter) {
       (a.DEPARTMENT_NAME || '').toLowerCase().includes(filter) ||
       (a.LOCATION        || '').toLowerCase().includes(filter) ||
       (a.QR_CODE         || '').toLowerCase().includes(filter) ||
-      (a.LAST_NAME       || '').toLowerCase().includes(filter) ||
-      (a.FIRST_NAME      || '').toLowerCase().includes(filter);
+      liable.toLowerCase().includes(filter);
 
     var tab = true;
     if (tabFilter === 'Available')   tab = a.STATUS       === 'Available';
@@ -137,23 +153,23 @@ function renderAssetsTable(filter, tabFilter) {
       ? '<span class="badge" style="background:#fee2e2;color:#dc2626;">Pending Deletion</span>'
       : '<span class="badge ' + badgeClass(a.STATUS) + '">' + a.STATUS + '</span>';
 
-    var liable = [a.FIRST_NAME, a.MIDDLE_NAME, a.LAST_NAME, a.SUFFIX]
+    var liable = [a.CUSTODIAN_FIRST, a.CUSTODIAN_MIDDLE, a.CUSTODIAN_LAST, a.CUSTODIAN_SUFFIX]
                    .filter(Boolean).join(' ') || '—';
 
-    return '<tr>'                                                        +
-      '<td><strong>' + (a.ASSET_ID        || '—') + '</strong></td>'    +
-      '<td>'         + qrTagHTML(a)               + '</td>'             +
-      '<td>'         + (a.DESCRIPTION     || '—') + '</td>'             +
-      '<td>'         + (a.SERIAL_NUMBER   || '—') + '</td>'             +
-      '<td>'         + (a.ITEM_TYPE_NAME  || '—') + '</td>'             +
-      '<td>'         + (a.CATEGORY_NAME   || '—') + '</td>'             +
-      '<td>'         + (a.DEPARTMENT_NAME || '—') + '</td>'             +
-      '<td>'         + liable                     + '</td>'             +
-      '<td>'         + (a.LOCATION        || '—') + '</td>'             +
-      '<td>'         + statusCell                 + '</td>'             +
-      '<td>'         + cert                       + '</td>'             +
-      '<td>'         + actionBtns(a)              + '</td>'             +
-    '</tr>';
+    return '<tr>'
+      + '<td><strong>' + (a.ASSET_ID        || '—') + '</strong></td>'
+      + '<td>'         + qrTagHTML(a)               + '</td>'
+      + '<td>'         + (a.DESCRIPTION     || '—') + '</td>'
+      + '<td>'         + (a.SERIAL_NUMBER   || '—') + '</td>'
+      + '<td>'         + (a.ITEM_TYPE_NAME  || '—') + '</td>'
+      + '<td>'         + (a.CATEGORY_NAME   || '—') + '</td>'
+      + '<td>'         + (a.DEPARTMENT_NAME || '—') + '</td>'
+      + '<td>'         + liable                     + '</td>'
+      + '<td>'         + (a.LOCATION        || '—') + '</td>'
+      + '<td>'         + statusCell                 + '</td>'
+      + '<td>'         + cert                       + '</td>'
+      + '<td>'         + actionBtns(a)              + '</td>'
+    + '</tr>';
   }).join('');
 }
 
@@ -173,11 +189,8 @@ function actionBtns(a) {
 }
 
 
-
-
 // LOAD DROPDOWNS
 function loadDropdowns() {
-  // Departments
   fetch(API + '?resource=departments&_=' + Date.now())
     .then(function(res)  { return res.json(); })
     .then(function(data) {
@@ -185,18 +198,13 @@ function loadDropdowns() {
       var addSel  = document.getElementById('assetsDepartment');
       var editSel = document.getElementById('editDepartment');
       data.data.forEach(function(d) {
-        var liable = [d.FIRST_NAME, d.MIDDLE_NAME, d.LAST_NAME, d.SUFFIX]
-                      .filter(Boolean).join(' ');
-        var opt = '<option value="' + d.DEPARTMENT_ID + '" ' +
-                  'data-liable="'  + (liable || '—')  + '">' +
-                  d.DEPARTMENT_NAME + '</option>';
+        var opt = '<option value="' + d.DEPARTMENT_ID + '">' + d.DEPARTMENT_NAME + '</option>';
         if (addSel)  addSel.innerHTML  += opt;
         if (editSel) editSel.innerHTML += opt;
       });
     })
     .catch(function() { showToast('⚠ Failed to load departments.'); });
 
-  // Categories
   fetch(API + '?resource=categories')
     .then(function(res)  { return res.json(); })
     .then(function(data) {
@@ -211,7 +219,6 @@ function loadDropdowns() {
     })
     .catch(function() { showToast('⚠ Failed to load categories.'); });
 
-  // Item Types
   fetch(API + '?resource=item_types')
     .then(function(res)  { return res.json(); })
     .then(function(data) {

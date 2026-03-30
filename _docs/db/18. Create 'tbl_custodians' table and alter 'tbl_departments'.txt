@@ -1,0 +1,67 @@
+-- ============================================================
+-- MIGRATION: Custodians + Asset custodian_id
+-- Run in order. Safe to inspect before executing.
+-- ============================================================
+
+-- STEP 1: Create custodian sequence
+CREATE SEQUENCE custodian_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- STEP 2: Create tbl_custodians
+CREATE TABLE tbl_custodians (
+    custodian_id    NUMBER        PRIMARY KEY,
+    department_id   NUMBER        NOT NULL,
+    first_name      VARCHAR2(100) NOT NULL,
+    middle_name     VARCHAR2(100),
+    last_name       VARCHAR2(100) NOT NULL,
+    suffix          VARCHAR2(20),
+    employee_id     VARCHAR2(50),
+    email           VARCHAR2(150),
+    phone           VARCHAR2(30),
+    status          VARCHAR2(20)  DEFAULT 'Active' NOT NULL,
+    created_at      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_cust_dept FOREIGN KEY (department_id)
+        REFERENCES tbl_departments(department_id)
+);
+
+-- STEP 3: Migrate existing liable persons from tbl_departments into tbl_custodians
+--         Only migrates rows that have at least a first_name or last_name value.
+INSERT INTO tbl_custodians (
+    custodian_id,
+    department_id,
+    first_name,
+    middle_name,
+    last_name,
+    suffix,
+    status,
+    created_at
+)
+SELECT
+    custodian_seq.NEXTVAL,
+    department_id,
+    NVL(first_name, '(Migrated)'),
+    middle_name,
+    NVL(last_name,  '(Migrated)'),
+    suffix,
+    'Active',
+    CURRENT_TIMESTAMP
+FROM tbl_departments
+WHERE first_name IS NOT NULL
+   OR last_name  IS NOT NULL;
+
+COMMIT;
+
+-- STEP 4: Drop the liable-person columns from tbl_departments
+ALTER TABLE tbl_departments DROP COLUMN first_name;
+ALTER TABLE tbl_departments DROP COLUMN middle_name;
+ALTER TABLE tbl_departments DROP COLUMN last_name;
+ALTER TABLE tbl_departments DROP COLUMN suffix;
+
+-- STEP 5: Add custodian_id to tbl_assets (nullable — existing assets won't break)
+ALTER TABLE tbl_assets ADD custodian_id NUMBER;
+
+ALTER TABLE tbl_assets ADD CONSTRAINT fk_asset_custodian
+    FOREIGN KEY (custodian_id)
+    REFERENCES tbl_custodians(custodian_id)
+    ON DELETE SET NULL;
+
+COMMIT;

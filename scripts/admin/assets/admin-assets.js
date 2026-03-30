@@ -55,39 +55,59 @@ function getDeptColor(dept) {
   return DEPT_COLORS[dept] || '#2d1b47';
 }
 
-function getLiablePerson(selectId) {
-  var sel = document.getElementById(selectId);
-  if (!sel) return '—';
-  var opt = sel.options[sel.selectedIndex];
-  return opt ? (opt.getAttribute('data-liable') || '—') : '—';
-}
-
-function updateLiableDropdown(deptSelectId, liableSelectId) {
-  var deptSel   = document.getElementById(deptSelectId);
-  var liableSel = document.getElementById(liableSelectId);
-  if (!deptSel || !liableSel) return;
-
-  var opt    = deptSel.options[deptSel.selectedIndex];
-  var liable = opt ? opt.getAttribute('data-liable') : null;
-
-  liableSel.innerHTML = '';
-
-  if (!liable || liable === '—' || !deptSel.value) {
-    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
-    liableSel.disabled  = true;
-    return;
-  }
-
-  liableSel.innerHTML = '<option value="' + liable + '">' + liable + '</option>';
-  liableSel.disabled  = false;
-}
-
 function badgeClass(status) {
   return {
     'Available':   'available',
     'In Use':      'in-use',
     'Maintenance': 'maintenance'
   }[status] || 'available';
+}
+
+
+// ── FETCH CUSTODIANS BY DEPARTMENT ───────────────────────────────────────────
+// Called whenever a department dropdown changes.
+// liableSelectId is the ID of the custodian <select> to populate.
+function fetchCustodiansByDept(dept_id, liableSelectId, selectedCustodianId) {
+  var liableSel = document.getElementById(liableSelectId);
+  if (!liableSel) return;
+
+  if (!dept_id) {
+    liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
+    liableSel.disabled  = true;
+    return;
+  }
+
+  liableSel.innerHTML = '<option value="">Loading...</option>';
+  liableSel.disabled  = true;
+
+  fetch(API + '?resource=custodians&department_id=' + encodeURIComponent(dept_id) + '&_=' + Date.now())
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status !== 'success' || !data.data.length) {
+        liableSel.innerHTML = '<option value="">No custodians found</option>';
+        liableSel.disabled  = true;
+        return;
+      }
+
+      liableSel.innerHTML = '<option value="">-- Select Liable Person --</option>';
+      data.data.forEach(function(c) {
+        var name = [c.FIRST_NAME, c.MIDDLE_NAME, c.LAST_NAME, c.SUFFIX]
+                    .filter(Boolean).join(' ');
+        var opt  = document.createElement('option');
+        opt.value       = c.CUSTODIAN_ID;
+        opt.textContent = name;
+        if (selectedCustodianId && c.CUSTODIAN_ID == selectedCustodianId) {
+          opt.selected = true;
+        }
+        liableSel.appendChild(opt);
+      });
+
+      liableSel.disabled = false;
+    })
+    .catch(function() {
+      liableSel.innerHTML = '<option value="">⚠ Failed to load</option>';
+      liableSel.disabled  = true;
+    });
 }
 
 
@@ -98,9 +118,11 @@ function renderAssetsTable(filter, tabFilter) {
   filter    = (filter    || '').toLowerCase();
   tabFilter =  tabFilter || 'ALL';
 
-  // Exclude pending-deletion assets from the main table — they appear in the Pending Deletions section
   var filtered = assets.filter(function(a) {
     if (a.IS_DELETED == 1) return false;
+
+    var liable = [a.CUSTODIAN_FIRST, a.CUSTODIAN_MIDDLE, a.CUSTODIAN_LAST, a.CUSTODIAN_SUFFIX]
+                   .filter(Boolean).join(' ');
 
     var match =
       (a.ASSET_ID        || '').toLowerCase().includes(filter) ||
@@ -111,8 +133,7 @@ function renderAssetsTable(filter, tabFilter) {
       (a.DEPARTMENT_NAME || '').toLowerCase().includes(filter) ||
       (a.LOCATION        || '').toLowerCase().includes(filter) ||
       (a.QR_CODE         || '').toLowerCase().includes(filter) ||
-      (a.LAST_NAME       || '').toLowerCase().includes(filter) ||
-      (a.FIRST_NAME      || '').toLowerCase().includes(filter);
+      liable.toLowerCase().includes(filter);
 
     var tab = true;
     if (tabFilter === 'Available')   tab = a.STATUS       === 'Available';
@@ -135,7 +156,7 @@ function renderAssetsTable(filter, tabFilter) {
 
     var statusCell = '<span class="badge ' + badgeClass(a.STATUS) + '">' + a.STATUS + '</span>';
 
-    var liable = [a.FIRST_NAME, a.MIDDLE_NAME, a.LAST_NAME, a.SUFFIX]
+    var liable = [a.CUSTODIAN_FIRST, a.CUSTODIAN_MIDDLE, a.CUSTODIAN_LAST, a.CUSTODIAN_SUFFIX]
                    .filter(Boolean).join(' ') || '—';
 
     return '<tr>'
@@ -211,6 +232,7 @@ function renderPendingDeletionsTable(requests) {
 
 // ── LOAD DROPDOWNS ────────────────────────────────────────────────────────────
 function loadDropdowns() {
+  // Departments — no longer need data-liable, just load names/ids
   fetch(API + '?resource=departments&_=' + Date.now())
     .then(function(res)  { return res.json(); })
     .then(function(data) {
@@ -218,10 +240,7 @@ function loadDropdowns() {
       var addSel  = document.getElementById('assetsDepartment');
       var editSel = document.getElementById('editDepartment');
       data.data.forEach(function(d) {
-        var liable = [d.FIRST_NAME, d.MIDDLE_NAME, d.LAST_NAME, d.SUFFIX]
-                      .filter(Boolean).join(' ');
-        var opt = '<option value="' + d.DEPARTMENT_ID + '" data-liable="' + (liable || '—') + '">'
-                + d.DEPARTMENT_NAME + '</option>';
+        var opt = '<option value="' + d.DEPARTMENT_ID + '">' + d.DEPARTMENT_NAME + '</option>';
         if (addSel)  addSel.innerHTML  += opt;
         if (editSel) editSel.innerHTML += opt;
       });
@@ -303,6 +322,7 @@ function assetsClearForm() {
   var aid = document.getElementById('assetsAssetId');   if (aid) aid.value   = '';
   var cer = document.getElementById('assetsCertified'); if (cer) cer.checked = false;
 
+  // Reset liable person dropdown
   var liableSel = document.getElementById('assetsLiablePerson');
   if (liableSel) {
     liableSel.innerHTML = '<option value="">-- Select Department first --</option>';
