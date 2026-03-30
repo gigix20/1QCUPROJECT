@@ -19,14 +19,18 @@ class AssetController {
     $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
     switch ($action) {
-      case 'getAll':       $this->getAll();       break;
-      case 'getById':      $this->getById();      break;
-      case 'add':          $this->add();          break;
-      case 'update':       $this->update();       break;
-      case 'delete':       $this->delete();       break;
-      case 'search':       $this->search();       break;
-      case 'filterStatus': $this->filterStatus(); break;
-      default:             ResponseHelper::sendError(400, 'Invalid action.');
+      case 'getAll':              $this->getAll();              break;
+      case 'getById':             $this->getById();             break;
+      case 'add':                 $this->add();                 break;
+      case 'update':              $this->update();              break;
+      case 'delete':              $this->delete();              break;       // staff: request deletion
+      case 'adminDelete':         $this->adminDelete();         break;       // admin: direct hard delete
+      case 'getDeletionRequests': $this->getDeletionRequests(); break;       // admin: list pending requests
+      case 'approveDeletion':     $this->approveDeletion();     break;       // admin: approve
+      case 'rejectDeletion':      $this->rejectDeletion();      break;       // admin: reject
+      case 'search':              $this->search();              break;
+      case 'filterStatus':        $this->filterStatus();        break;
+      default:                    ResponseHelper::sendError(400, 'Invalid action.');
     }
   }
 
@@ -41,19 +45,15 @@ class AssetController {
   // GET ASSET BY ID
   private function getById() {
     $asset_id = trim($_GET['asset_id'] ?? '');
-
     if (empty($asset_id)) {
       ResponseHelper::sendError(400, 'Asset ID is required.');
       return;
     }
-
     $asset = $this->model->getAssetById($asset_id);
-
     if (!$asset) {
       ResponseHelper::sendError(404, 'Asset not found.');
       return;
     }
-
     ResponseHelper::sendSuccess($asset);
   }
 
@@ -70,42 +70,29 @@ class AssetController {
     $is_certified  = (int) ($_POST['is_certified'] ?? 0);
     $quantity      = max(1, (int) ($_POST['quantity'] ?? 1));
 
-    // Validation
     if (empty($description))  { ResponseHelper::sendError(400, 'Description is required.'); return; }
     if (empty($department_id)){ ResponseHelper::sendError(400, 'Department is required.');  return; }
     if (empty($item_type_id)) { ResponseHelper::sendError(400, 'Item type is required.');   return; }
 
-    // Get department name for asset ID generation
     $deptStmt = $this->conn->prepare(
       "SELECT department_name FROM tbl_departments WHERE department_id = :id"
     );
     $deptStmt->bindParam(':id', $department_id);
     $deptStmt->execute();
     $deptRow = $deptStmt->fetch(PDO::FETCH_ASSOC);
+    if (!$deptRow) { ResponseHelper::sendError(404, 'Department not found.'); return; }
 
-    if (!$deptRow) {
-      ResponseHelper::sendError(404, 'Department not found.');
-      return;
-    }
-
-    // Get item type code for asset ID generation
     $typeStmt = $this->conn->prepare(
       "SELECT item_type_code FROM tbl_item_types WHERE item_type_id = :id"
     );
     $typeStmt->bindParam(':id', $item_type_id);
     $typeStmt->execute();
     $typeRow = $typeStmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$typeRow) {
-      ResponseHelper::sendError(404, 'Item type not found.');
-      return;
-    }
+    if (!$typeRow) { ResponseHelper::sendError(404, 'Item type not found.'); return; }
 
     $dept_name      = $deptRow['DEPARTMENT_NAME'];
     $item_type_code = $typeRow['ITEM_TYPE_CODE'];
-
-    // Insert loop for quantity
-    $generated = [];
+    $generated      = [];
 
     for ($i = 0; $i < $quantity; $i++) {
       $seq      = $this->model->getNextSequence();
@@ -129,7 +116,6 @@ class AssetController {
         ResponseHelper::sendError(500, 'Failed to insert asset ' . $asset_id . '.');
         return;
       }
-
       $generated[] = $asset_id;
     }
 
@@ -152,7 +138,6 @@ class AssetController {
     $status        = trim($_POST['status']        ?? 'Available');
     $is_certified  = (int) ($_POST['is_certified'] ?? 0);
 
-    // Validation
     if (empty($asset_id))     { ResponseHelper::sendError(400, 'Asset ID is required.');    return; }
     if (empty($description))  { ResponseHelper::sendError(400, 'Description is required.'); return; }
     if (empty($department_id)){ ResponseHelper::sendError(400, 'Department is required.');  return; }
@@ -183,45 +168,115 @@ class AssetController {
   }
 
 
-  // DELETE ASSET
-private function delete() {
-  $asset_id   = trim($_POST['asset_id']   ?? '');
-  $deleted_by = trim($_POST['deleted_by'] ?? 'staff');
+  // ── STAFF: REQUEST DELETION (with reason) ────────────────────────────────────
+  private function delete() {
+    $asset_id     = trim($_POST['asset_id']     ?? '');
+    $deleted_by   = trim($_POST['deleted_by']   ?? 'staff');
+    $reason       = trim($_POST['reason']       ?? '');
 
-  if (empty($asset_id)) {
-    ResponseHelper::sendError(400, 'Asset ID is required.');
-    return;
+    if (empty($asset_id)) {
+      ResponseHelper::sendError(400, 'Asset ID is required.');
+      return;
+    }
+    if (empty($reason)) {
+      ResponseHelper::sendError(400, 'Reason for deletion is required.');
+      return;
+    }
+
+    $asset = $this->model->getAssetById($asset_id);
+    if (!$asset) {
+      ResponseHelper::sendError(404, 'Asset not found.');
+      return;
+    }
+    if ($asset['IS_DELETED'] == 1) {
+      ResponseHelper::sendError(409, 'Asset already has a pending deletion request.');
+      return;
+    }
+
+    if ($this->model->requestDeletion($asset_id, $deleted_by, $reason)) {
+      ResponseHelper::sendSuccess(null, 'Deletion request submitted.');
+    } else {
+      ResponseHelper::sendError(500, 'Failed to submit deletion request.');
+    }
   }
 
-  $asset = $this->model->getAssetById($asset_id);
 
-  if (!$asset) {
-    ResponseHelper::sendError(404, 'Asset not found.');
-    return;
+  // ── ADMIN: DIRECT HARD DELETE (no request flow) ──────────────────────────────
+  private function adminDelete() {
+    $asset_id = trim($_POST['asset_id'] ?? '');
+
+    if (empty($asset_id)) {
+      ResponseHelper::sendError(400, 'Asset ID is required.');
+      return;
+    }
+
+    $asset = $this->model->getAssetById($asset_id);
+    if (!$asset) {
+      ResponseHelper::sendError(404, 'Asset not found.');
+      return;
+    }
+
+    if ($this->model->permanentDelete($asset_id)) {
+      ResponseHelper::sendSuccess(null, 'Asset permanently deleted.');
+    } else {
+      ResponseHelper::sendError(500, 'Failed to delete asset.');
+    }
   }
 
-  if ($asset['IS_DELETED'] == 1) {
-    ResponseHelper::sendError(409, 'Asset already has a pending deletion request.');
-    return;
+
+  // ── ADMIN: GET PENDING DELETION REQUESTS ─────────────────────────────────────
+  private function getDeletionRequests() {
+    $requests = $this->model->getDeletionRequests();
+    ResponseHelper::sendSuccess($requests);
   }
 
-  if ($this->model->requestDeletion($asset_id, $deleted_by)) {
-    ResponseHelper::sendSuccess(null, 'Deletion request submitted.');
-  } else {
-    ResponseHelper::sendError(500, 'Failed to submit deletion request.');
+
+  // ── ADMIN: APPROVE DELETION REQUEST ──────────────────────────────────────────
+  private function approveDeletion() {
+    $asset_id    = trim($_POST['asset_id']    ?? '');
+    $reviewed_by = trim($_POST['reviewed_by'] ?? 'admin');
+
+    if (empty($asset_id)) {
+      ResponseHelper::sendError(400, 'Asset ID is required.');
+      return;
+    }
+
+    $asset = $this->model->getAssetById($asset_id);
+    if (!$asset) {
+      ResponseHelper::sendError(404, 'Asset not found.');
+      return;
+    }
+
+    if ($this->model->approveDeletion($asset_id, $reviewed_by)) {
+      ResponseHelper::sendSuccess(null, 'Asset deletion approved and removed from system.');
+    } else {
+      ResponseHelper::sendError(500, 'Failed to approve deletion.');
+    }
   }
-}
+
+
+  // ── ADMIN: REJECT DELETION REQUEST ───────────────────────────────────────────
+  private function rejectDeletion() {
+    $asset_id    = trim($_POST['asset_id']    ?? '');
+    $reviewed_by = trim($_POST['reviewed_by'] ?? 'admin');
+
+    if (empty($asset_id)) {
+      ResponseHelper::sendError(400, 'Asset ID is required.');
+      return;
+    }
+
+    if ($this->model->rejectDeletion($asset_id, $reviewed_by)) {
+      ResponseHelper::sendSuccess(null, 'Deletion request rejected. Asset restored.');
+    } else {
+      ResponseHelper::sendError(500, 'Failed to reject deletion request.');
+    }
+  }
 
 
   // SEARCH ASSETS
   private function search() {
     $keyword = trim($_GET['keyword'] ?? '');
-
-    if (empty($keyword)) {
-      $this->getAll();
-      return;
-    }
-
+    if (empty($keyword)) { $this->getAll(); return; }
     $assets = $this->model->searchAssets($keyword);
     ResponseHelper::sendSuccess($assets);
   }
@@ -230,12 +285,7 @@ private function delete() {
   // FILTER BY STATUS
   private function filterStatus() {
     $status = trim($_GET['status'] ?? '');
-
-    if (empty($status) || $status === 'ALL') {
-      $this->getAll();
-      return;
-    }
-
+    if (empty($status) || $status === 'ALL') { $this->getAll(); return; }
     $assets = $this->model->filterByStatus($status);
     ResponseHelper::sendSuccess($assets);
   }

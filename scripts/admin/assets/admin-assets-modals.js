@@ -1,4 +1,3 @@
-
 // SAVE ASSET
 function assetsSave() {
   var get = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
@@ -49,8 +48,6 @@ function assetsSave() {
 }
 
 
-
-
 // EDIT ROW
 function editRow(asset_id) {
   fetch(API + '?resource=assets&action=getById&asset_id=' + asset_id)
@@ -83,8 +80,6 @@ function editRow(asset_id) {
     })
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
-
-
 
 
 // SAVE EDIT
@@ -135,33 +130,91 @@ function assetsSaveEdit() {
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
 
-// DELETE ROW
-function deleteRow(asset_id) {
-  if (!confirm('Request deletion of this asset?')) return;
+
+// ── ADMIN: DIRECT DELETE (opens confirmation modal) ───────────────────────────
+function adminDeleteRow(asset_id) {
+  var modal = document.getElementById('adminDeleteModal');
+  if (!modal) return;
+  modal.setAttribute('data-delete-id', asset_id);
+
+  var label = document.getElementById('adminDeleteAssetId');
+  if (label) label.textContent = asset_id;
+
+  openModal('adminDeleteModal');
+}
+
+
+// ── ADMIN: CONFIRM DIRECT DELETE ─────────────────────────────────────────────
+function confirmAdminDelete() {
+  var modal    = document.getElementById('adminDeleteModal');
+  var asset_id = modal.getAttribute('data-delete-id');
 
   var formData = new FormData();
   formData.append('resource',   'assets');
-  formData.append('action',     'delete');
+  formData.append('action',     'adminDelete');
   formData.append('asset_id',   asset_id);
-  formData.append('deleted_by', 'staff');
 
   fetch(API, { method: 'POST', body: formData })
-    .then(function(res) {
-      var contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) return res.json();
-      if (res.ok) return { status: 'success' };
-      return { status: 'error', message: 'Server error.' };
-    })
+    .then(function(res)  { return res.json(); })
     .then(function(data) {
+      closeModal('adminDeleteModal');
       if (data.status === 'success') {
         loadAssets();
-        showToast('🗑 Deletion request submitted.');
+        loadDeletionRequests();
+        showToast('🗑 Asset ' + asset_id + ' permanently deleted.');
       } else {
         showToast('⚠ ' + data.message);
       }
     })
-    .catch(function() {
-      loadAssets();
-      showToast('🗑 Deletion request submitted.');
-    });
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
+}
+
+
+// ── ADMIN: APPROVE DELETION REQUEST ──────────────────────────────────────────
+function approveDeletion(asset_id) {
+  if (!confirm('Approve deletion of ' + asset_id + '? This will permanently remove the asset from the system.')) return;
+
+  var formData = new FormData();
+  formData.append('resource',    'assets');
+  formData.append('action',      'approveDeletion');
+  formData.append('asset_id',    asset_id);
+  formData.append('reviewed_by', 'admin');
+
+  fetch(API, { method: 'POST', body: formData })
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadAssets();
+        loadDeletionRequests();
+        showToast('✓ Asset ' + asset_id + ' approved and permanently deleted.');
+      } else {
+        showToast('⚠ ' + data.message);
+      }
+    })
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
+}
+
+
+// ── ADMIN: REJECT DELETION REQUEST ───────────────────────────────────────────
+function rejectDeletion(asset_id) {
+  if (!confirm('Reject the deletion request for ' + asset_id + '? The asset will be restored to the active list.')) return;
+
+  var formData = new FormData();
+  formData.append('resource',    'assets');
+  formData.append('action',      'rejectDeletion');
+  formData.append('asset_id',    asset_id);
+  formData.append('reviewed_by', 'admin');
+
+  fetch(API, { method: 'POST', body: formData })
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadAssets();
+        loadDeletionRequests();
+        showToast('↩ Deletion request for ' + asset_id + ' rejected. Asset restored.');
+      } else {
+        showToast('⚠ ' + data.message);
+      }
+    })
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
 }

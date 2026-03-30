@@ -1,4 +1,3 @@
-
 // SAVE ASSET
 function assetsSave() {
   var get = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
@@ -49,8 +48,6 @@ function assetsSave() {
 }
 
 
-
-
 // EDIT ROW
 function editRow(asset_id) {
   fetch(API + '?resource=assets&action=getById&asset_id=' + asset_id)
@@ -83,8 +80,6 @@ function editRow(asset_id) {
     })
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
-
-
 
 
 // SAVE EDIT
@@ -135,33 +130,53 @@ function assetsSaveEdit() {
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
 
-// DELETE ROW
+
+// ── REQUEST DELETION — opens modal ───────────────────────────────────────────
 function deleteRow(asset_id) {
-  if (!confirm('Request deletion of this asset?')) return;
+  var modal = document.getElementById('requestDeletionModal');
+  if (!modal) return;
+  modal.setAttribute('data-delete-id', asset_id);
+
+  // Show asset ID in the modal so staff knows what they're requesting
+  var idLabel = document.getElementById('delReqAssetId');
+  if (idLabel) idLabel.textContent = asset_id;
+
+  // Clear previous reason
+  var textarea = document.getElementById('delReqReason');
+  if (textarea) textarea.value = '';
+
+  openModal('requestDeletionModal');
+}
+
+
+// ── SUBMIT DELETION REQUEST ───────────────────────────────────────────────────
+function submitDeletionRequest() {
+  var modal    = document.getElementById('requestDeletionModal');
+  var asset_id = modal.getAttribute('data-delete-id');
+  var reason   = document.getElementById('delReqReason').value.trim();
+
+  if (!reason) {
+    showToast('⚠ Please provide a reason for the deletion request.');
+    return;
+  }
 
   var formData = new FormData();
   formData.append('resource',   'assets');
   formData.append('action',     'delete');
   formData.append('asset_id',   asset_id);
   formData.append('deleted_by', 'staff');
+  formData.append('reason',     reason);
 
   fetch(API, { method: 'POST', body: formData })
-    .then(function(res) {
-      var contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) return res.json();
-      if (res.ok) return { status: 'success' };
-      return { status: 'error', message: 'Server error.' };
-    })
+    .then(function(res)  { return res.json(); })
     .then(function(data) {
       if (data.status === 'success') {
+        closeModal('requestDeletionModal');
         loadAssets();
-        showToast('🗑 Deletion request submitted.');
+        showToast('🗑 Deletion request submitted for ' + asset_id + '.');
       } else {
         showToast('⚠ ' + data.message);
       }
     })
-    .catch(function() {
-      loadAssets();
-      showToast('🗑 Deletion request submitted.');
-    });
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
 }

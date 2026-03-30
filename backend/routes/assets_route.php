@@ -20,6 +20,12 @@ switch ($resource) {
     $controller->handleRequest();
     break;
 
+  case 'deletion_requests':
+    // Admin-only: fetch pending deletion requests
+    $controller = new AssetController($conn);
+    $controller->handleRequest();
+    break;
+
   case 'departments':
     $model = new DepartmentModel($conn);
     ResponseHelper::sendSuccess($model->getAllDepartments());
@@ -36,9 +42,9 @@ switch ($resource) {
     break;
 
   case 'export':
-  $controller = new ExportController($conn);
-  $controller->handleRequest();
-  break;
+    $controller = new ExportController($conn);
+    $controller->handleRequest();
+    break;
 
   default:
     ResponseHelper::sendError(404, 'Resource not found.');

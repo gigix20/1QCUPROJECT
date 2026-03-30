@@ -7,7 +7,7 @@ class AssetModel {
     $this->conn = $conn;
   }
 
-  
+
   // GET NEXT GLOBAL SEQUENCE
   public function getNextSequence() {
     $sql  = "SELECT asset_seq.NEXTVAL AS nextval FROM dual";
@@ -17,89 +17,83 @@ class AssetModel {
     return (int) $row['NEXTVAL'];
   }
 
-  
+
   // GENERATE ASSET ID
   public function generateAssetId($dept_name, $item_type_code, $seq) {
-    // Get first word of department name e.g. "IT Department" -> "IT"
     $dept_code = strtoupper(explode(' ', trim($dept_name))[0]);
     $item_num  = str_pad($seq, 4, '0', STR_PAD_LEFT);
     return 'AST-' . $dept_code . '-' . $item_type_code . '-' . $item_num;
   }
 
-  
-  // GET ALL ASSETS
-public function getAllAssets() {
-  $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
-                 c.category_name, d.department_name, d.department_id,
-                 d.first_name, d.middle_name, d.last_name, d.suffix,
-                 t.item_type_name, t.item_type_code, t.item_type_id,
-                 a.location, a.status, a.is_certified,
-                 a.is_deleted, a.deleted_at, a.deleted_by,
-                 a.created_at, a.updated_at
-          FROM   tbl_assets a
-          LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-          LEFT JOIN tbl_departments d ON a.department_id = d.department_id
-          LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
-          ORDER BY a.created_at DESC";
-  $stmt = $this->conn->prepare($sql);
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
-  
+  // GET ALL ASSETS
+  public function getAllAssets() {
+    $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
+                   c.category_name, d.department_name, d.department_id,
+                   d.first_name, d.middle_name, d.last_name, d.suffix,
+                   t.item_type_name, t.item_type_code, t.item_type_id,
+                   a.location, a.status, a.is_certified,
+                   a.is_deleted, a.deleted_at, a.deleted_by,
+                   a.created_at, a.updated_at
+            FROM   tbl_assets a
+            LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
+            ORDER BY a.created_at DESC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+
   // GET ASSET BY ID
   public function getAssetById($asset_id) {
     $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
                    a.category_id,   c.category_name,
                    a.department_id, d.department_name,
                    a.item_type_id,  t.item_type_name, t.item_type_code,
-                   a.location, a.status, a.is_certified,
+                   a.location, a.status, a.is_certified, a.is_deleted,
                    a.created_at, a.updated_at
             FROM   tbl_assets a
             LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-            LEFT JOIN tbl_departments d ON a.department_id  = d.department_id
-            LEFT JOIN tbl_item_types  t ON a.item_type_id   = t.item_type_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
             WHERE  a.asset_id = :asset_id";
-
     $stmt = $this->conn->prepare($sql);
     $stmt->bindParam(':asset_id', $asset_id);
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
+
   // GET ASSETS BY IDS (for export)
-public function getAssetsByIds($ids) {
-  if (empty($ids)) return [];
+  public function getAssetsByIds($ids) {
+    if (empty($ids)) return [];
+    $placeholders = implode(',', array_map(function($i) {
+      return ':id' . $i;
+    }, array_keys($ids)));
 
-  // Build placeholders for Oracle: :id0, :id1, :id2 ...
-  $placeholders = implode(',', array_map(function($i) {
-    return ':id' . $i;
-  }, array_keys($ids)));
-
-  $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
-                 c.category_name, d.department_name, d.department_id,
-                 d.first_name, d.middle_name, d.last_name, d.suffix,
-                 t.item_type_name, t.item_type_code, t.item_type_id,
-                 a.location, a.status, a.is_certified,
-                 a.is_deleted, a.created_at, a.updated_at
-          FROM   tbl_assets a
-          LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-          LEFT JOIN tbl_departments d ON a.department_id = d.department_id
-          LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
-          WHERE  a.asset_id IN ($placeholders)
-          ORDER  BY a.created_at DESC";
-
-  $stmt = $this->conn->prepare($sql);
-
-  // Bind each ID individually — required for Oracle PDO
-  foreach ($ids as $i => $id) {
-    $stmt->bindValue(':id' . $i, trim($id));
+    $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
+                   c.category_name, d.department_name, d.department_id,
+                   d.first_name, d.middle_name, d.last_name, d.suffix,
+                   t.item_type_name, t.item_type_code, t.item_type_id,
+                   a.location, a.status, a.is_certified,
+                   a.is_deleted, a.created_at, a.updated_at
+            FROM   tbl_assets a
+            LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
+            WHERE  a.asset_id IN ($placeholders)
+            ORDER  BY a.created_at DESC";
+    $stmt = $this->conn->prepare($sql);
+    foreach ($ids as $i => $id) {
+      $stmt->bindValue(':id' . $i, trim($id));
+    }
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
- 
+
   // ADD ASSET (with quantity)
   public function addAsset($data) {
     $sql = "INSERT INTO tbl_assets (
@@ -113,7 +107,6 @@ public function getAssetsByIds($ids) {
               :location, :status, :is_certified,
               CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
             )";
-
     $stmt = $this->conn->prepare($sql);
     $stmt->bindParam(':asset_id',      $data['asset_id']);
     $stmt->bindParam(':qr_code',       $data['qr_code']);
@@ -128,8 +121,8 @@ public function getAssetsByIds($ids) {
     return $stmt->execute();
   }
 
-  
-  // UPDATE ASSET  
+
+  // UPDATE ASSET
   public function updateAsset($data) {
     $sql = "UPDATE tbl_assets
             SET    description   = :description,
@@ -142,7 +135,6 @@ public function getAssetsByIds($ids) {
                    is_certified  = :is_certified,
                    updated_at    = CURRENT_TIMESTAMP
             WHERE  asset_id      = :asset_id";
-
     $stmt = $this->conn->prepare($sql);
     $stmt->bindParam(':asset_id',      $data['asset_id']);
     $stmt->bindParam(':description',   $data['description']);
@@ -156,45 +148,140 @@ public function getAssetsByIds($ids) {
     return $stmt->execute();
   }
 
-  
-  // DELETE ASSET
- public function requestDeletion($asset_id, $deleted_by) {
-  $sql = "UPDATE tbl_assets
-          SET    is_deleted = 1,
-                 deleted_at = CURRENT_TIMESTAMP,
-                 deleted_by = :deleted_by
-          WHERE  asset_id   = :asset_id";
 
-  $stmt = $this->conn->prepare($sql);
-  $stmt->bindParam(':asset_id',   $asset_id);
-  $stmt->bindParam(':deleted_by', $deleted_by);
-  return $stmt->execute();
-}
- 
-  // SEARCH ASSETS 
+  // ── STAFF: REQUEST DELETION ──────────────────────────────────────────────────
+  // Flags the asset as pending deletion AND logs the request with reason.
+
+  public function requestDeletion($asset_id, $deleted_by, $reason) {
+    // 1. Flag the asset
+    $sql1 = "UPDATE tbl_assets
+             SET    is_deleted = 1,
+                    deleted_at = CURRENT_TIMESTAMP,
+                    deleted_by = :deleted_by
+             WHERE  asset_id   = :asset_id";
+    $stmt1 = $this->conn->prepare($sql1);
+    $stmt1->bindParam(':asset_id',   $asset_id);
+    $stmt1->bindParam(':deleted_by', $deleted_by);
+    if (!$stmt1->execute()) return false;
+
+    // 2. Insert the deletion request record
+    $sql2 = "INSERT INTO tbl_deletion_requests
+               (request_id, asset_id, requested_by, reason, status, created_at)
+             VALUES
+               (del_req_seq.NEXTVAL, :asset_id, :requested_by, :reason, 'Pending', CURRENT_TIMESTAMP)";
+    $stmt2 = $this->conn->prepare($sql2);
+    $stmt2->bindParam(':asset_id',     $asset_id);
+    $stmt2->bindParam(':requested_by', $deleted_by);
+    $stmt2->bindParam(':reason',       $reason);
+    return $stmt2->execute();
+  }
+
+
+  // ── ADMIN: GET ALL PENDING DELETION REQUESTS ─────────────────────────────────
+
+  public function getDeletionRequests() {
+    $sql = "SELECT r.request_id, r.asset_id, r.requested_by, r.reason,
+                   r.status, r.created_at,
+                   a.description, a.department_id,
+                   d.department_name,
+                   a.item_type_id, t.item_type_name,
+                   a.location, a.status AS asset_status
+            FROM   tbl_deletion_requests r
+            JOIN   tbl_assets      a ON r.asset_id      = a.asset_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
+            WHERE  r.status = 'Pending'
+            ORDER BY r.created_at DESC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+
+  // ── ADMIN: APPROVE — hard DELETE the asset from the DB ───────────────────────
+
+  public function approveDeletion($asset_id, $reviewed_by) {
+    // 1. Mark the request as Approved
+    $sql1 = "UPDATE tbl_deletion_requests
+             SET    status      = 'Approved',
+                    reviewed_by = :reviewed_by,
+                    reviewed_at = CURRENT_TIMESTAMP
+             WHERE  asset_id    = :asset_id
+               AND  status      = 'Pending'";
+    $stmt1 = $this->conn->prepare($sql1);
+    $stmt1->bindParam(':asset_id',    $asset_id);
+    $stmt1->bindParam(':reviewed_by', $reviewed_by);
+    $stmt1->execute();
+
+    // 2. Hard delete the asset (FK on tbl_deletion_requests uses ON DELETE CASCADE)
+    $sql2  = "DELETE FROM tbl_assets WHERE asset_id = :asset_id";
+    $stmt2 = $this->conn->prepare($sql2);
+    $stmt2->bindParam(':asset_id', $asset_id);
+    return $stmt2->execute();
+  }
+
+
+  // ── ADMIN: REJECT — revert IS_DELETED flag, mark request rejected ────────────
+
+  public function rejectDeletion($asset_id, $reviewed_by) {
+    // 1. Revert the asset flag
+    $sql1 = "UPDATE tbl_assets
+             SET    is_deleted  = 0,
+                    deleted_at  = NULL,
+                    deleted_by  = NULL,
+                    updated_at  = CURRENT_TIMESTAMP
+             WHERE  asset_id    = :asset_id";
+    $stmt1 = $this->conn->prepare($sql1);
+    $stmt1->bindParam(':asset_id', $asset_id);
+    if (!$stmt1->execute()) return false;
+
+    // 2. Mark the request as Rejected
+    $sql2 = "UPDATE tbl_deletion_requests
+             SET    status      = 'Rejected',
+                    reviewed_by = :reviewed_by,
+                    reviewed_at = CURRENT_TIMESTAMP
+             WHERE  asset_id    = :asset_id
+               AND  status      = 'Pending'";
+    $stmt2 = $this->conn->prepare($sql2);
+    $stmt2->bindParam(':asset_id',    $asset_id);
+    $stmt2->bindParam(':reviewed_by', $reviewed_by);
+    return $stmt2->execute();
+  }
+
+
+  // ── ADMIN: DIRECT DELETE (no request flow) ───────────────────────────────────
+
+  public function permanentDelete($asset_id) {
+    $sql  = "DELETE FROM tbl_assets WHERE asset_id = :asset_id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindParam(':asset_id', $asset_id);
+    return $stmt->execute();
+  }
+
+
+  // SEARCH ASSETS
   public function searchAssets($keyword) {
     $keyword = '%' . strtoupper($keyword) . '%';
-
     $sql = "SELECT a.asset_id, a.qr_code, a.description, a.serial_number,
                    c.category_name, d.department_name,
                    t.item_type_name, t.item_type_code,
                    a.location, a.status, a.is_certified
             FROM   tbl_assets a
             LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-            LEFT JOIN tbl_departments d ON a.department_id  = d.department_id
-            LEFT JOIN tbl_item_types  t ON a.item_type_id   = t.item_type_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
             WHERE  UPPER(a.asset_id)        LIKE :keyword
                OR  UPPER(a.description)     LIKE :keyword
                OR  UPPER(a.serial_number)   LIKE :keyword
                OR  UPPER(d.department_name) LIKE :keyword
                OR  UPPER(t.item_type_name)  LIKE :keyword
             ORDER BY a.created_at DESC";
-
     $stmt = $this->conn->prepare($sql);
     $stmt->bindParam(':keyword', $keyword);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
 
   // FILTER BY STATUS
   public function filterByStatus($status) {
@@ -204,16 +291,14 @@ public function getAssetsByIds($ids) {
                    a.location, a.status, a.is_certified
             FROM   tbl_assets a
             LEFT JOIN tbl_categories  c ON a.category_id   = c.category_id
-            LEFT JOIN tbl_departments d ON a.department_id  = d.department_id
-            LEFT JOIN tbl_item_types  t ON a.item_type_id   = t.item_type_id
+            LEFT JOIN tbl_departments d ON a.department_id = d.department_id
+            LEFT JOIN tbl_item_types  t ON a.item_type_id  = t.item_type_id
             WHERE  a.status = :status
             ORDER BY a.created_at DESC";
-
     $stmt = $this->conn->prepare($sql);
     $stmt->bindParam(':status', $status);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
-
 }
 ?>

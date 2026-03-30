@@ -43,10 +43,8 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
       <input type="text" id="assetsSearchInput" placeholder="Search by asset ID, description, serial number or department...">
     </div>
 
-    <!-- Filter Tabs + Dropdown Filters (single row) -->
+    <!-- Filter Tabs + Dropdown Filters -->
     <div class="filter-tabs">
-
-      <!-- Left: Status tabs -->
       <div class="filter-tabs-left">
         <button class="filter-tab active" data-status="ALL">ALL ASSETS</button>
         <button class="filter-tab" data-status="Available">AVAILABLE</button>
@@ -54,11 +52,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
         <button class="filter-tab" data-status="Maintenance">MAINTENANCE</button>
         <button class="filter-tab" data-status="Certified">CERTIFIED</button>
       </div>
-
-      <!-- Right: Dropdown filters -->
       <div class="filter-tabs-right">
-
-        <!-- Category Filter -->
         <div class="filter-dropdown-wrap" id="categoryFilterWrap">
           <button class="filter-dropdown-btn" id="categoryFilterBtn" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -81,8 +75,6 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
             <div class="ddp-divider"></div>
           </div>
         </div>
-
-        <!-- Item Type Filter -->
         <div class="filter-dropdown-wrap" id="itemTypeFilterWrap">
           <button class="filter-dropdown-btn" id="itemTypeFilterBtn" type="button">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -106,12 +98,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
             <div class="ddp-divider"></div>
           </div>
         </div>
-
-        <!-- Clear All -->
-        <button class="clear-filters-btn" id="clearFiltersBtn" type="button">
-          &#10005; CLEAR
-        </button>
-
+        <button class="clear-filters-btn" id="clearFiltersBtn" type="button">&#10005; CLEAR</button>
       </div>
     </div>
 
@@ -136,7 +123,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
         </thead>
         <tbody id="assetsTableBody">
           <tr class="empty-row">
-            <td colspan="11">No assets to display.</td>
+            <td colspan="12">No assets to display.</td>
           </tr>
         </tbody>
       </table>
@@ -144,68 +131,46 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
 
   </div>
 
-  <!--ADD ASSET MODAL-->
+  <!-- ADD ASSET MODAL -->
   <div class="modal-overlay" id="assetsModalOverlay">
     <div class="modal">
       <div class="modal-title">Add New Asset</div>
       <div class="modal-divider"></div>
-
       <div class="modal-section-label">BASIC INFORMATION</div>
-
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Asset ID
-            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
-              (auto-generated)
-            </span>
-          </label>
+          <label>Asset ID <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(auto-generated)</span></label>
           <input type="text" id="assetsAssetId" readonly placeholder="Will be generated on save">
         </div>
         <div class="form-group">
-          <label>QR Code
-            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
-              (auto-generated)
-            </span>
-          </label>
+          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(auto-generated)</span></label>
           <input type="text" id="assetsQrCode" readonly placeholder="Will be generated on save">
         </div>
       </div>
-
       <div class="form-full">
         <label>Description <span style="color:#dc2626;font-weight:700;">*</span></label>
         <input type="text" id="assetsDescription" placeholder="e.g. Dell Laptop Latitude 5540">
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Item Type <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <select id="assetsItemType">
-            <option value="">-- Select Item Type --</option>
-          </select>
+          <select id="assetsItemType"><option value="">-- Select Item Type --</option></select>
         </div>
         <div class="form-group">
           <label>Category</label>
-          <select id="assetsCategory">
-            <option value="">-- Select Category --</option>
-          </select>
+          <select id="assetsCategory"><option value="">-- Select Category --</option></select>
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <select id="assetsDepartment">
-            <option value="">-- Select Department --</option>
-          </select>
+          <select id="assetsDepartment"><option value="">-- Select Department --</option></select>
         </div>
         <div class="form-group">
           <label>Liable Person</label>
-          <select id="assetsLiablePerson" disabled>
-            <option value="">-- Select Department first --</option>
-          </select>
+          <select id="assetsLiablePerson" disabled><option value="">-- Select Department first --</option></select>
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Location</label>
@@ -216,11 +181,10 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
           <input type="text" id="assetsSerialNumber" placeholder="e.g. SN-2024-00123">
         </div>
         <div class="form-group">
-          <label>Quantity <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <input type="number" id="assetsQuantity" min="1" max="100" value="1" placeholder="e.g. 1">
+          <label>Quantity</label>
+          <input type="number" id="assetsQuantity" min="1" value="1">
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Status</label>
@@ -232,15 +196,12 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
         </div>
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
-                            font-weight:400;color:#333;cursor:pointer;
-                            text-transform:none;letter-spacing:0;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
             <input type="checkbox" id="assetsCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
       </div>
-
       <div class="modal-buttons">
         <button class="modal-edit-btn" id="assetsCancelBtn">CANCEL</button>
         <button class="modal-close-btn" id="assetsSaveBtn">SAVE &amp; GENERATE QR</button>
@@ -253,63 +214,41 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
     <div class="modal">
       <div class="modal-title">Edit Asset</div>
       <div class="modal-divider"></div>
-
       <div class="modal-section-label">EDIT INFORMATION</div>
-
       <div class="modal-two-col">
         <div class="form-group">
-          <label>Asset ID
-            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
-              (read-only)
-            </span>
-          </label>
+          <label>Asset ID <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(read-only)</span></label>
           <input type="text" id="editAssetId" readonly>
         </div>
         <div class="form-group">
-          <label>QR Code
-            <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">
-              (read-only)
-            </span>
-          </label>
+          <label>QR Code <span style="font-size:10px;color:#a78bfa;font-weight:400;letter-spacing:0;">(read-only)</span></label>
           <input type="text" id="editQrCode" readonly>
         </div>
       </div>
-
       <div class="form-full">
         <label>Description <span style="color:#dc2626;font-weight:700;">*</span></label>
         <input type="text" id="editDescription" placeholder="e.g. Dell Laptop Latitude 5540">
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Item Type <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <select id="editItemType">
-            <option value="">-- Select Item Type --</option>
-          </select>
+          <select id="editItemType"><option value="">-- Select Item Type --</option></select>
         </div>
         <div class="form-group">
           <label>Category</label>
-          <select id="editCategory">
-            <option value="">-- Select Category --</option>
-          </select>
+          <select id="editCategory"><option value="">-- Select Category --</option></select>
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Department <span style="color:#dc2626;font-weight:700;">*</span></label>
-          <select id="editDepartment">
-            <option value="">-- Select Department --</option>
-          </select>
+          <select id="editDepartment"><option value="">-- Select Department --</option></select>
         </div>
         <div class="form-group">
           <label>Liable Person</label>
-          <select id="editLiablePerson" disabled>
-            <option value="">-- Select Department first --</option>
-          </select>
+          <select id="editLiablePerson" disabled><option value="">-- Select Department first --</option></select>
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Location</label>
@@ -328,19 +267,15 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
           </select>
         </div>
       </div>
-
       <div class="modal-two-col">
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Certified</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
-                            font-weight:400;color:#333;cursor:pointer;
-                            text-transform:none;letter-spacing:0;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
             <input type="checkbox" id="editCertified" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Mark as Certified
           </label>
         </div>
       </div>
-
       <div class="modal-buttons">
         <button class="modal-edit-btn" id="cancelEditBtn">CANCEL</button>
         <button class="modal-close-btn" id="saveEditBtn">SAVE CHANGES</button>
@@ -348,29 +283,64 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
     </div>
   </div>
 
-  <!--QR CODE VIEW MODAL -->
+  <!-- ── REQUEST DELETION MODAL (staff) ──────────────────────────────────────── -->
+  <div class="modal-overlay" id="requestDeletionModal">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-title" style="color:#dc2626;">Request Deletion</div>
+      <div class="modal-divider" style="background:linear-gradient(to right,#dc2626,transparent);"></div>
+
+      <div class="modal-info-box" style="background:#fff8f8;border-left:3px solid #dc2626;">
+        <p style="font-style:normal;font-size:13px;color:#dc2626;font-weight:600;margin-bottom:4px;">
+          ⚠ This will flag the asset for admin review.
+        </p>
+        <p style="font-style:normal;font-size:12px;color:#666;">
+          Asset <strong id="delReqAssetId" style="color:#1a1a2e;font-family:monospace;"></strong>
+          will be marked as <em>Pending Deletion</em> until an admin approves or rejects the request.
+        </p>
+      </div>
+
+      <div class="modal-section-label">REASON FOR DELETION <span style="color:#dc2626;">*</span></div>
+      <div class="form-full" style="margin-bottom:0;">
+        <textarea id="delReqReason"
+          placeholder="e.g. Item is broken beyond repair, Item was lost, etc."
+          style="width:100%;padding:10px 13px;border:1px solid #e5e7eb;border-radius:8px;
+                 font-size:13px;font-family:'Outfit',sans-serif;color:#333;
+                 outline:none;resize:vertical;min-height:100px;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#dc2626'"
+          onblur="this.style.borderColor='#e5e7eb'"></textarea>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-edit-btn" id="cancelDelReqBtn">CANCEL</button>
+        <button id="submitDelReqBtn"
+          style="padding:10px 36px;background:#dc2626;color:white;border:none;
+                 border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;
+                 font-weight:700;letter-spacing:1px;cursor:pointer;transition:background 0.2s;"
+          onmouseover="this.style.background='#b91c1c'"
+          onmouseout="this.style.background='#dc2626'">
+          SUBMIT REQUEST
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR CODE VIEW MODAL -->
   <div class="modal-overlay" id="qrViewModal">
     <div class="modal qr-view-modal">
       <div class="modal-title">QR Code</div>
       <div class="modal-divider"></div>
-
       <div class="qr-asset-info">
         <p class="qr-asset-id" id="qrModalAssetId"></p>
         <p class="qr-asset-desc" id="qrModalDesc"></p>
-        <span id="qrModalDept" style="display:inline-block;font-size:11px;font-weight:600;
-                        padding:3px 10px;border-radius:20px;border:1px solid;
-                        margin-bottom:12px;letter-spacing:0.5px;">
-        </span>
+        <span id="qrModalDept" style="display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid;margin-bottom:12px;letter-spacing:0.5px;"></span>
       </div>
-
       <div class="qr-display-box">
         <div id="qrCanvas"></div>
       </div>
-
       <div>
         <p class="qr-code-text" id="qrModalCodeText"></p>
       </div>
-
       <div class="modal-buttons">
         <button class="modal-edit-btn" id="closeQrViewBtn">CLOSE</button>
         <button class="qr-download-btn" id="downloadQrBtn">&#11015; DOWNLOAD</button>
@@ -383,9 +353,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
     <div class="modal" style="max-width:420px;">
       <div class="modal-title">Export Assets</div>
       <div class="modal-divider"></div>
-
       <div class="modal-section-label">EXPORT OPTIONS</div>
-
       <div class="modal-two-col">
         <div class="form-group">
           <label>Data Scope</label>
@@ -396,15 +364,12 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
         </div>
         <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
           <label>Options</label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;
-                          font-weight:400;color:#333;cursor:pointer;
-                          text-transform:none;letter-spacing:0;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;color:#333;cursor:pointer;text-transform:none;letter-spacing:0;">
             <input type="checkbox" id="exportIncludeDeleted" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;">
             Include pending deletion assets
           </label>
         </div>
       </div>
-
       <div class="modal-buttons">
         <button class="modal-edit-btn" id="exportCancelBtn">CANCEL</button>
         <button class="modal-close-btn" id="exportConfirmBtn">⬇ EXPORT PDF</button>
@@ -422,7 +387,5 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
   <script src="../../scripts/staff/assets/staff-assets-export.js"></script>
   <script src="../../scripts/staff/assets/staff-assets-init.js"></script>
   <script src="../../scripts/staff/assets/staff-assets-filter.js"></script>
-
 </body>
-
 </html>

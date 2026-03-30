@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
   var downloadQrBtn = document.getElementById('downloadQrBtn');
   if (downloadQrBtn) downloadQrBtn.addEventListener('click', downloadQR);
 
+  // ── Request Deletion modal ────────────────────────────────────────────────
+  var cancelDelReqBtn = document.getElementById('cancelDelReqBtn');
+  if (cancelDelReqBtn) {
+    cancelDelReqBtn.addEventListener('click', function() {
+      closeModal('requestDeletionModal');
+    });
+  }
+
+  var submitDelReqBtn = document.getElementById('submitDelReqBtn');
+  if (submitDelReqBtn) submitDelReqBtn.addEventListener('click', submitDeletionRequest);
+
   // Search
   var searchInput = document.getElementById('assetsSearchInput');
   if (searchInput) {
@@ -113,5 +124,4 @@ document.addEventListener('DOMContentLoaded', function() {
   loadDropdowns();
   loadAssets();
   handleQRScan();
-
 });
