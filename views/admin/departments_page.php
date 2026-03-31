@@ -109,7 +109,7 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
 
       <div class="section-topbar">
         <div>
-          <h2 class="section-heading">PROPERTY CUSTODIANS</h2>
+          <h2 class="section-heading">ASSET CUSTODIANS</h2>
           <p class="section-desc">Faculty members assigned as liable persons for department assets</p>
         </div>
         <button class="add-btn" id="openAddCustBtn">+ ADD CUSTODIAN</button>
