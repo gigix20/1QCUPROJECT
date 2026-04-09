@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
 ?>
 
+<!-- ADMIN SIDE -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,6 +17,7 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-table.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-modal.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-stats.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-dashboard.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -32,13 +35,51 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
     </div>
 
-    <!-- ASSET STATS-->
+    <!-- ══════════════════════════════════════════
+         GOVERNANCE STATS ROW  (Admin-only)
+    ══════════════════════════════════════════ -->
+    <p class="modal-section-label" style="margin-bottom:10px;">GOVERNANCE OVERVIEW</p>
+    <div class="stats-row">
+
+      <div class="stat-card stat-card--gov">
+        <div class="stat-gov-icon">👤</div>
+        <div class="stat-label">Registered Users</div>
+        <div class="stat-value" id="dashStatUsers">0</div>
+        <div class="stat-sub">All accounts in system</div>
+      </div>
+
+      <div class="stat-card stat-card--gov">
+        <div class="stat-gov-icon">🏢</div>
+        <div class="stat-label">Total Departments</div>
+        <div class="stat-value" id="dashStatDepts">0</div>
+        <div class="stat-sub">Active departments</div>
+      </div>
+
+      <div class="stat-card stat-card--gov">
+        <div class="stat-gov-icon">📦</div>
+        <div class="stat-label">System-Wide Assets</div>
+        <div class="stat-value" id="dashStatSystemAssets">0</div>
+        <div class="stat-sub">All registered assets</div>
+      </div>
+
+      <div class="stat-card stat-card--gov stat-card--alert" id="pendingDeleteCard">
+        <div class="stat-gov-icon">⚠️</div>
+        <div class="stat-label">Pending Delete Requests</div>
+        <div class="stat-value" id="dashStatPendingDelete">0</div>
+        <div class="stat-sub stat-sub--alert">Awaiting your approval</div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         ASSET STATS  (existing)
+    ══════════════════════════════════════════ -->
     <p class="modal-section-label" style="margin-bottom:10px;">ASSET OVERVIEW</p>
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">Total Assets</div>
+        <div class="stat-label">Total Active Assets</div>
         <div class="stat-value" id="dashStatTotal">0</div>
-        <div class="stat-sub">All registered assets</div>
+        <div class="stat-sub">All active registered assets</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Available</div>
@@ -57,7 +98,7 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
     </div>
 
-    <!-- BORROW + MAINTENANCE STATS-->
+    <!-- BORROW + MAINTENANCE STATS (existing) -->
     <div class="stats-row" style="margin-top:0;">
       <div class="stat-card">
         <div class="stat-label">Pending Borrows</div>
@@ -81,14 +122,16 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
     </div>
 
-    <!-- RECENT TABLES-->
+    <!-- ══════════════════════════════════════════
+         RECENT TABLES (existing)
+    ══════════════════════════════════════════ -->
     <div class="modal-two-col" style="gap:20px;align-items:flex-start;">
 
       <!-- Recent Assets -->
       <div class="table-section" style="flex:1;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h2 style="font-size:15px;font-weight:600;">Recent Assets</h2>
-          <a href="/1QCUPROJECT/views/staff/assets.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+          <a href="/1QCUPROJECT/views/admin/assets_page.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
             VIEW ALL →
           </a>
         </div>
@@ -114,7 +157,7 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       <div class="table-section" style="flex:1;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h2 style="font-size:15px;font-weight:600;">Recent Borrow Requests</h2>
-          <a href="/1QCUPROJECT/views/staff/borrow.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+          <a href="/1QCUPROJECT/views/admin/borrow_page.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
             VIEW ALL →
           </a>
         </div>
@@ -138,11 +181,11 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
 
     </div>
 
-    <!-- Recent Maintenance -->
+    <!-- Recent Maintenance (existing) -->
     <div class="table-section">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <h2 style="font-size:15px;font-weight:600;">Recent Maintenance</h2>
-        <a href="/1QCUPROJECT/views/staff/maintenance.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+        <a href="/1QCUPROJECT/views/admin/maintenance_page.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
           VIEW ALL →
         </a>
       </div>
@@ -157,6 +200,37 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           </tr>
         </thead>
         <tbody id="dashMaintTableBody">
+          <tr class="empty-row">
+            <td colspan="5">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         RECENT REPORTS SNAPSHOT  (Admin-only)
+    ══════════════════════════════════════════ -->
+    <div class="table-section" style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div>
+          <h2 style="font-size:15px;font-weight:600;">Recent Reports</h2>
+          <p style="font-size:12px;color:#888;margin-top:2px;">Latest generated reports across the system</p>
+        </div>
+        <a href="/1QCUPROJECT/views/admin/reports_page.php" style="font-size:12px;color:#7c3aed;font-weight:600;text-decoration:none;">
+          MANAGE REPORTS →
+        </a>
+      </div>
+      <table class="asset-table">
+        <thead>
+          <tr>
+            <th>REPORT NAME</th>
+            <th>TYPE</th>
+            <th>GENERATED BY</th>
+            <th>DATE</th>
+            <th>FORMAT</th>
+          </tr>
+        </thead>
+        <tbody id="dashReportsTableBody">
           <tr class="empty-row">
             <td colspan="5">Loading...</td>
           </tr>

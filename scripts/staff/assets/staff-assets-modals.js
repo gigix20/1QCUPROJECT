@@ -1,4 +1,3 @@
-
 // SAVE ASSET
 function assetsSave() {
   var get = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
@@ -7,6 +6,7 @@ function assetsSave() {
   var serial_number = get('assetsSerialNumber');
   var category_id   = get('assetsCategory');
   var department_id = get('assetsDepartment');
+  var custodian_id  = get('assetsLiablePerson');
   var item_type_id  = get('assetsItemType');
   var location      = get('assetsLocation');
   var status        = get('assetsStatus') || 'Available';
@@ -18,6 +18,10 @@ function assetsSave() {
     showToast('⚠ Please fill in all required fields.');
     return;
   }
+  if (!custodian_id) {
+    showToast('⚠ Please select a liable person.');
+    return;
+  }
 
   var formData = new FormData();
   formData.append('resource',      'assets');
@@ -26,6 +30,7 @@ function assetsSave() {
   formData.append('serial_number', serial_number);
   formData.append('category_id',   category_id);
   formData.append('department_id', department_id);
+  formData.append('custodian_id',  custodian_id);
   formData.append('item_type_id',  item_type_id);
   formData.append('location',      location);
   formData.append('status',        status);
@@ -49,8 +54,6 @@ function assetsSave() {
 }
 
 
-
-
 // EDIT ROW
 function editRow(asset_id) {
   fetch(API + '?resource=assets&action=getById&asset_id=' + asset_id)
@@ -69,22 +72,20 @@ function editRow(asset_id) {
       set('editLocation',     a.LOCATION      || '');
       set('editStatus',       a.STATUS);
 
+      var cer = document.getElementById('editCertified');
+      if (cer) cer.checked = a.IS_CERTIFIED == 1;
+
       var editDeptEl = document.getElementById('editDepartment');
       if (editDeptEl) {
         editDeptEl.value = a.DEPARTMENT_ID || '';
-        updateLiableDropdown('editDepartment', 'editLiablePerson');
+        fetchCustodiansByDept(a.DEPARTMENT_ID, 'editLiablePerson', a.CUSTODIAN_ID);
       }
-
-      var cer = document.getElementById('editCertified');
-      if (cer) cer.checked = a.IS_CERTIFIED == 1;
 
       document.getElementById('editModal').setAttribute('data-edit-id', a.ASSET_ID);
       openModal('editModal');
     })
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
-
-
 
 
 // SAVE EDIT
@@ -97,6 +98,7 @@ function assetsSaveEdit() {
   var serial_number = get('editSerialNumber');
   var category_id   = get('editCategory');
   var department_id = get('editDepartment');
+  var custodian_id  = get('editLiablePerson');
   var item_type_id  = get('editItemType');
   var location      = get('editLocation');
   var status        = get('editStatus') || 'Available';
@@ -105,6 +107,10 @@ function assetsSaveEdit() {
 
   if (!description || !department_id || !item_type_id) {
     showToast('⚠ Please fill in all required fields.');
+    return;
+  }
+  if (!custodian_id) {
+    showToast('⚠ Please select a liable person.');
     return;
   }
 
@@ -116,6 +122,7 @@ function assetsSaveEdit() {
   formData.append('serial_number', serial_number);
   formData.append('category_id',   category_id);
   formData.append('department_id', department_id);
+  formData.append('custodian_id',  custodian_id);
   formData.append('item_type_id',  item_type_id);
   formData.append('location',      location);
   formData.append('status',        status);
@@ -135,33 +142,51 @@ function assetsSaveEdit() {
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
 
-// DELETE ROW
+
+// ── REQUEST DELETION — opens modal ───────────────────────────────────────────
 function deleteRow(asset_id) {
-  if (!confirm('Request deletion of this asset?')) return;
+  var modal = document.getElementById('requestDeletionModal');
+  if (!modal) return;
+  modal.setAttribute('data-delete-id', asset_id);
+
+  var idLabel = document.getElementById('delReqAssetId');
+  if (idLabel) idLabel.textContent = asset_id;
+
+  var textarea = document.getElementById('delReqReason');
+  if (textarea) textarea.value = '';
+
+  openModal('requestDeletionModal');
+}
+
+
+// ── SUBMIT DELETION REQUEST ───────────────────────────────────────────────────
+function submitDeletionRequest() {
+  var modal    = document.getElementById('requestDeletionModal');
+  var asset_id = modal.getAttribute('data-delete-id');
+  var reason   = document.getElementById('delReqReason').value.trim();
+
+  if (!reason) {
+    showToast('⚠ Please provide a reason for the deletion request.');
+    return;
+  }
 
   var formData = new FormData();
   formData.append('resource',   'assets');
   formData.append('action',     'delete');
   formData.append('asset_id',   asset_id);
   formData.append('deleted_by', 'staff');
+  formData.append('reason',     reason);
 
   fetch(API, { method: 'POST', body: formData })
-    .then(function(res) {
-      var contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) return res.json();
-      if (res.ok) return { status: 'success' };
-      return { status: 'error', message: 'Server error.' };
-    })
+    .then(function(res)  { return res.json(); })
     .then(function(data) {
       if (data.status === 'success') {
+        closeModal('requestDeletionModal');
         loadAssets();
-        showToast('🗑 Deletion request submitted.');
+        showToast('🗑 Deletion request submitted for ' + asset_id + '.');
       } else {
         showToast('⚠ ' + data.message);
       }
     })
-    .catch(function() {
-      loadAssets();
-      showToast('🗑 Deletion request submitted.');
-    });
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
 }

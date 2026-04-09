@@ -1,0 +1,21 @@
+-- ============================================================
+-- ALTER TBL_DEPARTMENTS (Generalized Version)
+-- Adds: BUILDING, DEPARTMENT_HEAD, STATUS
+-- Safe to run — all new columns are nullable with defaults.
+-- ============================================================
+
+-- 1. Add the new columns
+ALTER TABLE TBL_DEPARTMENTS
+  ADD (
+    BUILDING         VARCHAR2(150),
+    DEPARTMENT_HEAD  VARCHAR2(200),
+    STATUS           VARCHAR2(20) DEFAULT 'Active'
+  );
+
+-- 2. Backfill existing rows (Standard practice for new mandatory columns)
+UPDATE TBL_DEPARTMENTS 
+SET STATUS = 'Active' 
+WHERE STATUS IS NULL;
+
+-- 3. Finalize the changes
+COMMIT;

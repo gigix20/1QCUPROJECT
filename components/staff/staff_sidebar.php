@@ -34,6 +34,11 @@
             <a href="reports.php">Reports</a>
         </li>
 
+        <!-- <li class="<?= ($currentPage === 'departments') ? 'active' : '' ?>">
+            <span class="menu-icon">🏢</span>
+            <a href="departments.php">Departments</a>
+        </li> -->
+
         <!-- TEMPORARY PLACEMENT -->
         <li><span class="menu-icon">➜]</span>
             <a href="/1QCUPROJECT/backend/controllers/LogoutController.php" class="logout-btn">

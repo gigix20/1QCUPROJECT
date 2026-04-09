@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
   var downloadQrBtn = document.getElementById('downloadQrBtn');
   if (downloadQrBtn) downloadQrBtn.addEventListener('click', downloadQR);
 
+  // ── Request Deletion modal ────────────────────────────────────────────────
+  var cancelDelReqBtn = document.getElementById('cancelDelReqBtn');
+  if (cancelDelReqBtn) {
+    cancelDelReqBtn.addEventListener('click', function() {
+      closeModal('requestDeletionModal');
+    });
+  }
+
+  var submitDelReqBtn = document.getElementById('submitDelReqBtn');
+  if (submitDelReqBtn) submitDelReqBtn.addEventListener('click', submitDeletionRequest);
+
   // Search
   var searchInput = document.getElementById('assetsSearchInput');
   if (searchInput) {
@@ -78,19 +89,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Liable person dropdown — Add modal
+  // ── Liable person dropdown — Add modal ───────────────────────────────────
   var deptSelect = document.getElementById('assetsDepartment');
   if (deptSelect) {
     deptSelect.addEventListener('change', function() {
-      updateLiableDropdown('assetsDepartment', 'assetsLiablePerson');
+      fetchCustodiansByDept(this.value, 'assetsLiablePerson', null);
     });
   }
 
-  // Liable person dropdown — Edit modal
+  // ── Liable person dropdown — Edit modal ──────────────────────────────────
   var editDeptSelect = document.getElementById('editDepartment');
   if (editDeptSelect) {
     editDeptSelect.addEventListener('change', function() {
-      updateLiableDropdown('editDepartment', 'editLiablePerson');
+      fetchCustodiansByDept(this.value, 'editLiablePerson', null);
     });
   }
 
@@ -113,5 +124,4 @@ document.addEventListener('DOMContentLoaded', function() {
   loadDropdowns();
   loadAssets();
   handleQRScan();
-
 });

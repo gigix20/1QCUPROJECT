@@ -1,0 +1,59 @@
+/* ══════════════════════════════════════════════════════════════════
+   admin-dashboard.css
+   Admin-specific dashboard additions — governance cards, report badge
+   Extends: admin-stats.css, admin-table.css
+   ══════════════════════════════════════════════════════════════════ */
+
+
+/* ── GOVERNANCE STAT CARDS ─────────────────────────────────────── */
+
+.stat-card--gov {
+    position: relative;
+    border-top: 3px solid #7c3aed;
+    background: linear-gradient(160deg, #faf8ff 0%, #ffffff 100%);
+  }
+  
+  .stat-gov-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  
+  /* Alert variant — Pending Delete Requests card */
+  .stat-card--alert {
+    border-top-color: #dc2626;
+    background: linear-gradient(160deg, #fff8f8 0%, #ffffff 100%);
+  }
+  
+  .stat-card--alert .stat-label {
+    color: #b91c1c;
+  }
+  
+  /* Lit up when count > 0 */
+  .stat-card--alert-active {
+    border-top-color: #dc2626;
+    background: linear-gradient(160deg, #fef2f2 0%, #fff5f5 100%);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12);
+  }
+  
+  .stat-card--alert-active .stat-value {
+    color: #dc2626;
+  }
+  
+  .stat-sub--alert {
+    color: #dc2626 !important;
+  }
+  
+  
+  /* ── FORMAT BADGE (Recent Reports table) ───────────────────────── */
+  
+  .badge-format {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    background: #ede9fe;
+    color: #6d28d9;
+  }

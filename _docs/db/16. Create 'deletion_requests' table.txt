@@ -1,0 +1,34 @@
+-- ============================================================
+-- TBL_DELETION_REQUESTS (Generalized Version)
+-- Stores staff-submitted asset deletion requests with reason.
+-- ============================================================
+
+-- 1. Create the Sequence (No schema prefix)
+CREATE SEQUENCE DEL_REQ_SEQ
+  MINVALUE 1
+  MAXVALUE 9999999999999999999999999999
+  INCREMENT BY 1
+  START WITH 1
+  NOCACHE NOORDER NOCYCLE;
+
+-- 2. Create the Table (No schema prefix)
+CREATE TABLE TBL_DELETION_REQUESTS (
+  REQUEST_ID    NUMBER           NOT NULL,
+  ASSET_ID      VARCHAR2(50)     NOT NULL,
+  REQUESTED_BY  VARCHAR2(100)    NOT NULL,
+  REASON        VARCHAR2(500)    NOT NULL,
+  STATUS        VARCHAR2(20)     DEFAULT 'Pending',
+  REVIEWED_BY   VARCHAR2(100),
+  REVIEWED_AT   TIMESTAMP(6),
+  CREATED_AT    TIMESTAMP(6)     DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT PK_DELETION_REQUESTS PRIMARY KEY (REQUEST_ID),
+  
+  -- Foreign Key points to the local TBL_ASSETS
+  CONSTRAINT FK_DELREQ_ASSET FOREIGN KEY (ASSET_ID)
+    REFERENCES TBL_ASSETS (ASSET_ID) ON DELETE CASCADE,
+    
+  CONSTRAINT CHK_DELREQ_STATUS CHECK (
+    STATUS IN ('Pending', 'Approved', 'Rejected')
+  )
+);

@@ -38,9 +38,9 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
     <p class="modal-section-label" style="margin-bottom:10px;">ASSET OVERVIEW</p>
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">Total Assets</div>
+        <div class="stat-label">Total Active Assets</div>
         <div class="stat-value" id="dashStatTotal">0</div>
-        <div class="stat-sub">All registered assets</div>
+        <div class="stat-sub">All active registered assets</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Available</div>
