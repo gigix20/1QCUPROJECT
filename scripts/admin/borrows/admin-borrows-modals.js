@@ -214,3 +214,25 @@ function cancelBorrow(borrow_id) {
     })
     .catch(function() { showToast('⚠ Error connecting to server.'); });
 }
+
+// APPROVE BORROW
+function approveBorrow(borrow_id) {
+  if (!confirm('Approve this borrow request?')) return;
+
+  var formData = new FormData();
+  formData.append('resource',  'borrows');
+  formData.append('action',    'approve');
+  formData.append('borrow_id', borrow_id);
+
+  fetch(BORROW_API, { method: 'POST', body: formData })
+    .then(function(res)  { return res.json(); })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadBorrows();
+        showToast('✓ Borrow request approved.');
+      } else {
+        showToast('⚠ ' + data.message);
+      }
+    })
+    .catch(function() { showToast('⚠ Error connecting to server.'); });
+}
