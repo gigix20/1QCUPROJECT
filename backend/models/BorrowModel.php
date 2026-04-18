@@ -1,6 +1,8 @@
 <?php
 // backend/models/BorrowModel.php
 
+require_once __DIR__ . '/../helpers/audit_helper.php';
+
 class BorrowModel {
   private $conn;
 
@@ -83,6 +85,10 @@ class BorrowModel {
     $stmt->bindParam(':purpose',       $data['purpose']);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+    logAudit($this->conn, 'BORROW', 'Borrows',
+        'Borrow request created for asset ' . $data['asset_id']
+        . ' by ' . $data['last_name'] . ', ' . $data['first_name'],
+        $data['asset_id']);
   }
 
   // GET BORROWS BY IDS (for filtered export)
@@ -136,6 +142,8 @@ class BorrowModel {
     $borrow = $this->getBorrowById($borrow_id);
     if ($borrow) {
       $this->updateAssetStatus($borrow['ASSET_ID'], 'In Use');
+      logAudit($this->conn, 'BORROW', 'Borrows',
+          'Borrow approved for asset ' . $borrow['ASSET_ID'], (string) $borrow_id);
     }
   }
 
@@ -152,6 +160,8 @@ class BorrowModel {
     $stmt->bindParam(':borrow_id', $borrow_id);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+    logAudit($this->conn, 'BORROW', 'Borrows',
+        'Borrow cancelled', (string) $borrow_id);
   }
 
   // RETURN BORROW
@@ -172,6 +182,8 @@ class BorrowModel {
     $borrow = $this->getBorrowById($data['borrow_id']);
     if ($borrow) {
       $this->updateAssetStatus($borrow['ASSET_ID'], 'Available');
+      logAudit($this->conn, 'RETURN', 'Borrows',
+          'Asset ' . $borrow['ASSET_ID'] . ' returned', (string) $data['borrow_id']);
     }
   }
 

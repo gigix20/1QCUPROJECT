@@ -36,6 +36,11 @@
       <a href="reports_page.php">Reports</a>
     </li>
 
+    <li class="<?= ($currentPage === 'audit') ? 'active' : '' ?>">
+      <span class="menu-icon">📝</span>
+      <a href="admin-audit.php">Audit</a>
+    </li>
+
     <li class="<?= ($currentPage === 'departments') ? 'active' : '' ?>">
       <span class="menu-icon">🏢</span>
       <a href="departments_page.php">Departments</a>

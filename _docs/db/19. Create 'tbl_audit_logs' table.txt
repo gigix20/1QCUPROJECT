@@ -1,0 +1,58 @@
+-- ============================================================
+--  TBL_AUDIT_LOGS  –  Generic Oracle creation script
+--  Run this in SQL*Plus / SQL Developer as your own schema user
+-- ============================================================
+
+--------------------------------------------------------
+--  Sequence
+--------------------------------------------------------
+CREATE SEQUENCE AUDIT_SEQ
+  MINVALUE 1
+  MAXVALUE 9999999999999999999999999999
+  INCREMENT BY 1
+  START WITH 1
+  NOCACHE NOORDER NOCYCLE;
+
+--------------------------------------------------------
+--  Table
+--------------------------------------------------------
+CREATE TABLE TBL_AUDIT_LOGS (
+  LOG_ID        NUMBER          NOT NULL,
+  ACTION_TYPE   VARCHAR2(50)    NOT NULL,   -- LOGIN, LOGOUT, ASSET_ADD, ASSET_EDIT, ASSET_DELETE,
+                                            -- BORROW, RETURN, REPORT_GENERATED, MAINTENANCE_ADD, etc.
+  MODULE        VARCHAR2(50)    NOT NULL,   -- Assets | Borrows | Maintenance | Reports | Auth
+  PERFORMED_BY  VARCHAR2(150)   NOT NULL,   -- full_name or email from session
+  USER_ROLE     VARCHAR2(20)    DEFAULT 'Staff',
+  DESCRIPTION   VARCHAR2(1000)  NOT NULL,   -- human-readable detail
+  IP_ADDRESS    VARCHAR2(45),               -- IPv4 or IPv6
+  REFERENCE_ID  VARCHAR2(100),              -- asset_id / borrow_id / report_id etc.
+  CREATED_AT    TIMESTAMP(6)    DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT PK_AUDIT_LOGS PRIMARY KEY (LOG_ID)
+);
+
+--------------------------------------------------------
+--  Auto-increment trigger
+--------------------------------------------------------
+CREATE OR REPLACE TRIGGER TBL_AUDIT_LOGS_BIR
+BEFORE INSERT ON tbl_audit_logs
+FOR EACH ROW
+BEGIN
+  SELECT audit_seq.NEXTVAL INTO :NEW.log_id FROM dual;
+END;
+/
+
+ALTER TRIGGER TBL_AUDIT_LOGS_BIR ENABLE;
+
+--------------------------------------------------------
+--  Index on frequently-filtered columns
+--------------------------------------------------------
+CREATE INDEX IDX_AUDIT_ACTION ON TBL_AUDIT_LOGS (ACTION_TYPE);
+CREATE INDEX IDX_AUDIT_MODULE ON TBL_AUDIT_LOGS (MODULE);
+CREATE INDEX IDX_AUDIT_USER ON TBL_AUDIT_LOGS (PERFORMED_BY);
+CREATE INDEX IDX_AUDIT_DATE ON TBL_AUDIT_LOGS (CREATED_AT);
+
+--------------------------------------------------------
+--  Optional: Grant permissions (if other schemas need access)
+--------------------------------------------------------
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON TBL_AUDIT_LOGS TO other_user;
+-- GRANT SELECT ON AUDIT_SEQ TO other_user;
