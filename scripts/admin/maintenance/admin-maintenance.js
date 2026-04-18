@@ -127,7 +127,8 @@ function maintActionBtns(m) {
   var btns = '<button class="view-btn" onclick="viewMaint(' + id + ')">View</button> ';
 
   if (m.STATUS === 'Pending') {
-    btns += '<button class="del-btn" onclick="cancelMaint(' + id + ')">Cancel</button>';
+    btns += '<button class="approve-btn" onclick="startMaint(' + id + ')">Start</button> ';
+    btns += '<button class="del-btn"     onclick="cancelMaint(' + id + ')">Cancel</button>';
   } else if (m.STATUS === 'In Progress') {
     btns += '<button class="return-btn" onclick="completeMaint(' + id + ')">Complete</button>';
   }

@@ -1,0 +1,63 @@
+/* =============================================================
+   admin-audit.css
+   Drop in:  /1QCUPROJECT/styles/admin/admin-audit.css
+   ============================================================= */
+
+/* Filters bar */
+.audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.audit-filters .search-input,
+.audit-filters .filter-select {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  outline: none;
+  transition: border-color .2s;
+  height: 38px;
+}
+
+.audit-filters .search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.audit-filters .filter-select {
+  min-width: 140px;
+}
+
+.audit-filters .search-input:focus,
+.audit-filters .filter-select:focus {
+  border-color: #1a1a2e;
+}
+
+/* Pagination container */
+.audit-pagination {
+  padding: 4px 0;
+}
+
+/* Highlight row on hover */
+.asset-table tbody tr:hover {
+  background: #f0f4ff !important;
+}
+
+/* Stat red accent */
+.stat-sub.red {
+  color: #dc2626;
+}
+
+/* Responsive: collapse filters to 2-col on small screens */
+@media (max-width: 900px) {
+  .audit-filters .search-input {
+    flex: 100%;
+  }
+}

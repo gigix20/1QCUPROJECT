@@ -1,6 +1,8 @@
 <?php
 // backend/models/AssetModel.php
 
+require_once __DIR__ . '/../helpers/audit_helper.php';
+
 class AssetModel {
     private $conn;
 
@@ -130,7 +132,13 @@ class AssetModel {
         $stmt->bindParam(':location',      $data['location']);
         $stmt->bindParam(':status',        $data['status']);
         $stmt->bindParam(':is_certified',  $data['is_certified']);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_ADD', 'Assets',
+                'Added asset: ' . $data['description'], $data['asset_id']);
+        }
+        return $result;
     }
 
 
@@ -159,7 +167,13 @@ class AssetModel {
         $stmt->bindParam(':location',      $data['location']);
         $stmt->bindParam(':status',        $data['status']);
         $stmt->bindParam(':is_certified',  $data['is_certified']);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_EDIT', 'Assets',
+                'Updated asset: ' . $data['description'], $data['asset_id']);
+        }
+        return $result;
     }
 
 
@@ -183,7 +197,13 @@ class AssetModel {
         $stmt2->bindParam(':asset_id',     $asset_id);
         $stmt2->bindParam(':requested_by', $deleted_by);
         $stmt2->bindParam(':reason',       $reason);
-        return $stmt2->execute();
+        $result = $stmt2->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_DELETE', 'Assets',
+                'Deletion requested. Reason: ' . $reason, $asset_id);
+        }
+        return $result;
     }
 
 
@@ -223,7 +243,13 @@ class AssetModel {
         $sql2  = "DELETE FROM tbl_assets WHERE asset_id = :asset_id";
         $stmt2 = $this->conn->prepare($sql2);
         $stmt2->bindParam(':asset_id', $asset_id);
-        return $stmt2->execute();
+        $result = $stmt2->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_DELETE', 'Assets',
+                'Deletion approved and asset permanently removed', $asset_id);
+        }
+        return $result;
     }
 
 
@@ -248,7 +274,13 @@ class AssetModel {
         $stmt2 = $this->conn->prepare($sql2);
         $stmt2->bindParam(':asset_id',    $asset_id);
         $stmt2->bindParam(':reviewed_by', $reviewed_by);
-        return $stmt2->execute();
+        $result = $stmt2->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_EDIT', 'Assets',
+                'Deletion request rejected, asset restored', $asset_id);
+        }
+        return $result;
     }
 
 
@@ -257,7 +289,13 @@ class AssetModel {
         $sql  = "DELETE FROM tbl_assets WHERE asset_id = :asset_id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':asset_id', $asset_id);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        if ($result) {
+            $this->conn->exec("COMMIT");
+            logAudit($this->conn, 'ASSET_DELETE', 'Assets',
+                'Asset permanently deleted (admin direct)', $asset_id);
+        }
+        return $result;
     }
 
 

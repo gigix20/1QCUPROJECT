@@ -1,5 +1,8 @@
 <?php
 // backend/models/MaintenanceModel.php
+
+require_once __DIR__ . '/../helpers/audit_helper.php';
+
 class MaintenanceModel {
   private $conn;
 
@@ -79,6 +82,10 @@ class MaintenanceModel {
     $stmt->bindParam(':notes',             $data['notes']);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+    logAudit($this->conn, 'MAINTENANCE_ADD', 'Maintenance',
+        'Maintenance scheduled for asset ' . $data['asset_id']
+        . ': ' . $data['issue_description'],
+        $data['asset_id']);
     $this->updateAssetStatus($data['asset_id'], 'Maintenance');
   }
  
@@ -95,8 +102,10 @@ class MaintenanceModel {
     $stmt->bindParam(':completed_date', $data['completed_date']);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+    logAudit($this->conn, 'MAINTENANCE_UPDATE', 'Maintenance',
+        'Maintenance ' . $data['maintenance_id'] . ' status set to ' . $data['status'],
+        (string) $data['maintenance_id']);
 
-    // If completed or cancelled — set asset back to Available
     if ($data['status'] === 'Completed' || $data['status'] === 'Cancelled') {
       $maint = $this->getMaintenanceById($data['maintenance_id']);
       if ($maint) {
