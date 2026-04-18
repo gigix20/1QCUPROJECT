@@ -136,7 +136,8 @@ function borrowActionBtns(b) {
   var btns = '<button class="view-btn" onclick="viewBorrow(' + id + ')">View</button> ';
 
   if (b.STATUS === 'Pending') {
-    btns += '<button class="del-btn"   onclick="cancelBorrow('  + id + ')">Cancel</button>';
+    btns += '<button class="approve-btn" onclick="approveBorrow(' + id + ')">Approve</button> ';
+    btns += '<button class="del-btn"     onclick="cancelBorrow('  + id + ')">Cancel</button>';
   } else if (b.STATUS === 'Borrowed' || b.STATUS === 'Overdue') {
     btns += '<button class="return-btn" onclick="openReturnModal(' + id + ')">Return</button>';
   }

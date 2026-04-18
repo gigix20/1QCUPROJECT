@@ -86,6 +86,11 @@ function completeMaint(maintenance_id) {
   updateMaintStatus(maintenance_id, 'Completed', today);
 }
 
+// START MAINTENANCE
+function startMaint(maintenance_id) {
+  if (!confirm('Start this maintenance?')) return;
+  updateMaintStatus(maintenance_id, 'In Progress', '');
+}
 
 // CANCEL MAINTENANCE
 function cancelMaint(maintenance_id) {

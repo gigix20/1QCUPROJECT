@@ -128,8 +128,6 @@ function maintActionBtns(m) {
 
   if (m.STATUS === 'Pending') {
     btns += '<button class="del-btn" onclick="cancelMaint(' + id + ')">Cancel</button>';
-  } else if (m.STATUS === 'In Progress') {
-    btns += '<button class="return-btn" onclick="completeMaint(' + id + ')">Complete</button>';
   }
 
   return btns;
