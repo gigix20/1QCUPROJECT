@@ -1,20 +1,32 @@
 .search-bar-full {
   background: white;
   border-radius: 10px;
-  padding: 4px 8px;
+  padding: 4px 14px;
   margin-bottom: 16px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 480px;
+}
+
+.search-bar-full .search-icon {
+  color: #aaa;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .search-bar-full input {
-  width: 100%;
+  flex: 1;
   border: none;
   outline: none;
   font-size: 13px;
   font-family: "Outfit", sans-serif;
-  padding: 10px;
+  padding: 10px 0;
   color: #333;
   background: transparent;
+  cursor: text;
 }
 
 .filter-tabs {
@@ -130,7 +142,7 @@
 .badge.returned    { background: #e0f2fe; color: #0369a1; }
 
 /* ── ACTION BUTTONS ── */
-.view-btn, .del-btn, .edit-btn, .return-btn {
+.view-btn, .del-btn, .edit-btn, .return-btn, .approve-btn {
   padding: 5px 14px;
   background: transparent;
   border: 1px solid #d1d5db;
@@ -148,6 +160,7 @@
 .del-btn:hover    { border-color: #dc2626; color: #dc2626; }
 .edit-btn:hover   { border-color: #16a34a; color: #16a34a; }
 .return-btn:hover { border-color: #0369a1; color: #0369a1; }
+.approve-btn:hover{ border-color: #03b645; color: #16a34a; }
 
 /* ── QR ── */
 .qr-tag {
