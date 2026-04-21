@@ -1,4 +1,4 @@
-var REPORT_API = '/1QCUPROJECT/backend/routes/reports_route.php';
+var REPORT_API = '/1QCUPROJECT/backend/routes/staff_reports_route.php';
 
 var reportsList   = [];
 var scheduledList = [];
@@ -150,7 +150,8 @@ function loadRecentReports() {
         renderReportsTable();
         updateReportStats();
       }
-    });
+    })
+    .catch(function() { showToast('⚠ Failed to load recent reports.'); });
 }
 
 // ADD TO RECENT REPORTS (POST to DB then reload)
@@ -186,15 +187,8 @@ function addToRecentReports(name, type, url) {
 
 // STATS + TABLE
 function updateReportStats() {
-  var now       = new Date();
-  var thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-
-  var generated = reportsList.filter(function(r) {
-    return r.date && r.date.substring(0, 7) === thisMonth;
-  }).length;
-
-  var set = function(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
-  set('statScheduled',        scheduledList.length);
+  var el = document.getElementById('statScheduled');
+  if (el) el.textContent = scheduledList.length;
 }
 
 function renderReportsTable() {

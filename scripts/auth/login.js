@@ -1,6 +1,4 @@
-console.log("login.js Loaded"); // Debug
-
-// Pasword visibility toggle
+console.log("login.js Loaded");
 
 function togglePassword(fieldId, icon) {
   const input = document.getElementById(fieldId);
@@ -15,16 +13,18 @@ function togglePassword(fieldId, icon) {
   }
 }
 
-// Form submission and pop up messge
-
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("login-form");
   const alertDiv = document.getElementById("login-alert");
+  const submitBtn = form?.querySelector("button[type='submit']");
 
-  if (!form || !alertDiv) return;
+  if (!form || !alertDiv || !submitBtn) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Logging in...";
 
     const formData = new FormData(form);
     const res = await fetch(form.action, {
@@ -41,8 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const messages = {
         empty: "Please enter both email and password.",
         invalid: "Incorrect email or password.",
-        unverified:
-          "Please verify your email to continue.",
+        unverified: "Please verify your email to continue.",
         invalid_request: "Invalid request.",
       };
 
@@ -52,7 +51,9 @@ document.addEventListener("DOMContentLoaded", function () {
       void alertDiv.offsetWidth;
       alertDiv.classList.add("show");
 
-      // hide after 3 seconds
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Log In";
+
       setTimeout(() => {
         alertDiv.classList.remove("show");
 

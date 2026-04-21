@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../middleware/requireAdmin.php';
+require_once __DIR__ . '/../middleware/requireStaff.php';
 require_once __DIR__ . '/../../backend/config/database.php';
 require_once __DIR__ . '/../helpers/audit_helper.php';
 require_once __DIR__ . '/../controllers/ReportController.php';
@@ -59,19 +59,6 @@ switch ($resource) {
         break;
     case 'report_maintenance':
         $controller->exportMaintenanceReport();
-        break;
-    case 'report_by_dept':
-        $controller->exportAssetByDepartment();
-        break;
-    case 'report_borrowing':
-        $controller->exportBorrowingActivity();
-        break;
-    case 'report_utilization':
-        $controller->exportAssetUtilization();
-        break;
-
-    case 'report_audit_logs':
-        $controller->exportAuditLogs();
         break;
 
     default:

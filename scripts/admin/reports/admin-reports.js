@@ -4,14 +4,9 @@ var reportsList   = [];
 var scheduledList = [];
 var reportCounter = 1;
 var totalDownloads= 0;
-
-// Departments cache
-var reportDepts = [];
-
-// Which template is currently pending in options modal
+var reportDepts   = [];
 var pendingTemplate = '';
 
-// UTILITIES
 function showToast(msg) {
   var el = document.getElementById('toast');
   if (!el) return;
@@ -36,31 +31,30 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// ROUTE MAP
-// Maps template name → reports_route.php resource
 var REPORT_ROUTE_MAP = {
-  'Complete Asset Inventory': 'report_complete',
-  'Asset Status Report':      'report_status',
-  'Certified Assets Report':  'report_certified',
-  'Overdue Items Report':     'report_overdue',
-  'Maintenance Report':       'report_maintenance'
+  'Complete Asset Inventory':  'report_complete',
+  'Asset Status Report':       'report_status',
+  'Certified Assets Report':   'report_certified',
+  'Overdue Items Report':      'report_overdue',
+  'Maintenance Report':        'report_maintenance',
+  'Asset by Department':       'report_by_dept',
+  'Borrowing Activity Report': 'report_borrowing',
+  'Asset Utilization Report':  'report_utilization',
+  'Audit Logs Report':         'report_audit_logs'
 };
 
-// Reports that need a department picker
 var DEPT_REPORTS = [
-  'Certified Assets Report'
+  'Certified Assets Report',
+  'Asset by Department'
 ];
 
-// Reports that need a scope picker
 var SCOPE_REPORTS = [
   'Overdue Items Report'
 ];
 
-// POPULATE YEAR DROPDOWNS
-// Generates current year going back 4 years
 function populateYearDropdowns() {
-  var currentYear = new Date().getFullYear();
-  var dropdownIds = ['optsYear', 'customYear'];
+  var currentYear  = new Date().getFullYear();
+  var dropdownIds  = ['optsYear', 'customYear'];
 
   dropdownIds.forEach(function(id) {
     var el = document.getElementById(id);
@@ -75,7 +69,6 @@ function populateYearDropdowns() {
   });
 }
 
-// LOAD DEPARTMENTS
 function loadReportDepts() {
   fetch(REPORT_API + '?resource=departments&_=' + Date.now())
     .then(function(res)  { return res.json(); })
@@ -103,7 +96,6 @@ function populateDeptDropdowns() {
   });
 }
 
-// BUILD EXPORT URL
 function buildExportUrl(templateName, deptId, deptName, scope, month, year) {
   var resource = REPORT_ROUTE_MAP[templateName];
   if (!resource) return null;
@@ -141,19 +133,20 @@ function loadRecentReports() {
             url:         r.file_url     || r.FILE_URL || ''
           };
         });
-        // use the actual count from DB
+
         var countEl = document.getElementById('statReportsGenerated');
         if (countEl) countEl.textContent = data.data.monthly_count || 0;
 
         var totalEl = document.getElementById('statTotalReports');
         if (totalEl) totalEl.textContent = data.data.all_time_count || 0;
+
         renderReportsTable();
         updateReportStats();
       }
-    });
+    })
+    .catch(function() { showToast('⚠ Failed to load recent reports.'); });
 }
 
-// ADD TO RECENT REPORTS (POST to DB then reload)
 function addToRecentReports(name, type, url) {
   var formData = new FormData();
   formData.append('report_name', name);
@@ -165,14 +158,13 @@ function addToRecentReports(name, type, url) {
     body:   formData
   })
     .then(function(res) { return res.json(); })
-    .then(function() { loadRecentReports(); })
+    .then(function()    { loadRecentReports(); })
     .catch(function() {
-      // Fallback: add in-memory only
       reportsList.unshift({
         _id:         reportCounter++,
         name:        name,
         type:        type,
-        generatedBy: 'Staff',
+        generatedBy: 'Admin',
         date:        new Date().toISOString().replace('T', ' ').substring(0, 19),
         format:      'PDF',
         url:         url
@@ -182,19 +174,9 @@ function addToRecentReports(name, type, url) {
     });
 }
 
-
-
-// STATS + TABLE
 function updateReportStats() {
-  var now       = new Date();
-  var thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-
-  var generated = reportsList.filter(function(r) {
-    return r.date && r.date.substring(0, 7) === thisMonth;
-  }).length;
-
-  var set = function(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
-  set('statScheduled',        scheduledList.length);
+  var el = document.getElementById('statScheduled');
+  if (el) el.textContent = scheduledList.length;
 }
 
 function renderReportsTable() {
@@ -208,14 +190,12 @@ function renderReportsTable() {
 
   tbody.innerHTML = reportsList.map(function(r, idx) {
     return '<tr>'
-      + '<td><strong>' + (r.name || '—')        + '</strong></td>'
-      + '<td>'         + (r.type || '—')        + '</td>'
+      + '<td><strong>' + (r.name        || '—') + '</strong></td>'
+      + '<td>'         + (r.type        || '—') + '</td>'
       + '<td>'         + (r.generatedBy || '—') + '</td>'
-      + '<td>'         + (r.date || '—')        + '</td>'
+      + '<td>'         + (r.date        || '—') + '</td>'
       + '<td><span class="badge" style="background:#fee2e2;color:#b91c1c;">PDF</span></td>'
-      + '<td>'
-      +   '<button class="view-btn" onclick="viewReport(' + idx + ')">View</button>'
-      + '</td>'
+      + '<td><button class="view-btn" onclick="viewReport(' + idx + ')">View</button></td>'
       + '</tr>';
   }).join('');
 }

@@ -7,7 +7,7 @@ class ScheduledReportService
     private const VALID_TYPES = [
         'Complete Asset Inventory', 'Asset by Department', 'Asset Status Report',
         'Certified Assets Report',  'Overdue Items Report', 'Borrowing Activity Report',
-        'Asset Utilization Report', 'Maintenance Report',
+        'Asset Utilization Report', 'Maintenance Report',   'Audit Logs Report',
     ];
 
     public function __construct(ReportModel $model)

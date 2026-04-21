@@ -344,23 +344,6 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
     </div>
   </div>
 
-  <!-- REPORT PREVIEW MODAL -->
-  <div class="modal-overlay" id="reportPreviewModal">
-    <div class="modal">
-      <div class="modal-title" id="previewReportTitle">Report Preview</div>
-      <div class="modal-divider"></div>
-      <div class="modal-info-box" style="text-align:center;padding:32px 20px;">
-        <div style="font-size:40px;margin-bottom:12px;">&#128202;</div>
-        <p style="font-size:14px;font-weight:600;color:#333;" id="previewReportName"></p>
-        <p style="font-size:12px;color:#888;margin-top:6px;" id="previewReportMeta"></p>
-      </div>
-      <div class="modal-buttons">
-        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
-        <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 

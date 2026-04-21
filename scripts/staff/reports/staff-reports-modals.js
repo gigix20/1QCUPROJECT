@@ -99,6 +99,7 @@ function clearScheduleForm() {
   ['schedReportType', 'schedFrequency', 'schedStartDate'].forEach(function(id) {
     var e = document.getElementById(id); if (e) e.value = '';
   });
+  var rt = document.getElementById('schedRunTime'); if (rt) rt.value = '08:00';
 }
 
 function saveSchedule() {

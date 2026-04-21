@@ -35,7 +35,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
     </div>
 
-    <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-label">Reports Generated</div>
@@ -49,7 +48,7 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
       <div class="stat-card">
         <div class="stat-label">Report Templates</div>
-        <div class="stat-value">5</div>
+        <div class="stat-value">9</div>
         <div class="stat-sub green">Available templates</div>
       </div>
       <div class="stat-card">
@@ -59,7 +58,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </div>
     </div>
 
-    <!-- Report Templates -->
     <div class="table-section">
       <h2 class="section-title">REPORT TEMPLATES</h2>
       <div class="report-grid">
@@ -89,7 +87,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           MAINTENANCE REPORT
         </div>
 
-        <!-- ADMIN ONLY ACTIONS -->
         <div class="report-card" onclick="generateReport('Asset by Department')">
           <div style="font-size:22px;margin-bottom:8px;">&#127970;</div>
           ASSET BY DEPARTMENT
@@ -105,10 +102,14 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           ASSET UTILIZATION REPORT
         </div>
 
+        <div class="report-card" onclick="generateReport('Audit Logs Report')">
+          <div style="font-size:22px;margin-bottom:8px;">&#128196;</div>
+          AUDIT LOGS REPORT
+        </div>
+
       </div>
     </div>
 
-    <!-- Recent Reports Table -->
     <div class="table-section" style="margin-top:20px;">
       <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Recent Reports</h2>
       <table class="asset-table">
@@ -130,7 +131,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       </table>
     </div>
 
-    <!-- Scheduled Reports Table -->
     <div class="table-section" style="margin-top:20px;">
       <h2 style="font-size:15px;font-weight:600;margin-bottom:16px;">Scheduled Reports</h2>
       <table class="asset-table">
@@ -156,26 +156,20 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
 
   </div>
 
-  <!-- ========================
-       REPORT OPTIONS MODAL
-       Shown before generating a template report
-  ========================= -->
+  <!-- REPORT OPTIONS MODAL -->
   <div class="modal-overlay" id="reportOptionsModal">
     <div class="modal">
       <div class="modal-title" id="reportOptionsTitle">Generate Report</div>
       <div class="modal-divider"></div>
       <div class="modal-section-label">REPORT OPTIONS</div>
 
-      <!-- Department filter — shown for dept-based reports -->
       <div class="form-full" id="optsDeptWrapper" style="display:none;">
         <label>Department</label>
         <select id="optsDept">
           <option value="">All Departments</option>
-          <!-- Populated dynamically -->
         </select>
       </div>
 
-      <!-- Scope filter — shown for Overdue Items Report only -->
       <div class="form-full" id="optsScopeWrapper" style="display:none;">
         <label>Scope</label>
         <select id="optsScope">
@@ -185,7 +179,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         </select>
       </div>
 
-      <!-- Month / Year filter — shown for all reports -->
       <div class="modal-two-col">
         <div class="form-group">
           <label>Month <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
@@ -209,7 +202,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           <label>Year <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
           <select id="optsYear">
             <option value="">All Years</option>
-            <!-- Populated dynamically -->
           </select>
         </div>
       </div>
@@ -243,6 +235,9 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
             <option value="Certified Assets Report">Certified Assets</option>
             <option value="Overdue Items Report">Overdue Items</option>
             <option value="Maintenance Report">Maintenance Report</option>
+            <option value="Asset by Department">Asset by Department</option>
+            <option value="Borrowing Activity Report">Borrowing Activity</option>
+            <option value="Asset Utilization Report">Asset Utilization</option>
           </select>
           <select id="reportFormat">
             <option value="PDF">PDF</option>
@@ -250,16 +245,13 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         </div>
       </div>
 
-      <!-- Dept filter — shown conditionally -->
       <div class="form-full" id="customDeptWrapper" style="display:none;">
         <label>Department</label>
         <select id="customDept">
           <option value="">All Departments</option>
-          <!-- Populated dynamically -->
         </select>
       </div>
 
-      <!-- Scope filter — shown for overdue only -->
       <div class="form-full" id="customScopeWrapper" style="display:none;">
         <label>Scope</label>
         <select id="customScope">
@@ -269,7 +261,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         </select>
       </div>
 
-      <!-- Month / Year filter -->
       <div class="modal-two-col">
         <div class="form-group">
           <label>Month <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
@@ -293,7 +284,6 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
           <label>Year <span style="color:#888;font-weight:400;font-size:11px;">(optional)</span></label>
           <select id="customYear">
             <option value="">All Years</option>
-            <!-- Populated dynamically -->
           </select>
         </div>
       </div>
@@ -327,6 +317,10 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
             <option value="Certified Assets Report">Certified Assets</option>
             <option value="Overdue Items Report">Overdue Items</option>
             <option value="Maintenance Report">Maintenance Report</option>
+            <option value="Asset by Department">Asset by Department</option>
+            <option value="Borrowing Activity Report">Borrowing Activity</option>
+            <option value="Asset Utilization Report">Asset Utilization</option>
+            <option value="Audit Logs Report">Audit Logs</option>
           </select>
         </div>
         <div class="form-group">
@@ -359,25 +353,9 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
     </div>
   </div>
 
-  <!-- REPORT PREVIEW MODAL -->
-  <div class="modal-overlay" id="reportPreviewModal">
-    <div class="modal">
-      <div class="modal-title" id="previewReportTitle">Report Preview</div>
-      <div class="modal-divider"></div>
-      <div class="modal-info-box" style="text-align:center;padding:32px 20px;">
-        <div style="font-size:40px;margin-bottom:12px;">&#128202;</div>
-        <p style="font-size:14px;font-weight:600;color:#333;" id="previewReportName"></p>
-        <p style="font-size:12px;color:#888;margin-top:6px;" id="previewReportMeta"></p>
-      </div>
-      <div class="modal-buttons">
-        <button class="modal-edit-btn" id="closePreviewBtn">CLOSE</button>
-        <button class="qr-download-btn" id="downloadReportBtn">&#11015; DOWNLOAD</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast -->
   <div class="toast" id="toast"></div>
+
   <script src="../../scripts/admin/reports/admin-reports.js"></script>
   <script src="../../scripts/admin/reports/admin-reports-scheduled.js"></script>
   <script src="../../scripts/admin/reports/admin-reports-modals.js"></script>

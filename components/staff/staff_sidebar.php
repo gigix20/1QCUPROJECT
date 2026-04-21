@@ -39,11 +39,8 @@
             <a href="departments.php">Departments</a>
         </li> -->
 
-        <!-- TEMPORARY PLACEMENT -->
         <li><span class="menu-icon">➜]</span>
-            <a href="/1QCUPROJECT/backend/controllers/LogoutController.php" class="logout-btn">
-                Logout
-            </a>
+            <a href="#" class="logout-btn" onclick="openLogoutModal(); return false;">Logout</a>
         </li>
     </ul>
 
@@ -56,3 +53,5 @@
         </div>
     </div>
 </div>
+
+<?php require_once __DIR__ . '/../logout-modal.php'; ?>
