@@ -1,4 +1,5 @@
-var REPORT_API = '/1QCUPROJECT/backend/routes/reports_route.php';
+var REPORT_API      = '/1QCUPROJECT/backend/routes/reports_route.php';
+var REPORT_VIEW_URL = '/1QCUPROJECT/backend/routes/view_report.php';
 
 var reportsList   = [];
 var scheduledList = [];
@@ -53,8 +54,8 @@ var SCOPE_REPORTS = [
 ];
 
 function populateYearDropdowns() {
-  var currentYear  = new Date().getFullYear();
-  var dropdownIds  = ['optsYear', 'customYear'];
+  var currentYear = new Date().getFullYear();
+  var dropdownIds = ['optsYear', 'customYear'];
 
   dropdownIds.forEach(function(id) {
     var el = document.getElementById(id);
@@ -100,7 +101,7 @@ function buildExportUrl(templateName, deptId, deptName, scope, month, year) {
   var resource = REPORT_ROUTE_MAP[templateName];
   if (!resource) return null;
 
-  var url = REPORT_API + '?resource=' + resource;
+  var url = REPORT_VIEW_URL + '?resource=' + resource;
 
   if (deptId) {
     url += '&dept_id='   + encodeURIComponent(deptId);

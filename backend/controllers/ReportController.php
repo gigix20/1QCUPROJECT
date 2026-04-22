@@ -30,18 +30,14 @@ class ReportController
         return ['month' => $month, 'year' => $year];
     }
 
-    private function periodLabel(string $month, string $year): string
-    {
-        if ($year && $month) {
-            $dt = DateTime::createFromFormat('Y-m', $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT));
-            return $dt ? $dt->format('F Y') : '';
-        }
-        return $year ?: '';
-    }
-
     private function currentUser(): string
     {
-        return $_SESSION['full_name'] ?? ($_SESSION['username'] ?? 'Admin');
+        return $_SESSION['full_name'] ?? ($_SESSION['username'] ?? 'Unknown');
+    }
+
+    private function currentRole(): string
+    {
+        return $_SESSION['role'] ?? 'Staff';
     }
 
     public function saveReport(): void
@@ -55,22 +51,24 @@ class ReportController
         $type  = trim($_POST['report_type'] ?? '');
         $url   = trim($_POST['file_url']    ?? '');
         $genBy = $this->currentUser();
+        $role  = $this->currentRole();
 
         if (!$name || !$type) {
             ResponseHelper::sendError(400, 'report_name and report_type are required.');
             return;
         }
 
-        $this->model->saveReport($name, $type, $url, $genBy);
+        $this->model->saveReport($name, $type, $url, $genBy, $role);
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', "Generated report: $name");
         ResponseHelper::sendSuccess([], 'Report saved successfully.');
     }
 
     public function getRecentReports(): void
     {
-        $rows    = $this->model->getRecentReports();
-        $monthly = $this->model->countReportsThisMonth();
-        $allTime = $this->model->countAllReports();
+        $role    = $this->currentRole();
+        $rows    = $this->model->getRecentReports($role);
+        $monthly = $this->model->countReportsThisMonth($role);
+        $allTime = $this->model->countAllReports($role);
         ResponseHelper::sendSuccess([
             'reports'        => $rows,
             'monthly_count'  => $monthly,
@@ -226,7 +224,9 @@ class ReportController
 
     public function getScheduledReports(): void
     {
-        ResponseHelper::sendSuccess($this->scheduleSvc->getAll(), 'Scheduled reports retrieved.');
+        $role = $this->currentRole();
+        $rows = $this->model->getAllSchedules($role);
+        ResponseHelper::sendSuccess($rows, 'Scheduled reports retrieved.');
     }
 
     public function createSchedule(): void
@@ -234,12 +234,13 @@ class ReportController
         $body = !empty($_POST) ? $_POST : (json_decode(file_get_contents('php://input'), true) ?? []);
 
         $result = $this->scheduleSvc->create([
-            'schedule_name' => $body['schedule_name'] ?? ($body['name'] ?? ''),
-            'report_type'   => $body['report_type']   ?? ($body['type'] ?? ''),
-            'frequency'     => $body['frequency']     ?? '',
-            'start_date'    => $body['start_date']    ?? '',
-            'run_time'      => $body['run_time']      ?? '08:00',
-            'created_by'    => $this->currentUser(),
+            'schedule_name'  => $body['schedule_name']  ?? ($body['name'] ?? ''),
+            'report_type'    => $body['report_type']    ?? ($body['type'] ?? ''),
+            'frequency'      => $body['frequency']      ?? '',
+            'start_date'     => $body['start_date']     ?? '',
+            'run_time'       => $body['run_time']       ?? '08:00',
+            'created_by'     => $this->currentUser(),
+            'created_by_role'=> $this->currentRole(),
         ]);
 
         if ($result['ok']) {
@@ -292,7 +293,9 @@ class ReportController
 
     public function getDueSchedules(): void
     {
-        ResponseHelper::sendSuccess($this->scheduleSvc->getDue(), 'Due schedules retrieved.');
+        $role = $this->currentRole();
+        $rows = $this->model->getDueSchedules($role);
+        ResponseHelper::sendSuccess($rows, 'Due schedules retrieved.');
     }
 
     public function runScheduledReport(): void
@@ -317,18 +320,19 @@ class ReportController
             return;
         }
 
-        $url  = '/1QCUPROJECT/backend/routes/reports_route.php?resource=' . $map[$type];
+        $url  = '/1QCUPROJECT/backend/routes/view_report.php?resource=' . $map[$type];
         $name = $type . ' (Scheduled)';
+        $role = $this->currentRole();
 
-        $this->model->saveReport($name, $type, $url, $this->currentUser());
+        $this->model->saveReport($name, $type, $url, $this->currentUser(), $role);
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', "Scheduled report generated: $name");
         ResponseHelper::sendSuccess(['url' => $url], 'Report generated successfully.');
     }
 
     public function getScheduledCount(): void
     {
-        $rows  = $this->scheduleSvc->getAll();
-        $count = count(array_filter($rows, function($s) { return ($s['is_active'] ?? $s['IS_ACTIVE'] ?? 0) == 1; }));
+        $role  = $this->currentRole();
+        $count = $this->model->countActiveSchedules($role);
         ResponseHelper::sendSuccess(['count' => $count]);
     }
 
@@ -429,8 +433,8 @@ class ReportController
 <body>
 
   <div class="action-bar">
-    <button class="btn-print" onclick="window.print()">📥 Print / Save PDF</button>
-    <button class="btn-close" onclick="window.close()">✕ Close</button>
+    <button class="btn-print" onclick="window.print()">&#128449; Print / Save PDF</button>
+    <button class="btn-close" onclick="window.close()">&#x2715; Close</button>
   </div>
 
   <div class="header">

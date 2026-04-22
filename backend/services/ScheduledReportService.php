@@ -17,12 +17,13 @@ class ScheduledReportService
 
     public function create(array $data): array
     {
-        $name      = trim($data['schedule_name'] ?? '');
-        $type      = trim($data['report_type']   ?? '');
-        $frequency = trim($data['frequency']      ?? '');
-        $startDate = trim($data['start_date']     ?? '');
-        $runTime   = trim($data['run_time']        ?? '08:00'); // ← add
-        $createdBy = trim($data['created_by']     ?? ($_SESSION['username'] ?? 'system'));
+        $name          = trim($data['schedule_name']   ?? '');
+        $type          = trim($data['report_type']     ?? '');
+        $frequency     = trim($data['frequency']        ?? '');
+        $startDate     = trim($data['start_date']       ?? '');
+        $runTime       = trim($data['run_time']          ?? '08:00');
+        $createdBy     = trim($data['created_by']       ?? ($_SESSION['username'] ?? 'system'));
+        $createdByRole = trim($data['created_by_role']  ?? ($_SESSION['role']     ?? ''));
 
         if ($name === '' || $type === '' || $frequency === '' || $startDate === '') {
             return $this->err('All fields are required.');
@@ -41,12 +42,13 @@ class ScheduledReportService
         }
 
         return $this->model->createSchedule([
-            'schedule_name' => $name,
-            'report_type'   => $type,
-            'frequency'     => $frequency,
-            'start_date'    => $startDate,
-            'run_time'      => $runTime, 
-            'created_by'    => $createdBy,
+            'schedule_name'   => $name,
+            'report_type'     => $type,
+            'frequency'       => $frequency,
+            'start_date'      => $startDate,
+            'run_time'        => $runTime,
+            'created_by'      => $createdBy,
+            'created_by_role' => $createdByRole,
         ]);
     }
 

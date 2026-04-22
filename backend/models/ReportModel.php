@@ -9,30 +9,36 @@ class ReportModel
         $this->conn = $conn;
     }
 
-    // ── REPORT LOG ───────────────────────────────────────────────────────────
+    // ── REPORT LOG ────────────────────────────────────────────────────────────
 
-    public function saveReport(string $name, string $type, string $url, string $generatedBy = 'Staff'): void
+    public function saveReport(string $name, string $type, string $url, string $generatedBy = 'Staff', string $role = 'Staff'): void
     {
         $stmt = $this->conn->prepare(
-            "INSERT INTO tbl_reports (report_id, report_name, report_type, generated_by, generated_at, format, file_url)
-             VALUES (report_seq.NEXTVAL, :name, :type, :by, CURRENT_TIMESTAMP, 'PDF', :url)"
+            "INSERT INTO tbl_reports
+                 (report_id, report_name, report_type, generated_by, generated_by_role, generated_at, format, file_url)
+             VALUES
+                 (report_seq.NEXTVAL, :name, :type, :by, :role, CURRENT_TIMESTAMP, 'PDF', :url)"
         );
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':type', $type);
         $stmt->bindValue(':by',   $generatedBy);
+        $stmt->bindValue(':role', $role);
         $stmt->bindValue(':url',  $url);
         $stmt->execute();
         $this->conn->exec('COMMIT');
     }
 
-    public function getRecentReports(): array
+    public function getRecentReports(string $role = 'Admin'): array
     {
+        $roleFilter = ($role === 'Staff') ? " AND generated_by_role = 'Staff'" : '';
+
         $stmt = $this->conn->prepare(
             "SELECT * FROM (
-               SELECT report_id, report_name, report_type, generated_by,
+               SELECT report_id, report_name, report_type, generated_by, generated_by_role,
                       TO_CHAR(generated_at, 'YYYY-MM-DD HH24:MI:SS') AS generated_at,
                       format, file_url
                FROM tbl_reports
+               WHERE 1=1{$roleFilter}
                ORDER BY generated_at DESC
              ) WHERE ROWNUM <= 50"
         );
@@ -40,20 +46,26 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countReportsThisMonth(): int
+    public function countReportsThisMonth(string $role = 'Admin'): int
     {
+        $roleFilter = ($role === 'Staff') ? " AND generated_by_role = 'Staff'" : '';
+
         $stmt = $this->conn->prepare(
             "SELECT COUNT(*) AS CNT FROM tbl_reports
-             WHERE SUBSTR(TO_CHAR(generated_at, 'YYYY-MM-DD'), 1, 7) = :month"
+             WHERE SUBSTR(TO_CHAR(generated_at, 'YYYY-MM-DD'), 1, 7) = :month{$roleFilter}"
         );
         $stmt->bindValue(':month', date('Y-m'));
         $stmt->execute();
         return (int)($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);
     }
 
-    public function countAllReports(): int
+    public function countAllReports(string $role = 'Admin'): int
     {
-        $stmt = $this->conn->prepare("SELECT COUNT(*) AS CNT FROM tbl_reports");
+        $roleFilter = ($role === 'Staff') ? " AND generated_by_role = 'Staff'" : '';
+
+        $stmt = $this->conn->prepare(
+            "SELECT COUNT(*) AS CNT FROM tbl_reports WHERE 1=1{$roleFilter}"
+        );
         $stmt->execute();
         return (int)($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);
     }
@@ -67,7 +79,7 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ── HELPERS ──────────────────────────────────────────────────────────────
+    // ── HELPERS ───────────────────────────────────────────────────────────────
 
     private function monthYearClause(string $col, string $month, string $year): string
     {
@@ -79,7 +91,7 @@ class ReportModel
         return '';
     }
 
-    // ── FLAT-ROW QUERIES (used by controller outputReport) ───────────────────
+    // ── FLAT-ROW QUERIES (used by controller outputReport) ────────────────────
 
     public function getCompleteInventory(string $month = '', string $year = ''): array
     {
@@ -277,7 +289,7 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ── SUMMARY METHODS (kept for ReportService / ScheduledReportService use) ─
+    // ── SUMMARY METHODS ───────────────────────────────────────────────────────
 
     public function getAssetBreakdown(string $month = '', string $year = ''): array
     {
@@ -485,25 +497,26 @@ class ReportModel
         ];
     }
 
-    // ── SCHEDULED REPORTS ────────────────────────────────────────────────────
+    // ── SCHEDULED REPORTS ─────────────────────────────────────────────────────
 
     public function createSchedule(array $data): array
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO tbl_scheduled_reports
                  (schedule_id, schedule_name, report_type, frequency,
-                  start_date, next_run_date, run_time, created_by, created_at, is_active)
+                  start_date, next_run_date, run_time, created_by, created_by_role, created_at, is_active)
              VALUES
                  (schedule_seq.NEXTVAL, :name, :type, :freq,
-                  :start, :next, :run_time, :by, CURRENT_TIMESTAMP, 1)"
+                  :start, :next, :run_time, :by, :role, CURRENT_TIMESTAMP, 1)"
         );
         $stmt->bindValue(':name',     $data['schedule_name']);
         $stmt->bindValue(':type',     $data['report_type']);
         $stmt->bindValue(':freq',     $data['frequency']);
         $stmt->bindValue(':start',    $data['start_date']);
         $stmt->bindValue(':next',     $data['start_date']);
-        $stmt->bindValue(':run_time', $data['run_time']   ?? '08:00');
-        $stmt->bindValue(':by',       $data['created_by'] ?? 'Staff');
+        $stmt->bindValue(':run_time', $data['run_time']      ?? '08:00');
+        $stmt->bindValue(':by',       $data['created_by']    ?? 'Staff');
+        $stmt->bindValue(':role',     $data['created_by_role'] ?? 'Staff');
         $stmt->execute();
         $this->conn->exec('COMMIT');
 
@@ -511,14 +524,17 @@ class ReportModel
         return ['ok' => true, 'message' => 'Schedule created.', 'id' => (int)($idRow['id'] ?? 0)];
     }
 
-    public function getAllSchedules(): array
+    public function getAllSchedules(string $role = 'Admin'): array
     {
+        $roleFilter = ($role === 'Staff') ? " WHERE created_by_role = 'Staff'" : '';
+
         $stmt = $this->conn->prepare(
             "SELECT schedule_id, schedule_name, report_type, frequency,
-                    start_date, next_run_date, run_time, created_by,
+                    start_date, next_run_date, run_time, created_by, created_by_role,
                     TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
                     is_active
-             FROM tbl_scheduled_reports ORDER BY created_at DESC"
+             FROM tbl_scheduled_reports{$roleFilter}
+             ORDER BY created_at DESC"
         );
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -565,16 +581,17 @@ class ReportModel
         return ['ok' => true, 'message' => 'Next run date advanced.', 'next_run_date' => $nextDate];
     }
 
-    public function getDueSchedules(): array
+    public function getDueSchedules(string $role = 'Admin'): array
     {
         $today       = date('Y-m-d');
         $currentTime = date('H:i');
+        $roleFilter  = ($role === 'Staff') ? " AND created_by_role = 'Staff'" : '';
 
         $stmt = $this->conn->prepare(
             "SELECT schedule_id, schedule_name, report_type, frequency,
-                    next_run_date, run_time, created_by
+                    next_run_date, run_time, created_by, created_by_role
              FROM tbl_scheduled_reports
-             WHERE is_active = 1 AND next_run_date <= :today
+             WHERE is_active = 1 AND next_run_date <= :today{$roleFilter}
              ORDER BY next_run_date ASC, run_time ASC"
         );
         $stmt->bindValue(':today', $today);
@@ -616,10 +633,12 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countActiveSchedules(): int
+    public function countActiveSchedules(string $role = 'Admin'): int
     {
+        $roleFilter = ($role === 'Staff') ? " AND created_by_role = 'Staff'" : '';
+
         $stmt = $this->conn->prepare(
-            "SELECT COUNT(*) AS CNT FROM tbl_scheduled_reports WHERE is_active = 1"
+            "SELECT COUNT(*) AS CNT FROM tbl_scheduled_reports WHERE is_active = 1{$roleFilter}"
         );
         $stmt->execute();
         return (int)($stmt->fetch(PDO::FETCH_ASSOC)['CNT'] ?? 0);

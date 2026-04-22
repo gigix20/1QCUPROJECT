@@ -1,17 +1,14 @@
-var REPORT_API = '/1QCUPROJECT/backend/routes/staff_reports_route.php';
+var REPORT_API      = '/1QCUPROJECT/backend/routes/staff_reports_route.php';
+var REPORT_VIEW_URL = '/1QCUPROJECT/backend/routes/view_report.php';
 
 var reportsList   = [];
 var scheduledList = [];
 var reportCounter = 1;
 var totalDownloads= 0;
 
-// Departments cache
-var reportDepts = [];
-
-// Which template is currently pending in options modal
+var reportDepts     = [];
 var pendingTemplate = '';
 
-// UTILITIES
 function showToast(msg) {
   var el = document.getElementById('toast');
   if (!el) return;
@@ -36,8 +33,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// ROUTE MAP
-// Maps template name → reports_route.php resource
 var REPORT_ROUTE_MAP = {
   'Complete Asset Inventory': 'report_complete',
   'Asset Status Report':      'report_status',
@@ -46,18 +41,14 @@ var REPORT_ROUTE_MAP = {
   'Maintenance Report':       'report_maintenance'
 };
 
-// Reports that need a department picker
 var DEPT_REPORTS = [
   'Certified Assets Report'
 ];
 
-// Reports that need a scope picker
 var SCOPE_REPORTS = [
   'Overdue Items Report'
 ];
 
-// POPULATE YEAR DROPDOWNS
-// Generates current year going back 4 years
 function populateYearDropdowns() {
   var currentYear = new Date().getFullYear();
   var dropdownIds = ['optsYear', 'customYear'];
@@ -75,7 +66,6 @@ function populateYearDropdowns() {
   });
 }
 
-// LOAD DEPARTMENTS
 function loadReportDepts() {
   fetch(REPORT_API + '?resource=departments&_=' + Date.now())
     .then(function(res)  { return res.json(); })
@@ -103,12 +93,11 @@ function populateDeptDropdowns() {
   });
 }
 
-// BUILD EXPORT URL
 function buildExportUrl(templateName, deptId, deptName, scope, month, year) {
   var resource = REPORT_ROUTE_MAP[templateName];
   if (!resource) return null;
 
-  var url = REPORT_API + '?resource=' + resource;
+  var url = REPORT_VIEW_URL + '?resource=' + resource;
 
   if (deptId) {
     url += '&dept_id='   + encodeURIComponent(deptId);
@@ -141,12 +130,13 @@ function loadRecentReports() {
             url:         r.file_url     || r.FILE_URL || ''
           };
         });
-        // use the actual count from DB
+
         var countEl = document.getElementById('statReportsGenerated');
         if (countEl) countEl.textContent = data.data.monthly_count || 0;
 
         var totalEl = document.getElementById('statTotalReports');
         if (totalEl) totalEl.textContent = data.data.all_time_count || 0;
+
         renderReportsTable();
         updateReportStats();
       }
@@ -154,7 +144,6 @@ function loadRecentReports() {
     .catch(function() { showToast('⚠ Failed to load recent reports.'); });
 }
 
-// ADD TO RECENT REPORTS (POST to DB then reload)
 function addToRecentReports(name, type, url) {
   var formData = new FormData();
   formData.append('report_name', name);
@@ -166,9 +155,8 @@ function addToRecentReports(name, type, url) {
     body:   formData
   })
     .then(function(res) { return res.json(); })
-    .then(function() { loadRecentReports(); })
+    .then(function()    { loadRecentReports(); })
     .catch(function() {
-      // Fallback: add in-memory only
       reportsList.unshift({
         _id:         reportCounter++,
         name:        name,
@@ -183,9 +171,6 @@ function addToRecentReports(name, type, url) {
     });
 }
 
-
-
-// STATS + TABLE
 function updateReportStats() {
   var el = document.getElementById('statScheduled');
   if (el) el.textContent = scheduledList.length;

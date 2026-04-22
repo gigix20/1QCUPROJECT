@@ -1,0 +1,8 @@
+ALTER TABLE tbl_reports ADD generated_by_role VARCHAR2(20) DEFAULT 'Staff';
+ALTER TABLE tbl_scheduled_reports ADD created_by_role VARCHAR2(20) DEFAULT 'Staff';
+
+UPDATE tbl_reports
+SET generated_by_role = 'Admin'
+WHERE INSTR(file_url, 'staff_reports_route') = 0;
+
+COMMIT;
