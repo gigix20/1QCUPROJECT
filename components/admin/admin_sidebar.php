@@ -57,14 +57,24 @@
 
   </ul>
 
-  <!-- PROFILE -->
-  <div class="admin-user">
-    <div class="avatar">AU</div>
-    <div>
-      <p class="name">Admin User</p>
-      <p class="role">Administrator</p>
-    </div>
+<!-- PROFILE -->
+<?php
+  $fullName = $_SESSION['full_name'] ?? 'Unknown User';
+  $role     = $_SESSION['role']      ?? 'Staff';
+
+  $nameParts = explode(' ', trim($fullName));
+  $initials  = strtoupper(
+    ($nameParts[0][0] ?? '') .
+    (count($nameParts) > 1 ? end($nameParts)[0] : '')
+  );
+?>
+<div class="admin-user">
+  <div class="avatar"><?= htmlspecialchars($initials) ?></div>
+  <div>
+    <p class="name"><?= htmlspecialchars($fullName) ?></p>
+    <p class="role"><?= htmlspecialchars($role) ?></p>
   </div>
+</div>
 </div>
 
 <?php require_once __DIR__ . '/../logout-modal.php'; ?>

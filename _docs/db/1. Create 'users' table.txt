@@ -16,7 +16,8 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   otp_code VARCHAR2(255),
-  otp_expires_at TIMESTAMP
+  otp_expires_at TIMESTAMP,
+  role VARCHAR2(50) DEFAULT 'Staff';
 );
 
 -- Trigger to automatically populate user_id and update `updated_at`

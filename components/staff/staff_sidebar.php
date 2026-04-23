@@ -44,14 +44,24 @@
         </li>
     </ul>
 
-    <!-- PROFILE -->
-    <div class="admin-user">
-        <div class="avatar">SU</div>
-        <div>
-            <p class="name">Staff User</p>
-            <p class="role">Staff Member</p>
-        </div>
-    </div>
+<!-- PROFILE -->
+<?php
+  $fullName = $_SESSION['full_name'] ?? 'Unknown User';
+  $role     = $_SESSION['role']      ?? 'Staff';
+
+  $nameParts = explode(' ', trim($fullName));
+  $initials  = strtoupper(
+    ($nameParts[0][0] ?? '') .
+    (count($nameParts) > 1 ? end($nameParts)[0] : '')
+  );
+?>
+<div class="admin-user">
+  <div class="avatar"><?= htmlspecialchars($initials) ?></div>
+  <div>
+    <p class="name"><?= htmlspecialchars($fullName) ?></p>
+    <p class="role"><?= htmlspecialchars($role) ?></p>
+  </div>
+</div>
 </div>
 
 <?php require_once __DIR__ . '/../logout-modal.php'; ?>
