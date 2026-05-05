@@ -64,6 +64,37 @@ class NotificationService
         return $count;
     }
 
+    public function createMaintenanceDueNotification(int $maintenanceId, int $userId): int
+{
+    // Get asset info for message
+    $stmt = $this->conn->prepare(
+        "SELECT a.description, m.scheduled_date
+         FROM tbl_maintenance m
+         JOIN tbl_assets a ON a.asset_id = m.asset_id
+         WHERE m.maintenance_id = :maintenance_id"
+    );
+    $stmt->bindValue(':maintenance_id', $maintenanceId, PDO::PARAM_INT);
+    $stmt->execute();
+    $maintenance = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$maintenance) {
+        return 0;
+    }
+
+    return $this->notificationModel->create([
+        'user_id'            => $userId,
+        'title'              => 'Maintenance Scheduled',
+        'message'            => "Maintenance for '{$maintenance['DESCRIPTION']}' is scheduled on {$maintenance['SCHEDULED_DATE']}.",
+        'type'               => 'info',
+        'priority'           => 'normal',
+        'related_entity_type'=> 'maintenance',
+        'related_entity_id'  => $maintenanceId,
+        'action_url'         => '/1QCUPROJECT/staff/maintenance.php',
+        'expires_at'         => date('Y-m-d H:i:s', strtotime('+7 days'))
+    ]);
+}
+
+
     /**
      * Notify about upcoming maintenance
      */
@@ -212,6 +243,8 @@ class NotificationService
 
         return $count;
     }
+
+    
 
     /**
      * Clean up old notifications

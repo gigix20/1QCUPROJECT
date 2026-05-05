@@ -5,8 +5,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $dsn = 'odbc:OracleXE';      
-$username = 'SaintSteins';       // Replace these with your current user/schema on your ORACLE db 
-$password = 'SaintSteins';        
+$username = 'rico';       // Replace these with your current user/schema on your ORACLE db 
+$password = '1234';        
 
 try {
     // Create PDO connection
