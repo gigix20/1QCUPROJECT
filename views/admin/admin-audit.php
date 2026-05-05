@@ -28,9 +28,12 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">AUDIT LOGS</h1>
         <p class="page-sub">Track all system activity and events</p>
       </div>
-      <div class="topbar-actions">
-        <button class="add-btn" id="exportAuditBtn">&#11015; EXPORT CSV</button>
-        <button class="add-btn" id="clearAuditBtn" style="background:#dc2626;margin-left:8px;">&#128465; CLEAR LOGS</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="add-btn" id="exportAuditBtn">&#11015; EXPORT CSV</button>
+          <button class="add-btn" id="clearAuditBtn" style="background:#dc2626;margin-left:8px;">&#128465; CLEAR LOGS</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 

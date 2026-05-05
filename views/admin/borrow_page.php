@@ -30,9 +30,12 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">BORROW &amp; RETURN</h1>
         <p class="page-sub">Track asset borrowing and return transactions</p>
       </div>
-      <div class="topbar-actions">
-        <button class="outline-btn" id="borrowExportBtn">EXPORT</button>
-        <button class="add-btn" id="borrowOpenModalBtn">+ New Borrow Request</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="outline-btn" id="borrowExportBtn">EXPORT</button>
+          <button class="add-btn" id="borrowOpenModalBtn">+ New Borrow Request</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 

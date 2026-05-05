@@ -92,8 +92,15 @@
 
 .menu-icon {
   font-size: 14px;
-  width: 18px;
+  width: 24px;
+  min-width: 24px;
+  display: inline-flex;
+  justify-content: center;
   text-align: center;
+}
+
+.menu li {
+  white-space: nowrap;
 }
 
 .admin-user {

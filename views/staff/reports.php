@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-table.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-reports.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/notifications.css">
 
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>

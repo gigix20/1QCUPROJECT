@@ -2,13 +2,16 @@
 // backend/controllers/MaintenanceController.php
 
 require_once __DIR__ . '/../models/MaintenanceModel.php';
+require_once __DIR__ . '/../services/NotificationService.php';
 require_once __DIR__ . '/../helpers/ResponseHelper.php';
 
 class MaintenanceController {
   private $model;
+  private $notificationService;
 
   public function __construct($conn) {
     $this->model = new MaintenanceModel($conn);
+    $this->notificationService = new NotificationService($conn);
   }
 
   
@@ -89,7 +92,7 @@ class MaintenanceController {
       return;
     }
 
-    $this->model->addMaintenance([
+    $maintenanceId = $this->model->addMaintenance([
       'asset_id'          => $asset_id,
       'type_id'           => $type_id,
       'issue_description' => $issue_description,
@@ -100,6 +103,12 @@ class MaintenanceController {
       'scheduled_date'    => $scheduled_date,
       'notes'             => $notes,
     ]);
+
+    // Create notification for the user who scheduled the maintenance
+    $userId = $_SESSION['user_id'] ?? null;
+    if ($userId) {
+      $this->notificationService->createMaintenanceDueNotification($maintenanceId, $userId);
+    }
 
     ResponseHelper::sendSuccess(null, 'Maintenance request submitted successfully.');
   }

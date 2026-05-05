@@ -629,26 +629,77 @@ if (PAGE === 'borrow') {
       showToast('⚠ Please fill in all required fields.'); return;
     }
 
-    borrows.push({
-      _id:          borrowCounter,
-      requestId:    'REQ-' + String(borrowCounter).padStart(4, '0'),
-      borrowerName: borrowerName,
-      assetId:      assetId,
-      department:   department,
-      borrowDate:   formatDate(borrowDate),
-      dueDate:      formatDate(dueDate),
-      dueDateRaw:   dueDate,
-      purpose:      purpose,
-      status:       'Pending',
-      returned:     null
-    });
-    borrowCounter++;
+    // Parse borrower name into first, middle, last, suffix
+    var nameParts = borrowerName.split(' ');
+    var firstName = nameParts[0] || '';
+    var middleName = '';
+    var lastName = '';
+    var suffix = '';
 
-    closeModal('borrowModalOverlay');
-    clearBorrowForm();
-    renderBorrowTable('', getActiveTab());
-    updateBorrowStats();
-    showToast('✓ Borrow request submitted!');
+    if (nameParts.length >= 2) {
+      lastName = nameParts[nameParts.length - 1];
+      if (nameParts.length > 2) {
+        middleName = nameParts.slice(1, -1).join(' ');
+      }
+    }
+
+    // Check for suffix (Jr., Sr., III, etc.)
+    var suffixMatch = lastName.match(/(.*?)(\s+(Jr\.?|Sr\.?|I{1,3}|IV|V|VI|VII|VIII|IX|X))$/i);
+    if (suffixMatch) {
+      lastName = suffixMatch[1];
+      suffix = suffixMatch[2].trim();
+    }
+
+    // Disable save button to prevent double submission
+    var saveBtn = document.getElementById('borrowSaveBtn');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Submitting...';
+    }
+
+    // Prepare form data
+    var formData = new FormData();
+    formData.append('asset_id', assetId);
+    formData.append('department_id', department);
+    formData.append('first_name', firstName);
+    formData.append('middle_name', middleName);
+    formData.append('last_name', lastName);
+    formData.append('suffix', suffix);
+    formData.append('borrow_date', borrowDate);
+    formData.append('due_date', dueDate);
+    formData.append('purpose', purpose);
+
+    // Make AJAX request to backend
+    fetch('/1QCUPROJECT/backend/routes/borrows_route.php?resource=borrows&action=add', {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.status === 'success') {
+        // Success - close modal and refresh data
+        closeModal('borrowModalOverlay');
+        clearBorrowForm();
+        loadBorrowsData(); // Refresh the borrow list
+        showToast('✓ Borrow request submitted successfully!');
+      } else {
+        // Error from server
+        showToast('❌ ' + (data.message || 'Failed to submit borrow request.'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error submitting borrow request:', error);
+      showToast('❌ Error connecting to the server. Please try again.');
+    })
+    .finally(function() {
+      // Re-enable save button
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Submit Request';
+      }
+    });
   }
 
   function isOverdue(b) {
@@ -661,23 +712,84 @@ if (PAGE === 'borrow') {
   }
 
   function approveBorrow(id) {
-    var b = borrows.find(function(x) { return x._id === id; });
-    if (b) { b.status = 'Active'; renderBorrowTable('', getActiveTab()); updateBorrowStats(); showToast('✓ Request approved!'); }
+    if (!confirm('Approve this borrow request?')) return;
+
+    var formData = new FormData();
+    formData.append('borrow_id', id);
+
+    fetch('/1QCUPROJECT/backend/routes/borrows_route.php?resource=borrows&action=approve', {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadBorrowsData(); // Refresh the data
+        showToast('✓ Request approved!');
+      } else {
+        showToast('❌ ' + (data.message || 'Failed to approve request.'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error approving borrow:', error);
+      showToast('❌ Error connecting to the server.');
+    });
   }
 
   function returnBorrow(id) {
-    var b = borrows.find(function(x) { return x._id === id; });
-    if (b) {
-      b.status   = 'Returned';
-      b.returned = formatDate(new Date().toISOString().split('T')[0]);
-      renderBorrowTable('', getActiveTab()); updateBorrowStats(); showToast('✓ Asset returned!');
-    }
+    if (!confirm('Mark this asset as returned?')) return;
+
+    var formData = new FormData();
+    formData.append('borrow_id', id);
+
+    fetch('/1QCUPROJECT/backend/routes/borrows_route.php?resource=borrows&action=return', {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadBorrowsData(); // Refresh the data
+        showToast('✓ Asset returned!');
+      } else {
+        showToast('❌ ' + (data.message || 'Failed to return asset.'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error returning borrow:', error);
+      showToast('❌ Error connecting to the server.');
+    });
   }
 
   function rejectBorrow(id) {
     if (!confirm('Reject this borrow request?')) return;
-    borrows = borrows.filter(function(x) { return x._id !== id; });
-    renderBorrowTable('', getActiveTab()); updateBorrowStats(); showToast('🗑 Request rejected.');
+
+    var formData = new FormData();
+    formData.append('borrow_id', id);
+
+    fetch('/1QCUPROJECT/backend/routes/borrows_route.php?resource=borrows&action=cancel', {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.status === 'success') {
+        loadBorrowsData(); // Refresh the data
+        showToast('🗑 Request rejected.');
+      } else {
+        showToast('❌ ' + (data.message || 'Failed to reject request.'));
+      }
+    })
+    .catch(function(error) {
+      console.error('Error rejecting borrow:', error);
+      showToast('❌ Error connecting to the server.');
+    });
   }
 
   function viewBorrow(id) {
@@ -756,6 +868,48 @@ if (PAGE === 'borrow') {
       '</tr>';
     }).join('');
   }
+
+  function loadBorrowsData() {
+    fetch('/1QCUPROJECT/backend/routes/borrows_route.php?resource=borrows&action=getAll')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.success && data.data) {
+        // Transform server data to match local format
+        borrows = data.data.map(function(borrow, index) {
+          return {
+            _id: borrow.BORROW_ID,
+            requestId: borrow.BORROW_ID.toString(),
+            borrowerName: [borrow.FIRST_NAME, borrow.MIDDLE_NAME, borrow.LAST_NAME, borrow.SUFFIX]
+                          .filter(function(n) { return n; }).join(' '),
+            assetId: borrow.ASSET_ID,
+            department: borrow.DEPARTMENT_NAME || borrow.DEPARTMENT_ID,
+            borrowDate: formatDate(borrow.BORROW_DATE),
+            dueDate: formatDate(borrow.DUE_DATE),
+            dueDateRaw: borrow.DUE_DATE,
+            purpose: borrow.PURPOSE || '',
+            status: borrow.STATUS,
+            returned: borrow.RETURN_DATE ? formatDate(borrow.RETURN_DATE) : null
+          };
+        });
+        borrowCounter = Math.max(...borrows.map(function(b) { return b._id; }), 0) + 1;
+        renderBorrowTable('', getActiveTab());
+        updateBorrowStats();
+      } else {
+        console.error('Failed to load borrow data:', data.message);
+        showToast('❌ Failed to load borrow data.');
+      }
+    })
+    .catch(function(error) {
+      console.error('Error loading borrow data:', error);
+      showToast('❌ Error connecting to the server.');
+    });
+  }
+
+  // Load borrow data on page load
+  loadBorrowsData();
+
 }
 
 

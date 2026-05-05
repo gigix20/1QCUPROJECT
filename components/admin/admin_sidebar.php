@@ -51,7 +51,7 @@
       <a href="users_page.php">Users</a>
     </li>
 
-    <li><span class="menu-icon">➜]</span>
+    <li><span class="menu-icon">↩</span>
       <a href="#" class="logout-btn" onclick="openLogoutModal(); return false;">Logout</a>
     </li>
 

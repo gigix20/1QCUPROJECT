@@ -39,7 +39,7 @@
             <a href="departments.php">Departments</a>
         </li> -->
 
-        <li><span class="menu-icon">➜]</span>
+        <li><span class="menu-icon">↩</span>
             <a href="#" class="logout-btn" onclick="openLogoutModal(); return false;">Logout</a>
         </li>
     </ul>

@@ -8,7 +8,13 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
 <head>
   <meta charset="UTF-8">
   <title>ONEQCU | Admin Users Management</title>
-  <link rel="stylesheet" href="../../styles/admin/admin-users.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-base.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-sidebar.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-layout.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-toast.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-table.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-modal.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-users.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -23,8 +29,11 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">USERS MANAGEMENT</h1>
         <p class="page-sub">Manage system users and their roles</p>
       </div>
-      <div class="topbar-actions">
-        <button class="add-btn" onclick="openModal('addUserModal')">+ Add User</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="add-btn" onclick="openModal('addUserModal')">+ Add User</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 

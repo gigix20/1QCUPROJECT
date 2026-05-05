@@ -46,7 +46,13 @@ var REPORT_ROUTE_MAP = {
 
 var DEPT_REPORTS = [
   'Certified Assets Report',
-  'Asset by Department'
+  'Asset by Department',
+  'Complete Asset Inventory',
+  'Asset Status Report',
+  'Maintenance Report',
+  'Borrowing Activity Report',
+  'Asset Utilization Report',
+  'Overdue Items Report'
 ];
 
 var SCOPE_REPORTS = [

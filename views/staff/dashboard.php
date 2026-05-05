@@ -16,6 +16,7 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-modal.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/staff/staff-stats.css">
 
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/notifications.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -31,6 +32,9 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
       <div>
         <h1 class="page-title">DASHBOARD</h1>
         <p class="page-sub">Welcome back! Here's what's happening today.</p>
+      </div>
+      <div class="header">
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 
@@ -173,6 +177,5 @@ require_once __DIR__ . '/../../backend/middleware/requireStaff.php';
   
   <script src="../../scripts/staff/dashboard/staff-dashboard.js"></script>
   <script src="../../scripts/staff/dashboard/staff-dashboard-init.js"></script>
-</body>
-
+  <script src="../../scripts/notifications.js"></script>
 </html>

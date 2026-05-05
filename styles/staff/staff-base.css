@@ -22,3 +22,24 @@ html {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
+
+html, body {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+input, textarea, select, button {
+  min-width: 0;
+  max-width: 100%;
+}
+
+img, svg, video, iframe, table {
+  max-width: 100%;
+  height: auto;
+}
+
+* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}

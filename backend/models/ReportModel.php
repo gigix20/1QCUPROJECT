@@ -93,9 +93,11 @@ class ReportModel
 
     // ── FLAT-ROW QUERIES (used by controller outputReport) ────────────────────
 
-    public function getCompleteInventory(string $month = '', string $year = ''): array
+    public function getCompleteInventory(string $deptId = '', string $month = '', string $year = ''): array
     {
-        $f    = $this->monthYearClause('TO_CHAR(a.created_at,\'YYYY-MM-DD\')', $month, $year);
+        $f  = $this->monthYearClause('TO_CHAR(a.created_at,\'YYYY-MM-DD\')', $month, $year);
+        $df = $deptId ? ' AND a.department_id = :dept_id' : '';
+
         $stmt = $this->conn->prepare(
             "SELECT a.asset_id, a.description, a.serial_number, a.location,
                     a.status, a.is_certified,
@@ -108,25 +110,29 @@ class ReportModel
              LEFT JOIN tbl_departments  d  ON d.department_id = a.department_id
              LEFT JOIN tbl_item_types   it ON it.item_type_id = a.item_type_id
              LEFT JOIN tbl_custodians   cu ON cu.custodian_id = a.custodian_id
-             WHERE a.is_deleted = 0{$f}
+             WHERE a.is_deleted = 0{$f}{$df}
              ORDER BY d.department_name, a.asset_id"
         );
+        if ($deptId) $stmt->bindValue(':dept_id', $deptId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAssetStatusRows(string $month = '', string $year = ''): array
+    public function getAssetStatusRows(string $deptId = '', string $month = '', string $year = ''): array
     {
-        $f    = $this->monthYearClause('TO_CHAR(a.updated_at,\'YYYY-MM-DD\')', $month, $year);
+        $f  = $this->monthYearClause('TO_CHAR(a.updated_at,\'YYYY-MM-DD\')', $month, $year);
+        $df = $deptId ? ' AND a.department_id = :dept_id' : '';
+
         $stmt = $this->conn->prepare(
             "SELECT a.asset_id, a.description, d.department_name,
                     a.status,
                     TO_CHAR(a.updated_at,'YYYY-MM-DD HH24:MI') AS updated_at
              FROM tbl_assets a
              LEFT JOIN tbl_departments d ON d.department_id = a.department_id
-             WHERE a.is_deleted = 0{$f}
-             ORDER BY a.status, d.department_name"
+             WHERE a.is_deleted = 0{$f}{$df}
+             ORDER BY d.department_name, a.status"
         );
+        if ($deptId) $stmt->bindValue(':dept_id', $deptId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -153,9 +159,10 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getOverdueItemRows(string $scope = 'all', string $month = '', string $year = ''): array
+    public function getOverdueItemRows(string $scope = 'all', string $deptId = '', string $month = '', string $year = ''): array
     {
         $f    = $this->monthYearClause('b.due_date', $month, $year);
+        $df   = $deptId ? ' AND b.department_id = :dept_id' : '';
         $rows = [];
 
         if (in_array($scope, ['all', 'borrows'])) {
@@ -170,9 +177,10 @@ class ReportModel
                  FROM tbl_borrows b
                  LEFT JOIN tbl_departments d ON d.department_id = b.department_id
                  WHERE b.status IN ('Overdue','Borrowed')
-                   AND b.due_date < TO_CHAR(SYSDATE,'YYYY-MM-DD'){$f}
-                 ORDER BY b.due_date"
+                   AND b.due_date < TO_CHAR(SYSDATE,'YYYY-MM-DD'){$f}{$df}
+                 ORDER BY d.department_name, b.due_date"
             );
+            if ($deptId) $stmt->bindValue(':dept_id', $deptId);
             $stmt->execute();
             $rows = array_merge($rows, $stmt->fetchAll(PDO::FETCH_ASSOC));
         }
@@ -189,9 +197,10 @@ class ReportModel
                  FROM tbl_borrows b
                  LEFT JOIN tbl_departments d ON d.department_id = b.department_id
                  WHERE b.status = 'Returned'
-                   AND b.return_date > b.due_date{$f}
-                 ORDER BY b.due_date"
+                   AND b.return_date > b.due_date{$f}{$df}
+                 ORDER BY d.department_name, b.due_date"
             );
+            if ($deptId) $stmt->bindValue(':dept_id', $deptId);
             $stmt->execute();
             $rows = array_merge($rows, $stmt->fetchAll(PDO::FETCH_ASSOC));
         }
@@ -199,21 +208,27 @@ class ReportModel
         return $rows;
     }
 
-    public function getMaintenanceRows(string $month = '', string $year = ''): array
+    public function getMaintenanceRows(string $deptId = '', string $month = '', string $year = ''): array
     {
-        $f    = $this->monthYearClause('m.scheduled_date', $month, $year);
+        $f  = $this->monthYearClause('m.scheduled_date', $month, $year);
+        $df = $deptId ? ' AND a.department_id = :dept_id' : '';
+
         $stmt = $this->conn->prepare(
             "SELECT m.maintenance_id, m.asset_id,
                     mt.type_name,
                     m.issue_description,
                     m.tech_first_name||' '||m.tech_last_name AS technician,
+                    d.department_name,
                     m.scheduled_date, m.completed_date,
                     m.status, m.notes
              FROM tbl_maintenance m
              LEFT JOIN tbl_maintenance_types mt ON mt.type_id = m.type_id
-             WHERE 1=1{$f}
-             ORDER BY m.scheduled_date DESC"
+             LEFT JOIN tbl_assets a ON a.asset_id = m.asset_id
+             LEFT JOIN tbl_departments d ON d.department_id = a.department_id
+             WHERE 1=1{$f}{$df}
+             ORDER BY d.department_name, m.scheduled_date DESC"
         );
+        if ($deptId) $stmt->bindValue(':dept_id', $deptId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -241,9 +256,11 @@ class ReportModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getBorrowingActivityRows(string $month = '', string $year = ''): array
+    public function getBorrowingActivityRows(string $deptId = '', string $month = '', string $year = ''): array
     {
-        $f    = $this->monthYearClause('b.borrow_date', $month, $year);
+        $f  = $this->monthYearClause('b.borrow_date', $month, $year);
+        $df = $deptId ? ' AND b.department_id = :dept_id' : '';
+
         $stmt = $this->conn->prepare(
             "SELECT * FROM (
                SELECT b.borrow_id, b.asset_id,
@@ -253,18 +270,20 @@ class ReportModel
                       b.status, b.purpose
                FROM tbl_borrows b
                JOIN tbl_departments d ON d.department_id = b.department_id
-               WHERE 1=1{$f}
-               ORDER BY b.borrow_date DESC
+               WHERE 1=1{$f}{$df}
+               ORDER BY d.department_name, b.borrow_date DESC
              ) WHERE ROWNUM <= 200"
         );
+        if ($deptId) $stmt->bindValue(':dept_id', $deptId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAssetUtilizationRows(string $month = '', string $year = ''): array
+    public function getAssetUtilizationRows(string $deptId = '', string $month = '', string $year = ''): array
     {
         $f      = $this->monthYearClause('b.borrow_date', $month, $year);
         $bWhere = $f ? ('WHERE 1=1' . $f) : '';
+        $df     = $deptId ? ' AND a.department_id = :dept_id' : '';
 
         $stmt = $this->conn->prepare(
             "SELECT a.asset_id, a.description,
@@ -282,9 +301,10 @@ class ReportModel
                  SELECT asset_id, COUNT(*) AS maint_count
                  FROM tbl_maintenance GROUP BY asset_id
              ) mstat ON mstat.asset_id = a.asset_id
-             WHERE a.is_deleted = 0
-             ORDER BY borrow_count DESC, a.asset_id"
+             WHERE a.is_deleted = 0{$df}
+             ORDER BY d.department_name, borrow_count DESC, a.asset_id"
         );
+        if ($deptId) $stmt->bindValue(':dept_id', $deptId);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

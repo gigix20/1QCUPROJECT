@@ -85,10 +85,18 @@ class BorrowModel {
     $stmt->bindParam(':purpose',       $data['purpose']);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+
+    // Get the inserted borrow ID
+    $stmt = $this->conn->prepare("SELECT borrow_seq.CURRVAL FROM dual");
+    $stmt->execute();
+    $borrowId = $stmt->fetchColumn();
+
     logAudit($this->conn, 'BORROW', 'Borrows',
         'Borrow request created for asset ' . $data['asset_id']
         . ' by ' . $data['last_name'] . ', ' . $data['first_name'],
         $data['asset_id']);
+
+    return $borrowId;
   }
 
   // GET BORROWS BY IDS (for filtered export)

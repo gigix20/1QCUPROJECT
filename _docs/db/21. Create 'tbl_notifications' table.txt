@@ -1,0 +1,39 @@
+-- Create sequence for notifications
+CREATE SEQUENCE notifications_seq
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE;
+
+-- Create notifications table
+CREATE TABLE tbl_notifications (
+  notification_id NUMBER(11) PRIMARY KEY,
+  user_id NUMBER(11) NOT NULL,
+  title VARCHAR2(255) NOT NULL,
+  message CLOB NOT NULL,
+  type VARCHAR2(50) NOT NULL, -- 'info', 'warning', 'success', 'error'
+  priority VARCHAR2(20) DEFAULT 'normal', -- 'low', 'normal', 'high', 'urgent'
+  is_read NUMBER(1) DEFAULT 0,
+  related_entity_type VARCHAR2(50), -- 'asset', 'borrow', 'maintenance', etc.
+  related_entity_id NUMBER(11),
+  action_url VARCHAR2(500), -- URL to redirect when clicked
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Index for performance
+CREATE INDEX idx_notifications_user_id ON tbl_notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON tbl_notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON tbl_notifications(created_at);
+
+-- Trigger for auto-increment
+CREATE OR REPLACE TRIGGER notifications_before_insert
+BEFORE INSERT ON tbl_notifications
+FOR EACH ROW
+BEGIN
+  IF :NEW.notification_id IS NULL THEN
+    SELECT notifications_seq.NEXTVAL INTO :NEW.notification_id FROM dual;
+  END IF;
+  :NEW.created_at := CURRENT_TIMESTAMP;
+END;
+/

@@ -31,9 +31,12 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">ASSETS</h1>
         <p class="page-sub">Manage and track all of the ONEQCU assets</p>
       </div>
-      <div class="topbar-actions">
-        <button class="outline-btn" id="exportBtn">EXPORT</button>
-        <button class="add-btn" id="assetsOpenModalBtn">+ ADD ASSET</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="outline-btn" id="exportBtn">EXPORT</button>
+          <button class="add-btn" id="assetsOpenModalBtn">+ ADD ASSET</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 

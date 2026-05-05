@@ -1,7 +1,6 @@
 <?php
-// backend/routes/maintenance_route.php
+// Debug endpoint to test notifications without auth
 
-date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Pragma: no-cache');
@@ -36,33 +35,13 @@ set_exception_handler(function($exception) {
 
 try {
     require_once __DIR__ . '/../config/database.php';
-    require_once __DIR__ . '/../helpers/ResponseHelper.php';
-    require_once __DIR__ . '/../models/MaintenanceModel.php';
-    require_once __DIR__ . '/../controllers/MaintenanceController.php';
-    require_once __DIR__ . '/../controllers/MaintenanceExportController.php';
-    require_once __DIR__ . '/../middleware/requireApiAuth.php';
-
-    $resource = $_GET['resource'] ?? $_POST['resource'] ?? 'maintenance';
-
-    switch ($resource) {
-      case 'maintenance':
-        $controller = new MaintenanceController($conn);
-        $controller->handleRequest();
-        break;
-
-      case 'maintenance_types':
-        $model = new MaintenanceModel($conn);
-        ResponseHelper::sendSuccess($model->getMaintenanceTypes());
-        break;
-
-      case 'maintenance_export':
-        $controller = new MaintenanceExportController($conn);
-        $controller->handleRequest();
-        break;
-
-      default:
-        ResponseHelper::sendError(404, 'Resource not found.');
-    }
+    
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Database connection OK',
+        'has_session' => isset($_SESSION['user_id']),
+        'session_user_id' => $_SESSION['user_id'] ?? null
+    ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([

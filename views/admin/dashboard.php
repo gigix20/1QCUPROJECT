@@ -18,7 +18,9 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-modal.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-stats.css">
   <link rel="stylesheet" href="/1QCUPROJECT/styles/admin/admin-dashboard.css">
+  <link rel="stylesheet" href="/1QCUPROJECT/styles/notifications.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/1QCUPROJECT/scripts/notifications.js"></script>
 </head>
 
 <body>
@@ -32,6 +34,9 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
       <div>
         <h1 class="page-title">DASHBOARD</h1>
         <p class="page-sub">Welcome back! Here's what's happening today.</p>
+      </div>
+      <div class="header">
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 
