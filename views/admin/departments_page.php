@@ -34,6 +34,9 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">DEPARTMENTS & CUSTODIANS</h1>
         <p class="page-sub">Manage university departments and their property custodians</p>
       </div>
+      <div class="header">
+        <!-- Notification system will be inserted here by JavaScript -->
+      </div>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════

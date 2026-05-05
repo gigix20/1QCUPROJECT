@@ -30,9 +30,12 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">MAINTENANCE</h1>
         <p class="page-sub">Track and manage asset maintenance records</p>
       </div>
-      <div class="topbar-actions">
-        <button class="outline-btn" id="maintExportBtn">EXPORT</button>
-        <button class="add-btn" id="maintOpenModalBtn">+ New Request</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="outline-btn" id="maintExportBtn">EXPORT</button>
+          <button class="add-btn" id="maintOpenModalBtn">+ New Request</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 

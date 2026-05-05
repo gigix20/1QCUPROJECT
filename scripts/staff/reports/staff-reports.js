@@ -42,7 +42,11 @@ var REPORT_ROUTE_MAP = {
 };
 
 var DEPT_REPORTS = [
-  'Certified Assets Report'
+  'Certified Assets Report',
+  'Complete Asset Inventory',
+  'Asset Status Report',
+  'Maintenance Report',
+  'Overdue Items Report'
 ];
 
 var SCOPE_REPORTS = [

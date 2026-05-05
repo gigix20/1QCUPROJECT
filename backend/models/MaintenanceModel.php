@@ -82,11 +82,19 @@ class MaintenanceModel {
     $stmt->bindParam(':notes',             $data['notes']);
     $stmt->execute();
     $this->conn->exec("COMMIT");
+
+    // Get the inserted maintenance ID
+    $stmt = $this->conn->prepare("SELECT maint_seq.CURRVAL FROM dual");
+    $stmt->execute();
+    $maintenanceId = $stmt->fetchColumn();
+
     logAudit($this->conn, 'MAINTENANCE_ADD', 'Maintenance',
         'Maintenance scheduled for asset ' . $data['asset_id']
         . ': ' . $data['issue_description'],
         $data['asset_id']);
     $this->updateAssetStatus($data['asset_id'], 'Maintenance');
+
+    return $maintenanceId;
   }
  
   // UPDATE MAINTENANCE STATUS 

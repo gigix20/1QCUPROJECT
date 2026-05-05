@@ -85,7 +85,10 @@ class ReportController
     public function exportAssetComplete(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
-        $rows = $this->model->getCompleteInventory($month, $year);
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
+
+        $rows = $this->model->getCompleteInventory($deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Complete Asset Inventory');
 
@@ -93,20 +96,25 @@ class ReportController
             ['ASSET_ID', 'DESCRIPTION', 'CATEGORY_NAME', 'DEPARTMENT_NAME',
              'ITEM_TYPE_NAME', 'STATUS', 'IS_CERTIFIED', 'SERIAL_NUMBER', 'LOCATION', 'CUSTODIAN', 'CREATED_AT'],
             ['Asset ID', 'Description', 'Category', 'Department',
-             'Type', 'Status', 'Certified', 'Serial No.', 'Location', 'Custodian', 'Date Added']
+             'Type', 'Status', 'Certified', 'Serial No.', 'Location', 'Custodian', 'Date Added'],
+            ['subtitle' => $deptName]
         );
     }
 
     public function exportAssetStatus(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
-        $rows = $this->model->getAssetStatusRows($month, $year);
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
+
+        $rows = $this->model->getAssetStatusRows($deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Asset Status Report');
 
         $this->outputReport('Asset Status Report', $month, $year, $rows,
             ['ASSET_ID', 'DESCRIPTION', 'DEPARTMENT_NAME', 'STATUS', 'UPDATED_AT'],
-            ['Asset ID', 'Description', 'Department', 'Status', 'Last Updated']
+            ['Asset ID', 'Description', 'Department', 'Status', 'Last Updated'],
+            ['subtitle' => $deptName]
         );
     }
 
@@ -130,32 +138,37 @@ class ReportController
     public function exportOverdueItems(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
-        $scope = trim($_GET['scope'] ?? 'all');
+        $scope    = trim($_GET['scope']    ?? 'all');
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
 
-        $rows = $this->model->getOverdueItemRows($scope, $month, $year);
+        $rows = $this->model->getOverdueItemRows($scope, $deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Overdue Items Report');
 
         $this->outputReport('Overdue Items Report', $month, $year, $rows,
             ['REF_ID', 'ASSET_ID', 'TYPE', 'BORROWER', 'DEPARTMENT_NAME', 'BORROW_DATE', 'DUE_DATE', 'STATUS'],
             ['Ref #', 'Asset ID', 'Type', 'Borrower', 'Department', 'Borrow Date', 'Due Date', 'Status/Return Date'],
-            ['subtitle' => 'Scope: ' . ucfirst($scope)]
+            ['subtitle' => 'Scope: ' . ucfirst($scope) . ' | ' . $deptName]
         );
     }
 
     public function exportMaintenanceReport(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
 
-        $rows = $this->model->getMaintenanceRows($month, $year);
+        $rows = $this->model->getMaintenanceRows($deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Maintenance Report');
 
         $this->outputReport('Maintenance Report', $month, $year, $rows,
             ['MAINTENANCE_ID', 'ASSET_ID', 'TYPE_NAME', 'ISSUE_DESCRIPTION',
-             'TECHNICIAN', 'SCHEDULED_DATE', 'COMPLETED_DATE', 'STATUS', 'NOTES'],
-            ['ID', 'Asset ID', 'Type', 'Issue', 'Technician',
-             'Scheduled', 'Completed', 'Status', 'Notes']
+             'TECHNICIAN', 'DEPARTMENT_NAME', 'SCHEDULED_DATE', 'COMPLETED_DATE', 'STATUS', 'NOTES'],
+            ['ID', 'Asset ID', 'Type', 'Issue', 'Technician', 'Department',
+             'Scheduled', 'Completed', 'Status', 'Notes'],
+            ['subtitle' => $deptName]
         );
     }
 
@@ -179,8 +192,10 @@ class ReportController
     public function exportBorrowingActivity(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
 
-        $rows = $this->model->getBorrowingActivityRows($month, $year);
+        $rows = $this->model->getBorrowingActivityRows($deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Borrowing Activity Report');
 
@@ -188,21 +203,25 @@ class ReportController
             ['BORROW_ID', 'ASSET_ID', 'BORROWER', 'DEPARTMENT_NAME',
              'BORROW_DATE', 'DUE_DATE', 'RETURN_DATE', 'STATUS', 'PURPOSE'],
             ['ID', 'Asset ID', 'Borrower', 'Department',
-             'Borrow Date', 'Due Date', 'Return Date', 'Status', 'Purpose']
+             'Borrow Date', 'Due Date', 'Return Date', 'Status', 'Purpose'],
+            ['subtitle' => $deptName]
         );
     }
 
     public function exportAssetUtilization(): void
     {
         ['month' => $month, 'year' => $year] = $this->getMonthYear();
+        $deptId   = trim($_GET['dept_id']   ?? '');
+        $deptName = trim($_GET['dept_name'] ?? 'All Departments');
 
-        $rows = $this->model->getAssetUtilizationRows($month, $year);
+        $rows = $this->model->getAssetUtilizationRows($deptId, $month, $year);
 
         logAudit($this->conn, 'REPORT_GENERATED', 'Reports', 'Generated: Asset Utilization Report');
 
         $this->outputReport('Asset Utilization Report', $month, $year, $rows,
             ['ASSET_ID', 'DESCRIPTION', 'DEPARTMENT_NAME', 'STATUS', 'BORROW_COUNT', 'MAINT_COUNT'],
-            ['Asset ID', 'Description', 'Department', 'Status', 'Times Borrowed', 'Maintenance Count']
+            ['Asset ID', 'Description', 'Department', 'Status', 'Times Borrowed', 'Maintenance Count'],
+            ['subtitle' => $deptName]
         );
     }
 

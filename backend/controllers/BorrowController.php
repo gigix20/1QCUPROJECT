@@ -2,13 +2,16 @@
 // backend/controllers/BorrowController.php
 
 require_once __DIR__ . '/../models/BorrowModel.php';
+require_once __DIR__ . '/../services/NotificationService.php';
 require_once __DIR__ . '/../helpers/ResponseHelper.php';
 
 class BorrowController {
   private $model;
+  private $notificationService;
 
   public function __construct($conn) {
     $this->model = new BorrowModel($conn);
+    $this->notificationService = new NotificationService($conn);
   }
 
 
@@ -105,7 +108,7 @@ class BorrowController {
       return;
     }
 
-    $this->model->addBorrow([
+    $borrowId = $this->model->addBorrow([
       'asset_id'      => $asset_id,
       'department_id' => $department_id,
       'first_name'    => $first_name,
@@ -116,6 +119,9 @@ class BorrowController {
       'due_date'      => $due_date,
       'purpose'       => $purpose,
     ]);
+
+    // Create notification for admins about new borrow request
+    $this->notificationService->notifyBorrowRequest($borrowId);
 
     ResponseHelper::sendSuccess(null, 'Borrow request submitted successfully.');
   }

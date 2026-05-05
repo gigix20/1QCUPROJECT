@@ -78,3 +78,47 @@
   border-color: #7c3aed;
   color: #7c3aed;
 }
+
+.main {
+  transition: margin-left 0.2s ease, padding 0.2s ease;
+}
+
+.search-input {
+  max-width: 100%;
+}
+
+.add-btn,
+.outline-btn {
+  max-width: 100%;
+}
+
+@media (max-width: 1000px) {
+  .main {
+    margin-left: 0;
+    padding: 24px 20px;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .main {
+    padding: 20px 16px;
+  }
+
+  .page-title {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  }
+
+  .page-sub {
+    font-size: 0.95rem;
+  }
+}

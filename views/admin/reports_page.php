@@ -30,8 +30,11 @@ require_once __DIR__ . '/../../backend/middleware/requireAdmin.php';
         <h1 class="page-title">REPORTS &amp; ANALYTICS</h1>
         <p class="page-sub">Generate comprehensive asset reports</p>
       </div>
-      <div class="topbar-actions">
-        <button class="add-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
+      <div class="header">
+        <div class="topbar-actions">
+          <button class="add-btn" id="scheduleReportBtn">SCHEDULE REPORT</button>
+        </div>
+        <!-- Notification system will be inserted here by JavaScript -->
       </div>
     </div>
 
